@@ -99,7 +99,7 @@ function buildParcelQuery(bbox) {
     geometryType:    'esriGeometryEnvelope',
     inSR:            '4326',
     spatialRel:      'esriSpatialRelIntersects',
-    outFields:       'objectid,parcel_id,state_parcel_id,prop_add,prop_city,prop_zip,dlgf_prop_class_code,latitude,longitude',
+    outFields:       'parcel_id,prop_add,prop_city,prop_zip,dlgf_prop_class_code,state_parcel_id,latitude,longitude',
     returnGeometry:  'true',
     outSR:           '4326',
     resultRecordCount: '2000',
@@ -169,11 +169,10 @@ async function _fetchOneTile(bbox) {
     clearTimeout(timer);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    if (data && Array.isArray(data.features)) {
-      if (data.features.length > 0) {
-        _renderChunked(data.features, 0, 60);
-      }
-      apiErrorCount = 0; // API responded — not an error
+    if (data && Array.isArray(data.features) && data.features.length > 0) {
+      // Render in non-blocking chunks — never block the main thread
+      _renderChunked(data.features, 0, 60);
+      apiErrorCount = 0;
     }
   } catch(e) {
     if (e.name !== 'AbortError') {
@@ -210,7 +209,7 @@ function _renderChunked(features, startIdx, chunkSize) {
 function _buildParcelLayer(feature) {
   if (!feature || !feature.geometry) return null;
   const props = feature.properties || {};
-  const pid   = (props.state_parcel_id || props.parcel_id || String(props.objectid || props.OBJECTID || Math.random().toString(36).slice(2,10))).toString();
+  const pid   = (props.parcel_id || props.state_parcel_id || '').toString();
   if (pid && loadedParcelIds.has(pid)) return null;
   if (pid) loadedParcelIds.add(pid);
 
