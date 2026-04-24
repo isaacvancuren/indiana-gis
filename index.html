@@ -156,7 +156,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 }
 .li:hover{background:var(--panel2);}
 .li input[type=checkbox]{accent-color:var(--accent);cursor:pointer;width:13px;height:13px;flex-shrink:0;}
-.li .swatch{width:14px;height:12px;border-radius:2px;flex-shrink:0;}
+.li .li-icon{width:13px;font-size:9px;text-align:center;flex-shrink:0;opacity:0.6;transition:opacity .15s;}
 .li .ln{flex:1;font-size:11.5px;color:var(--text);}
 .opacity-wrap{display:flex;align-items:center;gap:6px;padding:2px 10px 4px 36px;}
 .opacity-wrap label{font-size:10px;color:var(--text3);width:50px;}
@@ -583,7 +583,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .li-eye.off{color:var(--text3);opacity:.4;}
 
 /* active layer indicator dot */
-.li.layer-on .swatch{box-shadow:0 0 0 2px var(--accent);}
+.li.layer-on .li-icon{opacity:1;filter:drop-shadow(0 0 3px currentColor);}
 .li.layer-on .ln{color:var(--accent2);}
 
 /* filter strip */
@@ -883,10 +883,10 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
           <i class="fas fa-chevron-right arr"></i>
         </div>
         <div class="lgitems open">
-          <div class="li" id="li-parcels"><input type="checkbox" id="lc-parcels" checked onchange="toggleLyr('parcels',this)"><div class="swatch" style="background:#f59e0b;border:1px solid #d97706;"></div><span class="ln">Parcel Boundaries (IGIO)</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="100" oninput="setLyrOpac('parcels',this)"><span class="li-opac-val">100%</span></div></div>
-          <div class="li" id="li-flood"><input type="checkbox" id="lc-flood" onchange="toggleLyr('flood',this)"><div class="swatch" style="background:rgba(59,130,246,.45);border:1px solid #2563eb;"></div><span class="ln">FEMA Floodplain (Live)</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="55" oninput="setLyrOpac('flood',this)"><span class="li-opac-val">55%</span></div></div>
-          <div class="li"><input type="checkbox" id="lc-imagery" onchange="toggleLyr('imagery',this)"><div class="swatch" style="background:linear-gradient(135deg,#374151,#6b7280);"></div><span class="ln">Esri World Imagery</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="85" oninput="setLyrOpac('imagery',this)"><span class="li-opac-val">85%</span></div></div>
-          <div class="li"><input type="checkbox" id="lc-imagery-labels" onchange="toggleLyr('imagery-labels',this)"><div class="swatch" style="background:rgba(55,65,81,.5);border:1px dashed #9ca3af;"></div><span class="ln">Imagery Labels Overlay</span></div>
+          <div class="li" id="li-parcels"><input type="checkbox" id="lc-parcels" checked onchange="toggleLyr('parcels',this)"><i class="fas fa-draw-polygon li-icon" style="color:#f59e0b;"></i><span class="ln">Parcel Boundaries (IGIO)</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="100" oninput="setLyrOpac('parcels',this)"><span class="li-opac-val">100%</span></div></div>
+          <div class="li" id="li-flood"><input type="checkbox" id="lc-flood" onchange="toggleLyr('flood',this)"><i class="fas fa-water li-icon" style="color:#38bdf8;"></i><span class="ln">FEMA Floodplain (Live)</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="55" oninput="setLyrOpac('flood',this)"><span class="li-opac-val">55%</span></div></div>
+          <div class="li"><input type="checkbox" id="lc-imagery" onchange="toggleLyr('imagery',this)"><i class="fas fa-satellite li-icon" style="color:#94a3b8;"></i><span class="ln">Esri World Imagery</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="85" oninput="setLyrOpac('imagery',this)"><span class="li-opac-val">85%</span></div></div>
+          <div class="li"><input type="checkbox" id="lc-imagery-labels" onchange="toggleLyr('imagery-labels',this)"><i class="fas fa-font li-icon" style="color:#9ca3af;"></i><span class="ln">Imagery Labels Overlay</span></div>
         </div>
       </div>
 
@@ -3389,17 +3389,17 @@ async function buildCountyLayerPanel(cKey) {
 
   const ts = Date.now();
   const swatchColors = {
-    parcels:'background:rgba(245,158,11,.2);border:1px solid #d97706;',
-    annotations:'background:rgba(148,163,184,.15);border:1px solid #64748b;',
-    zoning:'background:rgba(234,179,8,.25);border:1px solid #ca8a04;',
-    hydrology:'background:rgba(56,189,248,.25);border:1px solid #0891b2;',
-    transportation:'background:rgba(148,163,184,.2);border:1px solid #64748b;',
-    districts:'background:rgba(96,165,250,.2);border:1px solid #3b82f6;',
-    civic:'background:rgba(251,191,36,.15);border:1px dashed #ca8a04;',
-    poi:'background:rgba(244,114,182,.2);border:1px solid #ec4899;',
-    utility:     'background:rgba(250,204,21,.2);border:1px solid #ca8a04;',
-    environment: 'background:rgba(74,222,128,.15);border:1px solid #16a34a;',
-    other:       'background:rgba(167,139,250,.15);border:1px solid #7c3aed;',
+    parcels:      {icon:'fa-draw-polygon',  color:'#f59e0b'},
+    annotations:  {icon:'fa-pen-ruler',     color:'#94a3b8'},
+    zoning:       {icon:'fa-map',           color:'#eab308'},
+    hydrology:    {icon:'fa-water',         color:'#38bdf8'},
+    transportation:{icon:'fa-road',         color:'#94a3b8'},
+    districts:    {icon:'fa-flag',          color:'#60a5fa'},
+    civic:        {icon:'fa-landmark',      color:'#fbbf24'},
+    poi:          {icon:'fa-location-dot',  color:'#f472b6'},
+    utility:      {icon:'fa-bolt',          color:'#facc15'},
+    environment:  {icon:'fa-leaf',          color:'#4ade80'},
+    other:        {icon:'fa-layer-group',   color:'#a78bfa'},
   };
 
   let panelHtml = '';
@@ -3417,7 +3417,7 @@ async function buildCountyLayerPanel(cKey) {
       gisLayers[key] = tl;
       const sw   = swatchColors[lyr.cat] || swatchColors.other;
       const safe = lyr.name.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
-      panelHtml += `<div class="li"><input type="checkbox" id="cb-${key}" onchange="toggleLyr('${key}',this)"><div class="swatch" style="${sw}"></div><span class="ln">${safe}</span></div>`;
+      panelHtml += `<div class="li"><input type="checkbox" id="cb-${key}" onchange="toggleLyr('${key}',this)"><i class="fas ${sw.icon} li-icon" style="color:${sw.color};"></i><span class="ln">${safe}</span></div>`;
     });
     panelHtml += '</div></div>';
   });
