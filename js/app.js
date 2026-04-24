@@ -1656,18 +1656,18 @@ async function buildCountyLayerPanel(cKey) {
   });
 
   const ts = Date.now();
-  const swatchColors = {
-    parcels:'background:rgba(245,158,11,.2);border:1px solid #d97706;',
-    annotations:'background:rgba(148,163,184,.15);border:1px solid #64748b;',
-    zoning:'background:rgba(234,179,8,.25);border:1px solid #ca8a04;',
-    hydrology:'background:rgba(56,189,248,.25);border:1px solid #0891b2;',
-    transportation:'background:rgba(148,163,184,.2);border:1px solid #64748b;',
-    districts:'background:rgba(96,165,250,.2);border:1px solid #3b82f6;',
-    civic:'background:rgba(251,191,36,.15);border:1px dashed #ca8a04;',
-    poi:'background:rgba(244,114,182,.2);border:1px solid #ec4899;',
-    utility:     'background:rgba(250,204,21,.2);border:1px solid #ca8a04;',
-    environment: 'background:rgba(74,222,128,.15);border:1px solid #16a34a;',
-    other:       'background:rgba(167,139,250,.15);border:1px solid #7c3aed;',
+  const swatchIcons = {
+    parcels:      {icon:'fa-draw-polygon',  color:'#f59e0b'},
+    annotations:  {icon:'fa-pen-ruler',     color:'#94a3b8'},
+    zoning:       {icon:'fa-map',           color:'#eab308'},
+    hydrology:    {icon:'fa-water',         color:'#38bdf8'},
+    transportation:{icon:'fa-road',         color:'#94a3b8'},
+    districts:    {icon:'fa-flag',          color:'#60a5fa'},
+    civic:        {icon:'fa-landmark',      color:'#fbbf24'},
+    poi:          {icon:'fa-location-dot',  color:'#f472b6'},
+    utility:      {icon:'fa-bolt',          color:'#facc15'},
+    environment:  {icon:'fa-leaf',          color:'#4ade80'},
+    other:        {icon:'fa-layer-group',   color:'#a78bfa'},
   };
 
   let panelHtml = '';
@@ -1683,9 +1683,9 @@ async function buildCountyLayerPanel(cKey) {
       const tl   = new ArcGISCountyLayer(ids, 0.75, svc);
       tl._ts = ts;
       gisLayers[key] = tl;
-      const sw   = swatchColors[lyr.cat] || swatchColors.other;
+      const sw   = swatchIcons[lyr.cat] || swatchIcons.other;
       const safe = lyr.name.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
-      panelHtml += `<div class="li"><input type="checkbox" id="cb-${key}" onchange="toggleLyr('${key}',this)"><div class="swatch" style="${sw}"></div><span class="ln">${safe}</span></div>`;
+      panelHtml += `<div class="li"><input type="checkbox" id="cb-${key}" onchange="toggleLyr('${key}',this)"><i class="fas ${sw.icon} li-icon" style="color:${sw.color};"></i><span class="ln">${safe}</span></div>`;
     });
     panelHtml += '</div></div>';
   });
