@@ -1,4 +1,4 @@
-# IndianaGIS — Universal Mapping Platform
+# Mapnova — Universal Mapping Platform
 
 A comprehensive GIS mapping platform covering all 92 Indiana counties with parcel data, owner information, and property record cards.
 

@@ -3,7 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>IndianaGIS — Universal Mapping Platform</title>
+<title>Mapnova — Universal Mapping Platform</title>
+<meta name="application-name" content="Mapnova">
+<meta name="description" content="Mapnova — Universal GIS mapping platform. Explore parcels, layers, zoning, flood zones, imagery and more for any location.">
+<meta name="keywords" content="Mapnova, GIS, mapping, parcels, land data, zoning, aerial imagery, property search">
+<meta name="author" content="Mapnova">
+<meta name="theme-color" content="#0a0e14">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mapnova — Universal Mapping Platform">
+<meta property="og:description" content="Explore parcels, layers, zoning, flood zones, and aerial imagery for any location worldwide.">
+<meta property="og:site_name" content="Mapnova">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mapnova — Universal Mapping Platform">
+<meta name="twitter:description" content="Explore parcels, layers, zoning, flood zones, and aerial imagery for any location worldwide.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mapnova">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -688,7 +704,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
       </svg>
     </div>
     <div>
-      <div class="logo-text">Indiana<span>GIS</span></div>
+      <div class="logo-text">Map<span>nova</span></div>
       <div class="logo-sub">Universal Mapping Platform</div>
     </div>
   </div>
@@ -822,7 +838,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <button class="hbtn" onclick="toggleRight()" title="Toggle Analytics Panel">
       <i class="fas fa-chart-column"></i><span class="hl">Analytics</span>
     </button>
-    <button class="hbtn hbtn-accent" onclick="openModal('about-modal')" title="About IndianaGIS">
+    <button class="hbtn hbtn-accent" onclick="openModal('about-modal')" title="About Mapnova">
       <i class="fas fa-circle-info"></i>
     </button>
   </div>
@@ -1284,7 +1300,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <span class="sbar-sep"></span>
     <span id="county-disp"><i class="fas fa-map" style="margin-right:4px;"></i>Bartholomew County</span>
     <span id="sel-info"></span>
-    <span style="margin-left:auto;font-size:10px;color:var(--text3);">IndianaGIS v10.0 · 57 counties with owner data · All 92 Indiana Counties</span>
+    <span style="margin-left:auto;font-size:10px;color:var(--text3);">Mapnova v10.0 · 57 counties with owner data · All 92 Indiana Counties</span>
   </div>
 
   <!-- Loading -->
@@ -1422,9 +1438,9 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 <!-- About -->
 <div class="moverlay" id="about-modal" onclick="overlayClick(event,this)">
 <div class="modal">
-  <div class="mhdr"><div class="mhdr-icon"><i class="fas fa-circle-info"></i></div><div class="mhdr-title">About IndianaGIS</div><button class="mclose" onclick="closeModal('about-modal')"><i class="fas fa-xmark"></i></button></div>
+  <div class="mhdr"><div class="mhdr-icon"><i class="fas fa-circle-info"></i></div><div class="mhdr-title">About Mapnova</div><button class="mclose" onclick="closeModal('about-modal')"><i class="fas fa-xmark"></i></button></div>
   <div class="mbody">
-    <p style="color:var(--text2);font-size:13px;line-height:1.8;margin-bottom:14px;">IndianaGIS is a universal GIS mapping platform pulling <strong style="color:var(--accent);">live data</strong> directly from Bartholomew County's official GIS server — the same source that powers Beacon/ElevateMaps — combined with statewide Indiana parcel, assessment, and spatial data.</p>
+    <p style="color:var(--text2);font-size:13px;line-height:1.8;margin-bottom:14px;">Mapnova is a universal GIS mapping platform pulling <strong style="color:var(--accent);">live data</strong> directly from Bartholomew County's official GIS server — the same source that powers Beacon/ElevateMaps — combined with statewide Indiana parcel, assessment, and spatial data.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;"><b style="color:var(--accent);font-size:18px;font-family:'Barlow Condensed',sans-serif;">92</b><br><span style="color:var(--text3);">Indiana Counties</span></div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;"><b style="color:var(--accent);font-size:18px;font-family:'Barlow Condensed',sans-serif;">2M+</b><br><span style="color:var(--text3);">Statewide Parcels</span></div>
@@ -1479,7 +1495,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
       <div><label class="fl">Print DPI</label><select class="fsel"><option>96 dpi (screen)</option><option>150 dpi</option><option>300 dpi (press)</option></select></div>
     </div>
     <label class="fl">Map Title</label>
-    <input class="fi" value="IndianaGIS — Bartholomew County"/>
+    <input class="fi" value="Mapnova — Bartholomew County"/>
     <label class="fchk"><input type="checkbox" checked> Include Legend</label>
     <label class="fchk"><input type="checkbox" checked> Include Scale Bar</label>
     <label class="fchk"><input type="checkbox" checked> Include North Arrow</label>
@@ -1498,7 +1514,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   <div class="mbody">
     <label class="fl">Shareable Link</label>
     <div style="display:flex;gap:6px;margin-bottom:14px;">
-      <input class="fi" style="flex:1;margin:0;" value="https://indianagis.app/map?county=bartholomew&z=12&lat=39.2&lon=-85.9" readonly/>
+      <input class="fi" style="flex:1;margin:0;" value="https://mapnova.app/map?county=bartholomew&z=12&lat=39.2&lon=-85.9" readonly/>
       <button class="mbtn" onclick="notify('Link copied!','fa-link')"><i class="fas fa-copy"></i></button>
     </div>
     <div class="egrid">
@@ -4271,7 +4287,7 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
 </div>
 
 <div class="footer">
-  <div>IndianaGIS Universal Mapping Platform · Data: Indiana IGIO + ElevateMaps Layer 92 (${county} Assessor)<br>For official records contact the ${county} Assessor's Office. This document is for informational purposes only.</div>
+  <div>Mapnova Universal Mapping Platform · Data: Indiana IGIO + ElevateMaps Layer 92 (${county} Assessor)<br>For official records contact the ${county} Assessor's Office. This document is for informational purposes only.</div>
   <div style="text-align:right;">Generated: ${now}<br>Parcel ID: ${v(p.pid)}${fips ? ' · FIPS: ' + fips : ''}</div>
 </div>
 
@@ -4464,7 +4480,7 @@ window.addEventListener('load', async () => {
   setTimeout(prefetchOwnershipForView, 2500);
 
   updateLegend();
-  setTimeout(() => notify('IndianaGIS — Live data loading…', 'fa-map-location-dot'), 700);
+  setTimeout(() => notify('Mapnova — Live data loading…', 'fa-map-location-dot'), 700);
 });
 window.addEventListener('resize',()=>map.invalidateSize());
 // ══════════════════════════════════════════════

@@ -2550,7 +2550,7 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
 </div>
 
 <div class="footer">
-  <div>IndianaGIS Universal Mapping Platform · Data: Indiana IGIO + ElevateMaps Layer 92 (${county} Assessor)<br>For official records contact the ${county} Assessor's Office. This document is for informational purposes only.</div>
+  <div>Mapnova Universal Mapping Platform · Data: Indiana IGIO + ElevateMaps Layer 92 (${county} Assessor)<br>For official records contact the ${county} Assessor's Office. This document is for informational purposes only.</div>
   <div style="text-align:right;">Generated: ${now}<br>Parcel ID: ${v(p.pid)}${fips ? ' · FIPS: ' + fips : ''}</div>
 </div>
 
@@ -2743,7 +2743,7 @@ window.addEventListener('load', async () => {
   setTimeout(prefetchOwnershipForView, 2500);
 
   updateLegend();
-  setTimeout(() => notify('IndianaGIS — Live data loading…', 'fa-map-location-dot'), 700);
+  setTimeout(() => notify('Mapnova — Live data loading…', 'fa-map-location-dot'), 700);
 });
 window.addEventListener('resize',()=>map.invalidateSize());
 // ══════════════════════════════════════════════
