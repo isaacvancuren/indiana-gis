@@ -11,9 +11,669 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-<link rel="stylesheet" href="css/app.css">
+<style>
+:root{
+  --bg:#0a0e14;--panel:#131920;--panel2:#1a2232;--panel3:#212d3f;
+  --border:#263044;--border2:#2e3d56;
+  --accent:#f0a500;--accent2:#ffc84a;--accent-dim:rgba(240,165,0,.12);
+  --blue:#3b82f6;--green:#22c55e;--red:#ef4444;--purple:#a78bfa;--cyan:#22d3ee;
+  --text:#dde4f0;--text2:#8fa3bf;--text3:#4a6080;
+  --radius:6px;--header:54px;--sidebar:330px;--right:290px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);}
+
+/* ━━━ HEADER ━━━ */
+#header{
+  position:fixed;top:0;left:0;right:0;height:var(--header);
+  background:var(--panel);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;padding:0 12px;z-index:1000;
+  box-shadow:0 2px 16px rgba(0,0,0,.6);
+}
+#logo{display:flex;align-items:center;gap:8px;flex-shrink:0;text-decoration:none;}
+#logo-icon{width:32px;height:32px;position:relative;flex-shrink:0;}
+#logo-icon svg{width:100%;height:100%;}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:.5px;line-height:1;}
+.logo-text span{color:var(--accent);}
+.logo-sub{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;}
+.hsep{width:1px;height:32px;background:var(--border);flex-shrink:0;}
+
+/* search */
+#search-wrap{flex:1;max-width:440px;position:relative;}
+#search-input{
+  width:100%;background:var(--panel2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:8px 38px 8px 14px;
+  font-size:13px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;
+  transition:border-color .2s,box-shadow .2s;
+}
+#search-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(240,165,0,.15);}
+#search-input::placeholder{color:var(--text3);}
+#search-btn{
+  position:absolute;right:0;top:0;bottom:0;width:36px;
+  background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:0 var(--radius) var(--radius) 0;transition:color .15s;
+}
+#search-btn:hover{color:var(--accent);}
+#search-dropdown{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  max-height:280px;overflow-y:auto;z-index:2000;display:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.sdr-item{
+  padding:9px 14px;font-size:12px;cursor:pointer;
+  border-bottom:1px solid rgba(38,48,68,.5);transition:background .12s;
+  display:flex;align-items:center;gap:10px;
+}
+.sdr-item:last-child{border:none;}
+.sdr-item:hover{background:var(--panel2);}
+.sdr-icon{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.sdr-text .t1{color:var(--text);font-weight:500;}
+.sdr-text .t2{color:var(--text3);font-size:11px;margin-top:1px;}
+
+/* header buttons */
+#hbtns{display:flex;align-items:center;gap:2px;margin-left:auto;}
+.hbtn{
+  background:none;border:1px solid transparent;color:var(--text2);cursor:pointer;
+  padding:5px 9px;border-radius:var(--radius);
+  display:flex;align-items:center;gap:5px;font-family:'Barlow',sans-serif;
+  transition:all .15s;white-space:nowrap;position:relative;
+}
+.hbtn:hover{background:var(--panel2);border-color:var(--border);color:var(--text);}
+.hbtn i{font-size:14px;}
+.hbtn .hl{font-size:11px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;}
+.hbtn-accent{color:var(--accent)!important;}
+.hbtn-accent:hover{border-color:var(--accent)!important;background:var(--accent-dim)!important;}
+
+/* county selector */
+#county-sel{
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--text);padding:6px 8px;border-radius:var(--radius);
+  font-size:12px;font-family:'Barlow',sans-serif;cursor:pointer;outline:none;
+  transition:border-color .15s;
+}
+#county-sel:focus{border-color:var(--accent);}
+
+/* ━━━ LAYOUT ━━━ */
+#app{position:fixed;top:var(--header);left:0;right:0;bottom:0;display:flex;}
+
+/* ━━━ LEFT SIDEBAR ━━━ */
+#sidebar{
+  width:var(--sidebar);background:var(--panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;z-index:900;
+  transition:transform .25s,width .25s;overflow:hidden;
+}
+#sidebar.hide{transform:translateX(-100%);width:0;}
+#stabs{display:flex;background:var(--panel2);border-bottom:1px solid var(--border);}
+.stab{
+  flex:1;padding:9px 3px 8px;text-align:center;cursor:pointer;
+  color:var(--text3);border-bottom:2px solid transparent;
+  transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.stab i{font-size:15px;}
+.stab span{font-size:9px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.stab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.stab:hover:not(.on){color:var(--text2);}
+#sbody{flex:1;overflow-y:auto;overflow-x:hidden;}
+.tpane{display:none;padding:12px;}
+.tpane.on{display:block;}
+
+/* layer tree */
+.lgrp{margin-bottom:8px;}
+.lgh{
+  display:flex;align-items:center;gap:6px;padding:7px 10px;
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;font-size:11px;font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--text2);transition:all .15s;user-select:none;
+}
+.lgh:hover{color:var(--text);border-color:var(--border2);}
+.lgh i.gi{font-size:13px;width:16px;text-align:center;}
+.lgh i.arr{margin-left:auto;font-size:9px;transition:transform .2s;color:var(--text3);}
+.lgh.open i.arr{transform:rotate(90deg);}
+.lgitems{display:none;padding:3px 0 2px 0;}
+.lgitems.open{display:block;}
+.li{
+  display:flex;align-items:center;gap:8px;padding:5px 10px 5px 18px;
+  border-radius:4px;cursor:pointer;transition:background .1s;
+}
+.li:hover{background:var(--panel2);}
+.li input[type=checkbox]{accent-color:var(--accent);cursor:pointer;width:13px;height:13px;flex-shrink:0;}
+.li .swatch{width:14px;height:12px;border-radius:2px;flex-shrink:0;}
+.li .ln{flex:1;font-size:11.5px;color:var(--text);}
+.opacity-wrap{display:flex;align-items:center;gap:6px;padding:2px 10px 4px 36px;}
+.opacity-wrap label{font-size:10px;color:var(--text3);width:50px;}
+.opacity-wrap input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer;}
+
+/* parcel panel */
+#parcel-empty{text-align:center;padding:32px 16px;color:var(--text3);}
+#parcel-empty .pe-icon{font-size:40px;margin-bottom:12px;color:var(--border2);}
+#parcel-empty p{font-size:12px;line-height:1.7;}
+#parcel-empty .pe-hint{
+  margin-top:14px;padding:10px;background:var(--panel2);border:1px solid var(--border);
+  border-radius:var(--radius);font-size:11px;color:var(--accent);
+  display:flex;align-items:center;gap:8px;
+}
+.psec{margin-bottom:14px;}
+.psec-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--accent);
+  padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:6px;
+  display:flex;align-items:center;gap:6px;
+}
+.prow{display:flex;padding:3px 0;border-bottom:1px solid rgba(38,48,68,.4);}
+.pk{width:120px;font-size:11px;color:var(--text3);flex-shrink:0;padding-top:1px;}
+.pv{font-size:11.5px;color:var(--text);font-weight:500;flex:1;word-break:break-all;}
+.pbadge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;}
+.bg-blue{background:rgba(59,130,246,.15);color:#60a5fa;}
+.bg-amber{background:rgba(240,165,0,.15);color:var(--accent);}
+.bg-green{background:rgba(34,197,94,.15);color:#4ade80;}
+.bg-red{background:rgba(239,68,68,.15);color:#f87171;}
+.bg-purple{background:rgba(167,139,250,.15);color:#c4b5fd;}
+
+/* PRC card */
+#prc-container{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:10px;
+}
+#prc-header{
+  background:linear-gradient(135deg,#1a2d1a,#1a2232);
+  padding:12px;border-bottom:1px solid var(--border);
+}
+.prc-seal{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.prc-seal-icon{font-size:22px;color:var(--accent);}
+.prc-seal-text .prc-county{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px;color:var(--text);}
+.prc-seal-text .prc-state{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
+.prc-doc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent2);margin-bottom:4px;}
+.prc-doc-sub{font-size:10px;color:var(--text3);}
+#prc-body{padding:10px;}
+.prc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.prc-cell{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:7px 9px;}
+.prc-cell .lbl{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:2px;}
+.prc-cell .val{font-size:12px;font-weight:600;color:var(--text);}
+.prc-cell .val.big{font-size:15px;font-family:'Barlow Condensed',sans-serif;color:var(--accent);}
+.prc-fullwidth{grid-column:span 2;}
+.prc-photo{
+  width:100%;height:120px;background:linear-gradient(135deg,var(--panel),var(--panel3));
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;position:relative;
+  margin-bottom:8px;
+}
+.prc-photo-label{color:var(--text3);font-size:11px;text-align:center;}
+.prc-photo-badge{
+  position:absolute;top:6px;right:6px;
+  background:rgba(0,0,0,.7);border:1px solid var(--border);border-radius:3px;
+  font-size:9px;color:var(--text3);padding:2px 6px;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.4px;text-transform:uppercase;
+}
+.prc-tax-history{width:100%;border-collapse:collapse;font-size:11px;}
+.prc-tax-history th{background:var(--panel);color:var(--text3);padding:4px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);}
+.prc-tax-history td{padding:4px 8px;border-bottom:1px solid rgba(38,48,68,.3);}
+.prc-tax-history tr:last-child td{border:none;}
+.prc-actions{display:flex;gap:6px;margin-top:10px;}
+
+/* parcel action buttons */
+.pact{
+  flex:1;padding:7px 6px;border-radius:var(--radius);
+  font-size:10px;font-weight:700;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:.4px;text-transform:uppercase;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:all .15s;border:1px solid;
+}
+.pact i{font-size:14px;}
+.pact-primary{background:var(--accent);border-color:var(--accent);color:#000;}
+.pact-primary:hover{background:var(--accent2);border-color:var(--accent2);}
+.pact-outline{background:none;border-color:var(--border2);color:var(--text2);}
+.pact-outline:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+
+/* tools panel */
+.tsec{margin-bottom:16px;}
+.tsec-title{
+  font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:8px;padding-bottom:4px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;
+}
+.tsec-title i{color:var(--accent);font-size:12px;}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.tbtn{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 6px 8px;cursor:pointer;text-align:center;
+  color:var(--text2);transition:all .15s;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.tbtn:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.tbtn.on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.tbtn i{font-size:20px;}
+.tbtn .tl{font-size:10px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;}
+.tbtn-wide{grid-column:span 2;padding:8px 10px;flex-direction:row;gap:8px;justify-content:center;}
+.tbtn-wide i{font-size:15px;}
+.tbtn-wide .tl{font-size:11px;}
+#mout{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;font-size:12px;margin-top:8px;min-height:44px;
+  color:var(--text2);line-height:1.6;
+}
+.mout-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;}
+.mout-row .mk{color:var(--text3);}
+.mout-row .mv{color:var(--text);font-weight:600;font-family:monospace;}
+
+/* search tab */
+.sf{display:flex;flex-direction:column;gap:8px;}
+.sfl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}
+.sfi{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:7px 10px;color:var(--text);font-size:12px;
+  font-family:'Barlow',sans-serif;outline:none;width:100%;transition:border-color .15s;
+}
+.sfi:focus{border-color:var(--accent);}
+.sfs{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:7px 10px;color:var(--text);font-size:12px;
+  font-family:'Barlow',sans-serif;outline:none;width:100%;cursor:pointer;
+}
+.sbtn{
+  background:var(--accent);border:none;border-radius:var(--radius);
+  padding:8px 10px;color:#000;font-size:12px;font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.4px;text-transform:uppercase;
+  cursor:pointer;transition:background .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.sbtn:hover{background:var(--accent2);}
+.sbtn-o{
+  background:none;border:1px solid var(--border2);border-radius:var(--radius);
+  padding:8px 10px;color:var(--text2);font-size:12px;font-family:'Barlow',sans-serif;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.sbtn-o:hover{border-color:var(--accent);color:var(--accent);}
+.scard{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:9px 11px;margin-bottom:5px;cursor:pointer;transition:all .15s;
+}
+.scard:hover{border-color:var(--accent);background:var(--panel3);}
+.sc-top{font-size:12px;font-weight:600;color:var(--text);}
+.sc-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.sc-badges{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
+
+/* ━━━ MAP ━━━ */
+#mwrap{flex:1;position:relative;overflow:hidden;}
+#map{width:100%;height:100%;cursor:crosshair;}
+#map.default-cursor{cursor:default;}
+#map.pointer-cursor{cursor:pointer;}
+
+/* parcel selection highlight */
+.parcel-selected{
+  animation:pulse-select .6s ease-out forwards;
+}
+@keyframes pulse-select{
+  0%{opacity:1;}
+  50%{opacity:.5;}
+  100%{opacity:1;}
+}
+
+/* map tools floating */
+#mtools{
+  position:absolute;top:12px;left:12px;z-index:800;
+  display:flex;flex-direction:column;gap:4px;
+}
+.mtbtn{
+  width:36px;height:36px;background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);position:relative;
+}
+.mtbtn:hover,.mtbtn.on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.mtbtn-sep{height:6px;}
+.mtip{
+  position:absolute;left:42px;top:50%;transform:translateY(-50%);
+  background:var(--panel);border:1px solid var(--border);border-radius:4px;
+  padding:4px 9px;font-size:11px;white-space:nowrap;color:var(--text);
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.mtbtn:hover .mtip{opacity:1;}
+
+/* basemap bar */
+#bmbar{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;gap:3px;z-index:800;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:8px;padding:4px;
+  box-shadow:0 2px 12px rgba(0,0,0,.5);
+}
+.bmbtn{
+  padding:5px 11px;border:1px solid transparent;border-radius:5px;
+  cursor:pointer;font-size:11px;font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;
+  text-transform:uppercase;color:var(--text3);background:none;
+  transition:all .15s;display:flex;align-items:center;gap:5px;
+}
+.bmbtn i{font-size:12px;}
+.bmbtn.on{background:var(--accent);color:#000;}
+.bmbtn:hover:not(.on){color:var(--text);background:var(--panel2);}
+
+/* status bar */
+#sbar{
+  position:absolute;bottom:0;left:0;right:0;height:28px;
+  background:rgba(10,14,20,.9);border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:0 12px;
+  font-size:11px;color:var(--text3);z-index:800;
+  backdrop-filter:blur(6px);
+}
+#coords-disp{font-family:monospace;font-size:11px;color:var(--text2);}
+.sbar-sep{width:1px;height:14px;background:var(--border);}
+#zoom-disp{font-family:monospace;}
+#sel-info{margin-left:auto;font-size:10px;color:var(--accent);}
+
+/* selection tool cursor overlay */
+#sel-cursor{
+  position:absolute;inset:0;z-index:700;
+  pointer-events:none;display:none;
+}
+
+/* legend */
+#legend{
+  position:absolute;bottom:38px;right:8px;z-index:800;
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;min-width:160px;display:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+#legend.on{display:block;}
+.leg-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px;}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);margin-bottom:4px;}
+.leg-swatch{width:16px;height:11px;border-radius:2px;flex-shrink:0;}
+
+/* ━━━ RIGHT ANALYTICS ━━━ */
+#rpanel{
+  width:var(--right);background:var(--panel);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;
+  transition:width .25s;
+}
+#rpanel.hide{width:0;overflow:hidden;}
+#rph{
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.rph-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.rph-title i{color:var(--accent);}
+.rpclose{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;transition:color .15s;}
+.rpclose:hover{color:var(--text);}
+#rpbody{flex:1;overflow-y:auto;padding:10px;}
+.rcard{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:11px;margin-bottom:8px;}
+.rcard-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.rcard-title i{color:var(--accent);font-size:12px;}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.rstat{text-align:center;padding:7px 4px;background:rgba(255,255,255,.03);border-radius:4px;}
+.rstat-val{font-size:17px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--accent);}
+.rstat-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-top:1px;}
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.bar-lbl{width:82px;font-size:10px;color:var(--text3);text-align:right;flex-shrink:0;}
+.bar-track{flex:1;height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s;}
+.bar-val{width:32px;font-size:10px;color:var(--text2);text-align:right;flex-shrink:0;}
+
+/* ━━━ POPUPS ━━━ */
+.leaflet-popup-content-wrapper{
+  background:var(--panel)!important;border:1px solid var(--border2)!important;
+  border-radius:8px!important;box-shadow:0 8px 28px rgba(0,0,0,.7)!important;
+  padding:0!important;overflow:hidden!important;
+}
+.leaflet-popup-tip-container{display:none!important;}
+.leaflet-popup-content{margin:0!important;width:auto!important;}
+.mpop{min-width:230px;max-width:280px;}
+.mpop-header{
+  background:linear-gradient(135deg,var(--panel3),var(--panel2));
+  padding:10px 14px;border-bottom:1px solid var(--border);
+}
+.mpop-addr{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+.mpop-owner{font-size:11px;color:var(--text3);margin-top:2px;}
+.mpop-body{padding:10px 14px;}
+.mpop-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(38,48,68,.4);}
+.mpop-row:last-child{border:none;}
+.mpop-k{font-size:11px;color:var(--text3);}
+.mpop-v{font-size:11px;font-weight:600;color:var(--text);}
+.mpop-footer{padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:6px;}
+.mpop-btn{
+  flex:1;padding:6px 4px;border:none;border-radius:4px;cursor:pointer;
+  font-size:10px;font-weight:700;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:.4px;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  transition:all .15s;
+}
+.mpop-btn-p{background:var(--accent);color:#000;}
+.mpop-btn-p:hover{background:var(--accent2);}
+.mpop-btn-s{background:var(--panel3);color:var(--text2);border:1px solid var(--border2);}
+.mpop-btn-s:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ━━━ MODAL SYSTEM ━━━ */
+.moverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);
+}
+.moverlay.on{display:flex;}
+.modal{
+  background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  width:min(92vw,580px);max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.8);
+}
+.mhdr{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.mhdr-icon{width:32px;height:32px;border-radius:6px;background:var(--accent-dim);border:1px solid rgba(240,165,0,.3);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:14px;flex-shrink:0;}
+.mhdr-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:.3px;flex:1;}
+.mclose{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px;transition:color .15s;}
+.mclose:hover{color:var(--text);}
+.mbody{padding:18px;overflow-y:auto;flex:1;}
+.mftr{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+/* export grid */
+.egrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.ebtn{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:13px 8px;cursor:pointer;text-align:center;color:var(--text2);
+  transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:7px;
+}
+.ebtn i{font-size:22px;}
+.ebtn span{font-size:11px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;}
+.ebtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+
+/* form elements */
+.fl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;display:block;}
+.fi{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:7px 11px;color:var(--text);font-size:12px;font-family:'Barlow',sans-serif;
+  outline:none;width:100%;transition:border-color .15s;margin-bottom:10px;
+}
+.fi:focus{border-color:var(--accent);}
+.fsel{
+  background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:7px 11px;color:var(--text);font-size:12px;font-family:'Barlow',sans-serif;
+  outline:none;width:100%;cursor:pointer;margin-bottom:10px;
+}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fchk{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:6px;}
+.fchk input{accent-color:var(--accent);}
+.mbtn{
+  background:var(--accent);border:none;border-radius:var(--radius);
+  padding:8px 18px;color:#000;font-size:12px;font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.4px;text-transform:uppercase;
+  cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:6px;
+}
+.mbtn:hover{background:var(--accent2);}
+.mbtn-o{
+  background:none;border:1px solid var(--border2);border-radius:var(--radius);
+  padding:8px 16px;color:var(--text2);font-size:12px;font-family:'Barlow',sans-serif;
+  cursor:pointer;transition:all .15s;
+}
+.mbtn-o:hover{border-color:var(--accent);color:var(--accent);}
+.info-box{
+  border:1px solid;border-radius:var(--radius);padding:10px 12px;
+  font-size:12px;display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;
+}
+.info-box.blue{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:#93c5fd;}
+.info-box.amber{border-color:rgba(240,165,0,.3);background:rgba(240,165,0,.08);color:var(--accent2);}
+.info-box i{flex-shrink:0;margin-top:1px;}
+
+/* loading */
+#loading{position:absolute;inset:0;background:rgba(10,14,20,.85);z-index:1100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+#loading.gone{display:none;}
+.spin{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-txt{font-size:13px;color:var(--text2);}
+
+/* notification */
+#notif{
+  position:fixed;bottom:44px;left:50%;transform:translateX(-50%);
+  background:var(--panel3);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:8px 16px;font-size:12px;color:var(--text);z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .3s;pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+}
+#notif.on{opacity:1;}
+#notif i{color:var(--accent);}
+
+/* selection highlight */
+.hl-parcel{stroke:#f0a500 !important;stroke-width:3 !important;fill:rgba(240,165,0,0.25) !important;}
+
+/* mobile bottom nav */
+#mobile-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;height:56px;
+  background:var(--panel);border-top:1px solid var(--border);z-index:1001;
+  display:none;align-items:stretch;
+}
+.mnav-btn{
+  flex:1;background:none;border:none;border-right:1px solid var(--border);
+  color:var(--text3);cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;transition:all .15s;
+  padding:4px 0;
+}
+.mnav-btn:last-child{border:none;}
+.mnav-btn i{font-size:16px;}
+.mnav-btn span{font-size:9px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.4px;text-transform:uppercase;}
+.mnav-btn:hover,.mnav-btn:active{background:var(--accent-dim);color:var(--accent);}
+@media(max-width:680px){
+  #mobile-nav{display:flex;}
+  #app{bottom:56px;}
+  #sbar{display:none;}
+  #header #county-sel{display:none;}
+}
+.li-ctrl{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.li-opac{width:52px;accent-color:var(--accent);cursor:pointer;height:3px;}
+.li-opac-val{font-size:9px;color:var(--text3);width:22px;text-align:right;}
+.li-eye{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0 2px;transition:color .12s;}
+.li-eye:hover{color:var(--accent);}
+.li-eye.off{color:var(--text3);opacity:.4;}
+
+/* active layer indicator dot */
+.li.layer-on .swatch{box-shadow:0 0 0 2px var(--accent);}
+.li.layer-on .ln{color:var(--accent2);}
+
+/* filter strip */
+#filter-strip{
+  display:flex;align-items:center;gap:6px;padding:8px 12px;
+  border-bottom:1px solid var(--border);background:var(--panel2);flex-shrink:0;
+  overflow-x:auto;
+}
+#filter-strip::-webkit-scrollbar{height:0;}
+.fchip{
+  display:flex;align-items:center;gap:5px;padding:4px 9px;
+  background:var(--panel3);border:1px solid var(--border2);border-radius:12px;
+  font-size:10px;font-weight:600;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:.3px;color:var(--text2);cursor:pointer;white-space:nowrap;
+  transition:all .15s;flex-shrink:0;
+}
+.fchip:hover{border-color:var(--accent);color:var(--accent);}
+.fchip.on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent2);}
+.fchip i{font-size:10px;}
+.fchip .remove{color:var(--text3);margin-left:2px;font-size:9px;}
+
+/* query results panel */
+#qresults-bar{
+  position:absolute;bottom:28px;left:0;right:0;z-index:850;
+  background:var(--panel);border-top:1px solid var(--border);
+  transition:transform .25s;transform:translateY(100%);max-height:220px;
+}
+#qresults-bar.open{transform:translateY(0);}
+#qresults-hdr{
+  display:flex;align-items:center;gap:8px;padding:7px 12px;
+  border-bottom:1px solid var(--border);cursor:pointer;
+}
+#qresults-hdr .qt{font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;color:var(--accent);}
+#qresults-hdr .qc{font-size:11px;color:var(--text3);}
+#qresults-list{overflow-x:auto;overflow-y:hidden;display:flex;gap:6px;padding:8px 12px;}
+#qresults-list::-webkit-scrollbar{height:4px;}
+.qr-card{
+  flex-shrink:0;width:180px;background:var(--panel2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:8px;cursor:pointer;transition:border-color .15s;
+}
+.qr-card:hover{border-color:var(--accent);}
+.qr-addr{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.qr-val{font-size:10px;color:var(--accent);}
+.qr-sub{font-size:10px;color:var(--text3);}
+
+/* buffer circle animation */
+@keyframes bufferPulse{0%{opacity:.8;}50%{opacity:.3;}100%{opacity:.8;}}
+.buffer-ring{animation:bufferPulse 2s ease-in-out infinite;}
+
+/* map cursor states */
+#map.tool-active{cursor:crosshair!important;}
+#map.select-active{cursor:cell!important;}
+
+/* layer count badge */
+#layer-count{
+  position:absolute;top:8px;right:8px;z-index:810;
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:4px 10px;font-size:10px;font-weight:700;font-family:'Barlow Condensed',sans-serif;
+  color:var(--text3);letter-spacing:.3px;display:flex;align-items:center;gap:5px;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+#layer-count span{color:var(--accent);}
+
+/* mobile overlay sidebar */
+@media(max-width:860px){#rpanel{display:none;}}
+@media(max-width:680px){
+  :root{--sidebar:290px;}
+  #sidebar{
+    position:absolute;top:0;bottom:0;left:0;
+    transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+    z-index:950;box-shadow:4px 0 20px rgba(0,0,0,.5);
+  }
+  #sidebar.mobile-open{transform:translateX(0);}
+  #mobile-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:940;display:none;}
+  #mobile-overlay.on{display:block;}
+  .hbtn .hl{display:none;}
+  #bmbar{bottom:28px;}
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* tooltip dark */
+.leaflet-tooltip{
+  background:var(--panel)!important;border:1px solid var(--border2)!important;
+  color:var(--text)!important;border-radius:5px!important;
+  font-family:'Barlow',sans-serif!important;
+  box-shadow:0 4px 14px rgba(0,0,0,.5)!important;
+  padding:6px 10px!important;
+}
+.leaflet-tooltip-top:before{border-top-color:var(--border2)!important;}
+
+/* zoom hint */
+#zoom-hint{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(13,17,23,.88);border:1px solid var(--border);border-radius:8px;
+  padding:10px 18px;font-size:13px;color:var(--text2);z-index:810;
+  pointer-events:none;opacity:0;transition:opacity .3s;text-align:center;
+}
+#zoom-hint.on{opacity:1;}
+</style>
 </head>
 <body>
+
 <!-- ═══ HEADER ═══ -->
 <header id="header">
   <div id="logo">
@@ -1160,7 +1820,7 @@ function buildParcelQuery(bbox) {
     geometryType:    'esriGeometryEnvelope',
     inSR:            '4326',
     spatialRel:      'esriSpatialRelIntersects',
-    outFields:       'objectid,parcel_id,state_parcel_id,prop_add,prop_city,prop_zip,dlgf_prop_class_code,latitude,longitude',
+    outFields:       'parcel_id,prop_add,prop_city,prop_zip,dlgf_prop_class_code,state_parcel_id,latitude,longitude',
     returnGeometry:  'true',
     outSR:           '4326',
     resultRecordCount: '2000',
@@ -1230,11 +1890,10 @@ async function _fetchOneTile(bbox) {
     clearTimeout(timer);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    if (data && Array.isArray(data.features)) {
-      if (data.features.length > 0) {
-        _renderChunked(data.features, 0, 60);
-      }
-      apiErrorCount = 0; // API responded — not an error
+    if (data && Array.isArray(data.features) && data.features.length > 0) {
+      // Render in non-blocking chunks — never block the main thread
+      _renderChunked(data.features, 0, 60);
+      apiErrorCount = 0;
     }
   } catch(e) {
     if (e.name !== 'AbortError') {
@@ -1271,7 +1930,7 @@ function _renderChunked(features, startIdx, chunkSize) {
 function _buildParcelLayer(feature) {
   if (!feature || !feature.geometry) return null;
   const props = feature.properties || {};
-  const pid   = (props.state_parcel_id || props.parcel_id || String(props.objectid || props.OBJECTID || Math.random().toString(36).slice(2,10))).toString();
+  const pid   = (props.parcel_id || props.state_parcel_id || '').toString();
   if (pid && loadedParcelIds.has(pid)) return null;
   if (pid) loadedParcelIds.add(pid);
 
@@ -3617,6 +4276,615 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
 </div>
 
 </div>
-<script src="js/app.js"></script>
+</body>
+</html>`;
+
+  const blob   = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
+  const win    = window.open(blobUrl, '_blank', 'noopener,width=1020,height=780,scrollbars=yes');
+  if (!win) {
+    notify('Allow popups to view the PRC — check your browser bar', 'fa-triangle-exclamation');
+  } else {
+    notify('PRC opened — click "Save as PDF / Print" button', 'fa-file-pdf');
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+  }
+}
+// Active county state
+let activeCounty = INDIANA_COUNTIES.bartholomew;
+
+// ── County selector handler ───────────────────────────────────────────────────
+document.getElementById('county-sel').addEventListener('change', function() {
+  const key = this.value;
+  const c = INDIANA_COUNTIES[key];
+  if (!c) return;
+  activeCounty = c;
+  map.setView([c.lat, c.lng], c.z);
+  document.getElementById('county-disp').innerHTML =
+    `<i class="fas fa-map" style="margin-right:4px;"></i>${c.name}`;
+
+  // Clear parcel cache and layer so new county loads fresh
+  parcelTileCache.clear();
+  loadedParcelIds.clear();
+  parcelLayer.clearLayers();
+
+  // Update PRC county name in sidebar
+  const cn = document.getElementById('prc-county-name');
+  if (cn) cn.textContent = c.name;
+
+  // Clear selected parcel
+  selectedLayer = null; selectedParcel = null; window._selectedLiveParcel = null;
+  document.getElementById('parcel-empty').style.display = '';
+  document.getElementById('parcel-detail').style.display = 'none';
+
+  // Trigger load for new county
+  setTimeout(loadParcelsForView, 300);
+  // Refresh all county-specific GIS layers to show new county's data
+  refreshCountyLayers();
+  // Clear ownership cache so new county's data is fetched fresh
+  Object.keys(ownerCache).forEach(k => delete ownerCache[k]);
+  // Pre-warm new county's ownership after parcels load
+  setTimeout(prefetchOwnershipForView, 2500);
+  notify('Switched to ' + c.name + ' — loading live data…', 'fa-map');
+});
+
+
+// ══════════════════════════════════════════════
+//  GEOLOCATION
+// ══════════════════════════════════════════════
+function goToMe(){
+  if(!navigator.geolocation){notify('Geolocation not supported','fa-triangle-exclamation');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude:lat,longitude:lng}=pos.coords;
+    map.setView([lat,lng],16);
+    L.circleMarker([lat,lng],{radius:9,color:'#3b82f6',fillColor:'#3b82f6',fillOpacity:.85,weight:2})
+      .addTo(map).bindPopup('<div class="mpop-body"><b style="color:#60a5fa;">Your Location</b></div>').openPopup();
+    notify('Centered on your location','fa-location-crosshairs');
+  },()=>notify('Location access denied','fa-lock'));
+}
+function toggleFullscreen(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+// ══════════════════════════════════════════════
+//  LEGEND
+// ══════════════════════════════════════════════
+function updateLegend(){
+  // Update floating legend
+  document.getElementById('leg-items').innerHTML=[...activeLyrs].map(n=>legendData[n]?`
+    <div class="leg-item"><div class="leg-swatch" style="background:${legendData[n].c};"></div>${legendData[n].l}</div>`:''
+  ).join('');
+
+  // Update right panel active layers list
+  const rpCount = document.getElementById('rp-layer-count');
+  const rpList = document.getElementById('rp-active-layers');
+  if (rpCount) rpCount.textContent = '(' + activeLyrs.size + ')';
+  if (rpList) {
+    const items = [...activeLyrs].filter(n => legendData[n]);
+    if (items.length === 0) {
+      rpList.innerHTML = '<span style="color:var(--text3);">No layers active</span>';
+    } else {
+      rpList.innerHTML = items.map(n => `
+        <div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(38,48,68,.3);">
+          <div style="width:10px;height:10px;border-radius:2px;background:${legendData[n].c};flex-shrink:0;"></div>
+          <span style="color:var(--text);font-size:11px;flex:1;">${legendData[n].l}</span>
+          <button onclick="document.getElementById('lc-${n}')&&(document.getElementById('lc-${n}').checked=false,toggleLyr('${n}',document.getElementById('lc-${n}')))" 
+            style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 2px;" title="Remove layer">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>`).join('');
+    }
+  }
+}
+function toggleLegend(){
+  document.getElementById('legend').classList.toggle('on');
+  document.getElementById('leg-btn').classList.toggle('on');
+  updateLegend();
+}
+
+// ══════════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════════
+function openModal(id){document.getElementById(id)?.classList.add('on');}
+function closeModal(id){document.getElementById(id)?.classList.remove('on');}
+function overlayClick(e,el){if(e.target===el)el.classList.remove('on');}
+
+// ══════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════
+let notifT;
+function notify(msg, icon='fa-circle-check'){
+  document.getElementById('notif').querySelector('i').className='fas '+icon;
+  document.getElementById('notif-msg').textContent=msg;
+  document.getElementById('notif').classList.add('on');
+  clearTimeout(notifT);
+  notifT=setTimeout(()=>document.getElementById('notif').classList.remove('on'),2800);
+}
+
+// ══════════════════════════════════════════════
+//  BOOKMARKS
+// ══════════════════════════════════════════════
+function addBM(){
+  const name=document.getElementById('bm-name').value.trim();
+  if(!name){notify('Enter a bookmark name','fa-exclamation');return;}
+  const c=map.getCenter();
+  const card=document.createElement('div');
+  card.className='scard';
+  card.innerHTML=`<div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>${name}</div><div class="sc-sub">Lat ${c.lat.toFixed(4)} · Lon ${c.lng.toFixed(4)} · Zoom ${map.getZoom()}</div>`;
+  card.onclick=()=>goBM(c.lat,c.lng,map.getZoom());
+  document.getElementById('bm-list').prepend(card);
+  document.getElementById('bm-name').value='';
+  notify(`Bookmark "${name}" saved`,'fa-bookmark');
+}
+function goBM(lat,lng,zoom){map.setView([lat,lng],zoom);notify('Navigated to bookmark','fa-bookmark');}
+
+// ══════════════════════════════════════════════
+//  TREND CHART SPARKLINE
+// ══════════════════════════════════════════════
+function drawTrend(){
+  const cvs=document.getElementById('trend-cvs');
+  if(!cvs) return;
+  const ctx=cvs.getContext('2d');
+  const vals=[100,108,112,119,125,131,140,148,155,162,170,182];
+  const W=cvs.width,H=cvs.height;
+  const mn=Math.min(...vals),mx=Math.max(...vals);
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(38,48,68,.4)';ctx.lineWidth=1;
+  [.25,.5,.75].forEach(f=>{ctx.beginPath();ctx.moveTo(0,H*f);ctx.lineTo(W,H*f);ctx.stroke();});
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(240,165,0,.35)');grad.addColorStop(1,'rgba(240,165,0,0)');
+  ctx.beginPath();
+  vals.forEach((v,i)=>{
+    const x=i/(vals.length-1)*W,y=H-(v-mn)/(mx-mn)*(H*.78)-(H*.11);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.strokeStyle='#f0a500';ctx.lineWidth=2;ctx.beginPath();
+  vals.forEach((v,i)=>{const x=i/(vals.length-1)*W,y=H-(v-mn)/(mx-mn)*(H*.78)-(H*.11);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+  ctx.fillStyle='#f0a500';ctx.beginPath();
+  const lx=(vals.length-1)/(vals.length-1)*W,ly=H-(vals[vals.length-1]-mn)/(mx-mn)*(H*.78)-(H*.11);
+  ctx.arc(lx,ly,3.5,0,Math.PI*2);ctx.fill();
+}
+
+window.addEventListener('load', async () => {
+  renderParcels();
+  drawTrend();
+
+  // Build county layer panel for default county (Bartholomew)
+  await buildCountyLayerPanel('bartholomew');
+
+  setTimeout(() => {
+    updateLayerBadge();
+    updateAnalytics();
+  }, 400);
+
+  // Pre-warm ownership cache
+  setTimeout(prefetchOwnershipForView, 2500);
+
+  updateLegend();
+  setTimeout(() => notify('IndianaGIS — Live data loading…', 'fa-map-location-dot'), 700);
+});
+window.addEventListener('resize',()=>map.invalidateSize());
+// ══════════════════════════════════════════════
+//  LAYER OPACITY CONTROL
+// ══════════════════════════════════════════════
+const layerOpacity = {};
+
+function setLyrOpac(name, slider) {
+  const val = parseInt(slider.value) / 100;
+  layerOpacity[name] = val;
+  // Update label next to slider
+  slider.nextElementSibling.textContent = slider.value + '%';
+  const layer = gisLayers[name];
+  if (!layer) return;
+  // Apply opacity to Leaflet layer
+  if (layer.setOpacity) {
+    layer.setOpacity(val);
+  } else if (layer.eachLayer) {
+    layer.eachLayer(l => {
+      if (l.setOpacity) l.setOpacity(val);
+      else if (l.setStyle) {
+        const curStyle = l.options || {};
+        const fo = (curStyle.fillOpacity || 0.35) * val;
+        l.setStyle({ opacity: val, fillOpacity: Math.min(fo, val) });
+      }
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+//  FILTER CHIP QUICK TOGGLES
+// ══════════════════════════════════════════════
+// ── Filter chip quick toggles ─────────────────────────────────────────────────
+// Chips toggle static layers (flood, imagery) or search dynamic layer panel
+function chipToggle(chipName, chipEl) {
+  // Map chip names to stable statewide layer keys or dynamic category matches
+  const staticChipMap = {
+    parcels:  'parcels',
+    flood:    'flood',
+    imagery:  'imagery',
+  };
+
+  const staticKey = staticChipMap[chipName];
+  if (staticKey) {
+    const lyr = gisLayers[staticKey];
+    if (!lyr) return;
+    const isOn = map.hasLayer(lyr);
+    if (isOn) {
+      map.removeLayer(lyr);
+      activeLyrs.delete(staticKey);
+      chipEl.classList.remove('on');
+    } else {
+      lyr.addTo(map);
+      activeLyrs.add(staticKey);
+      chipEl.classList.add('on');
+    }
+    updateLegend();
+    updateLayerBadge();
+    return;
+  }
+
+  // For county-specific chips, find matching dynamic layer checkbox and click it
+  const container = document.getElementById('county-layers-container');
+  if (!container) return;
+  const checkboxes = container.querySelectorAll('input[type=checkbox]');
+  const CHIP_KEYWORDS = {
+    roads:        /road|street|centerline/i,
+    zone:         /zon|land.?use/i,
+    subdivisions: /subdivi/i,
+    drain:        /\bdrain\b/i,
+    sections:     /section|plss/i,
+    county:       /county.?bound/i,
+  };
+  const pattern = CHIP_KEYWORDS[chipName];
+  if (!pattern) return;
+
+  // Find first matching layer label and toggle it
+  let found = false;
+  checkboxes.forEach(cb => {
+    if (found) return;
+    const label = cb.closest('.li')?.querySelector('.ln')?.textContent || '';
+    if (pattern.test(label)) {
+      cb.checked = !cb.checked;
+      toggleLyr(cb.id.replace('cb-',''), cb);
+      chipEl.classList.toggle('on', cb.checked);
+      found = true;
+    }
+  });
+}
+
+// sync chips when a layer is toggled
+function syncChip(name, checked) {
+  const chip = document.getElementById('chip-' + name);
+  if (chip) chip.classList.toggle('on', checked);
+}
+
+function updateLayerBadge() {
+  const badge = document.getElementById('lc-badge');
+  if (badge) badge.textContent = activeLyrs.size;
+}
+
+// Parcels always visible — no zoom gating
+
+// ══════════════════════════════════════════════
+//  BUFFER ANALYSIS — draws real circle on map
+// ══════════════════════════════════════════════
+let bufferLayer = null;
+
+function runBuffer() {
+  const dist = parseFloat(document.getElementById('buf-dist').value) || 500;
+  const unit = document.getElementById('buf-unit').value;
+  // Convert to meters
+  const toM = { ft: 0.3048, m: 1, mi: 1609.34, km: 1000 };
+  const radiusM = dist * (toM[unit] || 1);
+
+  // Center = selected parcel or map center
+  const center = selectedParcel
+    ? [selectedParcel.lat, selectedParcel.lon]
+    : [map.getCenter().lat, map.getCenter().lng];
+
+  clearBuffer();
+
+  // Draw animated buffer ring
+  bufferLayer = L.layerGroup();
+
+  // Outer pulse ring
+  L.circle(center, {
+    radius: radiusM,
+    color: '#f0a500',
+    weight: 2,
+    fillColor: '#f0a500',
+    fillOpacity: 0.08,
+    dashArray: '6 4',
+    className: 'buffer-ring'
+  }).addTo(bufferLayer);
+
+  // Inner solid ring
+  L.circle(center, {
+    radius: radiusM * 0.02,
+    color: '#ffc84a',
+    weight: 3,
+    fillColor: '#ffc84a',
+    fillOpacity: 0.9
+  }).addTo(bufferLayer);
+
+  bufferLayer.addTo(map);
+  map.fitBounds(L.circle(center, { radius: radiusM }).getBounds(), { padding: [30, 30] });
+
+  // Count parcels within buffer using live layer data
+  const liveParcelsForBuffer=[];
+  parcelLayer.eachLayer(l=>{ if(l.parcelData) liveParcelsForBuffer.push(l.parcelData); });
+  const within = liveParcelsForBuffer.filter(p => {
+    const lat2 = p.lat || center[0];
+    const lon2 = p.lon || center[1];
+    const dLat = (lat2 - center[0]) * Math.PI / 180;
+    const dLon = (lon2 - center[1]) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(center[0]*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    const distM = 6371000 * 2 * Math.asin(Math.sqrt(a));
+    return distM <= radiusM;
+  });
+
+  // Show result
+  const res = document.getElementById('buf-result');
+  res.style.display = 'block';
+  res.innerHTML = `
+    <div style="font-weight:700;color:var(--accent);margin-bottom:6px;"><i class="fas fa-circle-check" style="margin-right:6px;"></i>${within.length} parcels found within ${dist} ${unit}</div>
+    ${within.map(p=>`<div style="padding:3px 0;border-bottom:1px solid rgba(240,165,0,.1);color:var(--text2);">
+      <span style="font-weight:600;color:var(--text);">${p.addr}</span> — ${p.tv} · ${p.acres} ac
+    </div>`).join('')}
+  `;
+
+  // Highlight matched parcels on map
+  parcelLayer.eachLayer(l => {
+    const pd = l.parcelData;
+    if (pd && within.some(p => p.id === pd.id || p.pid === pd.pid)) {
+      l.setStyle({ color: '#22d3ee', weight: 3, fillOpacity: 0.35 });
+    }
+  });
+
+  notify(`Buffer: ${within.length} parcels within ${dist} ${unit}`, 'fa-circle-dot');
+  closeModal('buffer-modal');
+}
+
+function clearBuffer() {
+  if (bufferLayer) { map.removeLayer(bufferLayer); bufferLayer = null; }
+  // Reset parcel styles
+  parcelLayer.eachLayer(l => {
+    if (l !== selectedLayer) l.setStyle({ color: '#f0a500', weight: 2, fillOpacity: 0.15 });
+  });
+  document.getElementById('buf-result').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+//  ATTRIBUTE QUERY — real filter on parcel data
+// ══════════════════════════════════════════════
+let queryHighlightLayer = null;
+
+function updateQBPreview() {
+  const field = document.getElementById('qb-field').value;
+  const op = document.getElementById('qb-op').value;
+  const val = document.getElementById('qb-val').value;
+  const opLabels = { contains:'LIKE', eq:'=', neq:'!=', gt:'>', lt:'<', starts:'STARTS' };
+  document.getElementById('qb-preview').textContent =
+    `SELECT * FROM parcels WHERE ${field} ${opLabels[op]||op} "${val}"`;
+}
+document.getElementById && document.getElementById('qb-val') &&
+  document.getElementById('qb-val').addEventListener('input', updateQBPreview);
+
+function updateQBOperators() { updateQBPreview(); }
+
+function setQuery(field, op, val) {
+  document.getElementById('qb-field').value = field;
+  document.getElementById('qb-op').value = op;
+  document.getElementById('qb-val').value = val;
+  updateQBPreview();
+}
+
+function runQuery() {
+  const field = document.getElementById('qb-field').value;
+  const op = document.getElementById('qb-op').value;
+  const val = document.getElementById('qb-val').value.toLowerCase().trim();
+
+  if (!val) { notify('Enter a query value first', 'fa-exclamation'); return; }
+
+  function getField(p, f) {
+    const map2 = { owner:p.owner, use:p.use, zone:p.zone, otype:p.otype,
+      tv:p.tv.replace(/[$,]/g,''), acres:p.acres, yr:p.yr, txstat:p.txstat };
+    return (map2[f]||'').toLowerCase();
+  }
+
+  // Collect live parcels from map layer
+  const liveParcels=[];
+  parcelLayer.eachLayer(l=>{ if(l.parcelData) liveParcels.push({p:l.parcelData,l}); });
+
+  const results = liveParcels.filter(({p}) => {
+    const fv = getField(p, field);
+    const qv = val;
+    switch(op) {
+      case 'contains': return fv.includes(qv);
+      case 'eq': return fv === qv;
+      case 'neq': return fv !== qv;
+      case 'gt': return parseFloat(fv.replace(/[^0-9.]/g,'')) > parseFloat(qv);
+      case 'lt': return parseFloat(fv.replace(/[^0-9.]/g,'')) < parseFloat(qv);
+      case 'starts': return fv.startsWith(qv);
+      default: return false;
+    }
+  }).map(({p})=>p);
+
+  document.getElementById('qb-result-summary').innerHTML =
+    `<span style="color:var(--accent);font-weight:700;">${results.length}</span> parcel${results.length!==1?'s':''} matched`;
+
+  // Highlight matched parcels on map
+  if (queryHighlightLayer) { map.removeLayer(queryHighlightLayer); }
+  queryHighlightLayer = L.layerGroup();
+  parcelLayer.eachLayer(l => {
+    const pd = l.parcelData;
+    if (pd && results.some(r => r.id === pd.id || r.pid === pd.pid)) {
+      l.setStyle({ color: '#22c55e', weight: 3, fillOpacity: 0.40 });
+    } else if (l !== selectedLayer) {
+      l.setStyle({ color: '#f0a500', weight: 1.5, fillOpacity: 0.08 });
+    }
+  });
+
+  // Show results bar
+  showQResults(results, `Query: ${field} · ${results.length} results`);
+  notify(`Query matched ${results.length} parcel${results.length!==1?'s':''}`, 'fa-filter');
+  closeModal('query-modal');
+}
+
+function clearQuery() {
+  document.getElementById('qb-val').value = '';
+  document.getElementById('qb-result-summary').innerHTML = '';
+  updateQBPreview();
+  if (queryHighlightLayer) { map.removeLayer(queryHighlightLayer); queryHighlightLayer = null; }
+  parcelLayer.eachLayer(l => {
+    if (l !== selectedLayer) l.setStyle({ color: '#f0a500', weight: 1.5, fillOpacity: 0.10 });
+  });
+  document.getElementById('qresults-bar').classList.remove('open');
+}
+
+// ══════════════════════════════════════════════
+//  QUERY RESULTS BOTTOM BAR
+// ══════════════════════════════════════════════
+function showQResults(results, title) {
+  document.getElementById('qresults-title').textContent = title;
+  document.getElementById('qresults-count').textContent = `${results.length} features`;
+  const list = document.getElementById('qresults-list');
+  list.innerHTML = results.map(p => `
+    <div class="qr-card" onclick="selectFromSearch('${p.id}')">
+      <div class="qr-addr">${p.addr}</div>
+      <div class="qr-val">${p.tv}</div>
+      <div class="qr-sub">${p.owner.substring(0,26)} · ${p.acres} ac</div>
+    </div>`).join('');
+  document.getElementById('qresults-bar').classList.add('open');
+  document.getElementById('qr-arrow').style.transform = 'rotate(180deg)';
+}
+
+function toggleQResults() {
+  const bar = document.getElementById('qresults-bar');
+  const open = bar.classList.toggle('open');
+  document.getElementById('qr-arrow').style.transform = open ? 'rotate(180deg)' : '';
+}
+
+// ══════════════════════════════════════════════
+//  MOBILE SIDEBAR
+// ══════════════════════════════════════════════
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('mobile-overlay');
+  if (window.innerWidth <= 680) {
+    sb.classList.toggle('mobile-open');
+    ov.classList.toggle('on', sb.classList.contains('mobile-open'));
+  } else {
+    sb.classList.toggle('hide');
+  }
+}
+function closeMobileSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('on');
+}
+
+// ══════════════════════════════════════════════
+//  BUFFER TARGET UPDATE when parcel selected
+// ══════════════════════════════════════════════
+// Patch selectParcel to also update buffer modal text
+const _origSelectParcel = selectParcel;
+window.selectParcel = function(p, layer) {
+  _origSelectParcel(p, layer);
+  const el = document.getElementById('buf-target-txt');
+  if (el) el.textContent = `Target: ${p.addr} (${p.acres} ac)`;
+};
+
+// ══════════════════════════════════════════════
+//  ENHANCED ANALYTICS — live parcel count
+// ══════════════════════════════════════════════
+function updateAnalytics() {
+  // Count loaded parcel polygons in current map bounds
+  const bounds = map.getBounds();
+  let visible = 0;
+  parcelLayer.eachLayer(l => {
+    try {
+      if (l.getBounds && bounds.intersects(l.getBounds())) visible++;
+    } catch(e) {}
+  });
+  const el = document.getElementById('visible-parcel-count');
+  if (el) el.textContent = visible.toLocaleString() + ' parcels in view';
+}
+// ══════════════════════════════════════════════
+//  PROXIMITY REPORT
+// ══════════════════════════════════════════════
+function runProximity() {
+  const radius = parseFloat(document.getElementById('prox-radius').value) || 1;
+  const unit = document.getElementById('prox-unit').value;
+  const toMi = { mi:1, km:0.621371, ft:1/5280, m:0.000621371 };
+  const radiusMi = radius * (toMi[unit] || 1);
+
+  const center = selectedParcel
+    ? { lat: selectedParcel.lat, lon: selectedParcel.lon, label: selectedParcel.addr }
+    : { lat: map.getCenter().lat, lon: map.getCenter().lng, label: 'Map Center' };
+
+  function distMi(lat1, lon1, lat2, lon2) {
+    const R = 3958.8;
+    const dL = (lat2-lat1)*Math.PI/180, dl = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dL/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dl/2)**2;
+    return R * 2 * Math.asin(Math.sqrt(a));
+  }
+
+  // Find nearby parcels from live layer
+  const liveForProx=[];
+  parcelLayer.eachLayer(l=>{ if(l.parcelData) liveForProx.push(l.parcelData); });
+  const nearby = liveForProx
+    .filter(p => {
+      const plat = p.lat || center.lat;
+      const plon = p.lon || center.lon;
+      return Math.abs(plat-center.lat)>0.0001 || Math.abs(plon-center.lon)>0.0001;
+    })
+    .map(p => ({ ...p, dist: distMi(center.lat, center.lon, p.lat||center.lat, p.lon||center.lon) }))
+    .filter(p => p.dist <= radiusMi)
+    .sort((a, b) => a.dist - b.dist);
+
+  const res = document.getElementById('prox-results');
+  res.style.display = 'block';
+  res.innerHTML = `
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">
+      <i class="fas fa-circle-check" style="color:var(--accent);margin-right:6px;"></i>
+      Proximity Report — ${radius} ${unit} from ${center.label}
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">${nearby.length} parcel${nearby.length!==1?'s':''} found within radius</div>
+    ${nearby.length === 0 ? '<div style="color:var(--text3);font-size:12px;">No parcels found within this radius.</div>' :
+      nearby.map(p => `
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(38,48,68,.4);cursor:pointer;" onclick="selectFromSearch('${p.id}');closeModal('proximity-modal')">
+          <i class="fas fa-location-dot" style="color:var(--accent);font-size:12px;flex-shrink:0;"></i>
+          <div style="flex:1;">
+            <div style="font-size:11px;font-weight:600;color:var(--text);">${p.addr}</div>
+            <div style="font-size:10px;color:var(--text3);">${p.use} · ${p.tv}</div>
+          </div>
+          <div style="font-size:10px;color:var(--accent2);font-weight:700;flex-shrink:0;">${p.dist.toFixed(2)} mi</div>
+        </div>`).join('')
+    }`;
+  notify(`Found ${nearby.length} parcels within ${radius} ${unit}`, 'fa-magnifying-glass-location');
+}
+
+// ══════════════════════════════════════════════
+//  MOBILE SIDEBAR OPEN
+// ══════════════════════════════════════════════
+function openMobileSidebar() {
+  if (window.innerWidth <= 680) {
+    document.getElementById('sidebar').classList.add('mobile-open');
+    document.getElementById('mobile-overlay').classList.add('on');
+  }
+}
+
+// Patch selectParcel to update proximity target text too
+const _patchProx = window.selectParcel || selectParcel;
+window.selectParcel = function(p, layer) {
+  _patchProx(p, layer);
+  const el = document.getElementById('prox-target-txt');
+  if (el) el.innerHTML = `<i class="fas fa-location-dot" style="color:var(--accent);margin-right:4px;"></i>Target: <b style="color:var(--text);">${p.addr}</b>`;
+};
+
+</script>
 </body>
 </html>
