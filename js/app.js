@@ -472,10 +472,14 @@ const COUNTY_PARCEL_APIS = {
 
   // Marion County (Indianapolis) — confirmed working
   marion: {
-    url: 'https://gis.indy.gov/server/rest/services/Assessors/Parcel/FeatureServer/0/query',
-    pinField: 'PARCEL_NUM', ownerField: 'OWNER_NAME', addrField: 'SITUS_ADDR',
-    avField: 'NET_AV', acresField: 'ACRES', schema: 'marion',
-    lookupUrl: 'https://www.indy.gov/activity/check-your-assessed-value'
+    url: 'https://gis.indy.gov/server/rest/services/MapIndy/MapIndyProperty/MapServer/10/query',
+    pinField: 'STATEPARCELNUMBER', ownerField: 'FULLOWNERNAME',
+    addrField: 'FULL_STNAME', mailAddrField: 'OWNERADDRESS',
+    mailCityField: 'OWNERCITY', mailStField: 'OWNERSTATE', mailZipField: 'OWNERZIP',
+    avField: 'ASSESSORYEAR_TOTALAV', acresField: 'ACREAGE',
+    legalField: 'LEGAL_DESCRIPTION_', twpField: 'TOWNSHIP',
+    schema: 'marion',
+    lookupUrl: 'https://maps.indy.gov/AssessorPropertyCards/'
   },
 
   // Hamilton County — confirmed fields from gis1.hamiltoncounty.in.gov live schema
@@ -484,6 +488,10 @@ const COUNTY_PARCEL_APIS = {
     pinField:      'FMTPRCLNO',  ownerField:    'DEEDEDOWNR',
     addrField:     'LOCADDRESS', cityField:     'LOCCITY',    zipField:  'LOCZIP',
     legalField:    'LEGALDESC',  saleDateField: 'LSTXFRDATE',
+    acresField:    'DEEDACRES',  avField:       'AVTOTGROSS',
+    twpField:      'TOWNSHIP',   schoolField:   'TAXDISTNAM',
+    mailAddrField: 'OWNADDRESS', mailCityField: 'OWNCITY',
+    mailStField:   'OWNSTATE',   mailZipField:  'OWNZIP',
     schema: 'hamilton',
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },

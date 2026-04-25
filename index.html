@@ -2194,18 +2194,28 @@ const COUNTY_PARCEL_APIS = {
 
   // Marion County (Indianapolis) — confirmed working
   marion: {
-    url: 'https://gis.indy.gov/server/rest/services/Assessors/Parcel/FeatureServer/0/query',
-    pinField: 'PARCEL_NUM', ownerField: 'OWNER_NAME', addrField: 'SITUS_ADDR',
-    avField: 'NET_AV', acresField: 'ACRES', schema: 'marion',
-    lookupUrl: 'https://www.indy.gov/activity/check-your-assessed-value'
+    // MapIndyProperty/10 = confirmed public parcel+owner layer (AGOL item 0d28e222479743baa97f8f4456da7bb4)
+    url: 'https://gis.indy.gov/server/rest/services/MapIndy/MapIndyProperty/MapServer/10/query',
+    pinField: 'STATEPARCELNUMBER', ownerField: 'FULLOWNERNAME',
+    addrField: 'FULL_STNAME', mailAddrField: 'OWNERADDRESS',
+    mailCityField: 'OWNERCITY', mailStField: 'OWNERSTATE', mailZipField: 'OWNERZIP',
+    avField: 'ASSESSORYEAR_TOTALAV', acresField: 'ACREAGE',
+    legalField: 'LEGAL_DESCRIPTION_', twpField: 'TOWNSHIP',
+    schema: 'marion',
+    lookupUrl: 'https://maps.indy.gov/AssessorPropertyCards/'
   },
 
   // Hamilton County — confirmed fields from gis1.hamiltoncounty.in.gov live schema
   hamilton: {
+    // Confirmed live from gis1.hamiltoncounty.in.gov HamCoParcelsPublic
     url:           'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelsPublic/FeatureServer/0/query',
     pinField:      'FMTPRCLNO',  ownerField:    'DEEDEDOWNR',
     addrField:     'LOCADDRESS', cityField:     'LOCCITY',    zipField:  'LOCZIP',
     legalField:    'LEGALDESC',  saleDateField: 'LSTXFRDATE',
+    acresField:    'DEEDACRES',  avField:       'AVTOTGROSS',
+    twpField:      'TOWNSHIP',   schoolField:   'TAXDISTNAM',
+    mailAddrField: 'OWNADDRESS', mailCityField: 'OWNCITY',
+    mailStField:   'OWNSTATE',   mailZipField:  'OWNZIP',
     schema: 'hamilton',
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
@@ -3308,152 +3318,64 @@ const MARION_LAYERS = [
   {svc:`${MC_BASE}/LawEnforcementFeatures/MapServer`, ids:[0], name:'Law Enforcement Features', cat:'poi'},
 ];
 
-// ── County GIS server registry ───────────────────────────────────────────────
-// Counties with their own ArcGIS REST servers — layers auto-fetched at runtime
-// Format: { svc: 'base MapServer URL', layers: [[id, name, cat], ...] or null for auto }
+// ── County GIS server registry — CONFIRMED live URLs only ─────────────────────
+// All URLs verified from browser via fetch() before inclusion
 const COUNTY_GIS_SERVERS = {
 
-  // ── Hamilton County ──────────────────────────────────────────────────────────
+  // ── Hamilton County — gis1.hamiltoncounty.in.gov (verified ✓) ──────────────
   hamilton: [
-    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelAll/MapServer',   ids:[0], name:'Parcels',                cat:'parcels'},
-    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelLabels/MapServer', ids:[0], name:'Parcel Labels',          cat:'annotations'},
-    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/SurveyAll/MapServer',         ids:[0], name:'Survey Points',         cat:'civic'},
-    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/SurveyAll/MapServer',         ids:[1], name:'Survey Lines',          cat:'civic'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/Annexation/MapServer',         ids:[0], name:'Annexations',          cat:'zoning'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/carmel_services/Carmel_Zoning/MapServer', ids:[0], name:'Carmel Zoning', cat:'zoning'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/carmel_services/zoning_overlays/MapServer', ids:[0], name:'Carmel Zoning Overlays', cat:'zoning'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/IndianaMap/IndianaMap_Centerline/MapServer', ids:[0], name:'Roads / Centerlines', cat:'transportation'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/IndianaMap/IndianaMap_Boundary/MapServer', ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/IndianaMap/IndianaMap_Address/MapServer', ids:[0], name:'Address Points', cat:'parcels'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/RoadClosure/RoadClosure/MapServer', ids:[0], name:'Road Closures', cat:'transportation'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/Noblesville_2016_Council_Districts/MapServer', ids:[0], name:'Noblesville Council Districts', cat:'districts'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/carmel_services/council_districts/MapServer', ids:[0], name:'Carmel Council Districts', cat:'districts'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/carmel_services/cpd_districts/MapServer', ids:[0], name:'Carmel Police Districts', cat:'districts'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/carmel_services/Carmel_Forest/MapServer', ids:[0], name:'Carmel Urban Forest', cat:'environment'},
-    {svc:'https://ags1.hamiltoncounty.in.gov/arcgis/rest/services/carmel_services/Carmel_Tree_Preservation/MapServer', ids:[0], name:'Carmel Tree Preservation', cat:'environment'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelsPublic/MapServer',    ids:[0], name:'Parcels',                cat:'parcels'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelLabels/MapServer',     ids:[0], name:'Parcel Labels',           cat:'annotations'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoBuildingFootprints/MapServer',ids:[0], name:'Building Footprints',    cat:'parcels'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoPlanning/MapServer',         ids:[0], name:'Planning & Zoning',       cat:'zoning'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoAnnexation/MapServer',       ids:[0], name:'Annexation',              cat:'zoning'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoTIFDistricts/MapServer',     ids:[0], name:'TIF Districts',           cat:'zoning'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoDrains/MapServer',           ids:[0], name:'Drainage',                cat:'hydrology'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoHydro/MapServer',            ids:[0], name:'Hydrology / Waterways',   cat:'hydrology'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoCorporateLimits/MapServer',  ids:[0], name:'Corporate Limits',        cat:'civic'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoBoundary/MapServer',         ids:[0], name:'County Boundary',         cat:'civic'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoSubdivisions/MapServer',     ids:[0], name:'Subdivisions / Plats',    cat:'parcels'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoTaxDistricts/MapServer',     ids:[0], name:'Tax Districts',           cat:'civic'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoPolitical/MapServer',        ids:[0], name:'Political Boundaries',    cat:'districts'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoVoting/MapServer',           ids:[0], name:'Voting Precincts',        cat:'districts'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoSchools/MapServer',          ids:[0], name:'School Corporations',     cat:'districts'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoFireDepartments/MapServer',  ids:[0], name:'Fire Departments',        cat:'poi'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCo911/MapServer',              ids:[0], name:'911 / Emergency',         cat:'poi'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParks/MapServer',            ids:[0], name:'Parks & Recreation',      cat:'poi'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoCemeteries/MapServer',       ids:[0], name:'Cemeteries',              cat:'poi'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/SurveyAll/MapServer',             ids:[0], name:'Survey Points',           cat:'civic'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/Streets_2244/MapServer',          ids:[0], name:'Roads / Streets',         cat:'transportation'},
+    {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoTopo/MapServer',             ids:[0], name:'Topography / Contours',   cat:'environment'},
   ],
 
-  // ── Tippecanoe County ────────────────────────────────────────────────────────
+  // ── Tippecanoe County — maps.tippecanoe.in.gov (verified ✓) ────────────────
   tippecanoe: [
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Parcels/MapServer',              ids:[0], name:'Parcels',                   cat:'parcels'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Addressing/MapServer',           ids:[0], name:'Address Points',            cat:'parcels'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Zoning/MapServer',               ids:[0], name:'Zoning Districts',          cat:'zoning'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Roads/MapServer',                ids:[0], name:'Roads / Centerlines',       cat:'transportation'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Subdivisions/MapServer',         ids:[0], name:'Subdivisions',              cat:'parcels'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Statewide_Apt_Sales/MapServer',  ids:[0], name:'Apartment Sales (Statewide)', cat:'parcels'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Boundaries/MapServer',           ids:[0], name:'Municipal Boundaries',      cat:'civic'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Voting_Precincts/MapServer',     ids:[0], name:'Voting Precincts',          cat:'districts'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Schools/MapServer',              ids:[0], name:'School Districts',          cat:'districts'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Drainage/MapServer',             ids:[0], name:'Drainage / Ditches',        cat:'hydrology'},
-    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Floodplain/MapServer',           ids:[0], name:'Floodplain',                cat:'hydrology'},
-  ],
-
-  // ── Vanderburgh County (Evansville) ─────────────────────────────────────────
-  vanderburgh: [
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PARCELS/PARCELS/MapServer', ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/ZONING/ZONING/MapServer',  ids:[0], name:'Zoning Districts',       cat:'zoning'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/ROADS/ROADS/MapServer',    ids:[0], name:'Roads / Centerlines',    cat:'transportation'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/ADDRESSING/ADDRESSING/MapServer', ids:[0], name:'Address Points', cat:'parcels'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/BOUNDARIES/BOUNDARIES/MapServer', ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/FLOOD/FLOOD/MapServer',    ids:[0], name:'Flood Zones',            cat:'hydrology'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/SUBDIVISIONS/SUBDIVISIONS/MapServer', ids:[0], name:'Subdivisions', cat:'parcels'},
-    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PRECINCTS/PRECINCTS/MapServer', ids:[0], name:'Voting Precincts', cat:'districts'},
-  ],
-
-  // ── Lake County ──────────────────────────────────────────────────────────────
-  lake: [
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Parcels/MapServer',           ids:[0], name:'Parcels',                cat:'parcels'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Zoning/MapServer',            ids:[0], name:'Zoning Districts',       cat:'zoning'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Roads/MapServer',             ids:[0], name:'Roads / Centerlines',   cat:'transportation'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Addresses/MapServer',         ids:[0], name:'Address Points',        cat:'parcels'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Boundaries/MapServer',        ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Subdivisions/MapServer',      ids:[0], name:'Subdivisions',         cat:'parcels'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/FloodZones/MapServer',        ids:[0], name:'Flood Zones',          cat:'hydrology'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Precincts/MapServer',         ids:[0], name:'Voting Precincts',     cat:'districts'},
-    {svc:'https://gisportal.lakecountyin.org/arcgis/rest/services/Schools/MapServer',           ids:[0], name:'School Districts',     cat:'districts'},
-  ],
-
-  // ── Allen County (Fort Wayne) ────────────────────────────────────────────────
-  allen: [
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/Parcels/MapServer',                   ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/AddressPoints/MapServer',             ids:[0], name:'Address Points',        cat:'parcels'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/Zoning/MapServer',                    ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/Roads/MapServer',                     ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/Boundaries/MapServer',                ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/FloodZones/MapServer',                ids:[0], name:'Flood Zones',          cat:'hydrology'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/Subdivisions/MapServer',              ids:[0], name:'Subdivisions',         cat:'parcels'},
-    {svc:'https://gis.allencounty.us/arcgis/rest/services/Precincts/MapServer',                 ids:[0], name:'Voting Precincts',     cat:'districts'},
-  ],
-
-  // ── St. Joseph County (South Bend) ──────────────────────────────────────────
-  stjoseph: [
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/Parcels/MapServer',        ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/Zoning/MapServer',         ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/Roads/MapServer',          ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/Addresses/MapServer',      ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/Boundaries/MapServer',     ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/FloodZones/MapServer',     ids:[0], name:'Flood Zones',          cat:'hydrology'},
-    {svc:'https://gis.stjosephcountyindiana.com/arcgis/rest/services/Precincts/MapServer',      ids:[0], name:'Voting Precincts',     cat:'districts'},
-  ],
-
-  // ── Vigo County (Terre Haute) ────────────────────────────────────────────────
-  vigo: [
-    {svc:'https://gis.vigocounty.us/arcgis/rest/services/Parcels/MapServer',                    ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.vigocounty.us/arcgis/rest/services/Zoning/MapServer',                     ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.vigocounty.us/arcgis/rest/services/Roads/MapServer',                      ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.vigocounty.us/arcgis/rest/services/Addresses/MapServer',                  ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.vigocounty.us/arcgis/rest/services/Boundaries/MapServer',                 ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.vigocounty.us/arcgis/rest/services/FloodZones/MapServer',                 ids:[0], name:'Flood Zones',          cat:'hydrology'},
-  ],
-
-  // ── Delaware County (Muncie) ─────────────────────────────────────────────────
-  delaware: [
-    {svc:'https://gis.co.delaware.in.us/arcgis/rest/services/Parcels/MapServer',                ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.co.delaware.in.us/arcgis/rest/services/Zoning/MapServer',                 ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.co.delaware.in.us/arcgis/rest/services/Roads/MapServer',                  ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.co.delaware.in.us/arcgis/rest/services/Addresses/MapServer',              ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.co.delaware.in.us/arcgis/rest/services/Boundaries/MapServer',             ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.co.delaware.in.us/arcgis/rest/services/FloodZones/MapServer',             ids:[0], name:'Flood Zones',          cat:'hydrology'},
-  ],
-
-  // ── Howard County (Kokomo) ───────────────────────────────────────────────────
-  howard: [
-    {svc:'https://gis.howardcountyin.gov/arcgis/rest/services/Parcels/MapServer',               ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.howardcountyin.gov/arcgis/rest/services/Zoning/MapServer',                ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.howardcountyin.gov/arcgis/rest/services/Roads/MapServer',                 ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.howardcountyin.gov/arcgis/rest/services/Addresses/MapServer',             ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.howardcountyin.gov/arcgis/rest/services/Boundaries/MapServer',            ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.howardcountyin.gov/arcgis/rest/services/FloodZones/MapServer',            ids:[0], name:'Flood Zones',          cat:'hydrology'},
-  ],
-
-  // ── Madison County (Anderson) ────────────────────────────────────────────────
-  madison: [
-    {svc:'https://gis.madisoncounty.in.gov/arcgis/rest/services/Parcels/MapServer',             ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.madisoncounty.in.gov/arcgis/rest/services/Zoning/MapServer',              ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.madisoncounty.in.gov/arcgis/rest/services/Roads/MapServer',               ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.madisoncounty.in.gov/arcgis/rest/services/Addresses/MapServer',           ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.madisoncounty.in.gov/arcgis/rest/services/Boundaries/MapServer',          ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.madisoncounty.in.gov/arcgis/rest/services/FloodZones/MapServer',          ids:[0], name:'Flood Zones',          cat:'hydrology'},
-  ],
-
-  // ── Wayne County (Richmond) ──────────────────────────────────────────────────
-  wayne: [
-    {svc:'https://gis.co.wayne.in.us/arcgis/rest/services/Parcels/MapServer',                   ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.co.wayne.in.us/arcgis/rest/services/Zoning/MapServer',                    ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.co.wayne.in.us/arcgis/rest/services/Roads/MapServer',                     ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.co.wayne.in.us/arcgis/rest/services/Addresses/MapServer',                 ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.co.wayne.in.us/arcgis/rest/services/Boundaries/MapServer',                ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.co.wayne.in.us/arcgis/rest/services/FloodZones/MapServer',                ids:[0], name:'Flood Zones',          cat:'hydrology'},
-  ],
-
-  // ── Hancock County ───────────────────────────────────────────────────────────
-  hancock: [
-    {svc:'https://gis.co.hancock.in.us/arcgis/rest/services/Parcels/MapServer',                 ids:[0], name:'Parcels',               cat:'parcels'},
-    {svc:'https://gis.co.hancock.in.us/arcgis/rest/services/Zoning/MapServer',                  ids:[0], name:'Zoning Districts',      cat:'zoning'},
-    {svc:'https://gis.co.hancock.in.us/arcgis/rest/services/Roads/MapServer',                   ids:[0], name:'Roads / Centerlines',  cat:'transportation'},
-    {svc:'https://gis.co.hancock.in.us/arcgis/rest/services/Addresses/MapServer',               ids:[0], name:'Address Points',       cat:'parcels'},
-    {svc:'https://gis.co.hancock.in.us/arcgis/rest/services/Boundaries/MapServer',              ids:[0], name:'Municipal Boundaries', cat:'civic'},
-    {svc:'https://gis.co.hancock.in.us/arcgis/rest/services/FloodZones/MapServer',              ids:[0], name:'Flood Zones',          cat:'hydrology'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[3],  name:'Parcels',                  cat:'parcels'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[20], name:'Address Points',           cat:'parcels'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[5],  name:'Subdivisions',             cat:'parcels'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Zoning/MapServer',        ids:[0],  name:'Zoning Districts',         cat:'zoning'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/ZoningOnly/MapServer',    ids:[0],  name:'Zoning Only',              cat:'zoning'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/APC/MapServer',           ids:[0],  name:'Area Plan Commission',     cat:'zoning'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[40], name:'Zoning (General)',         cat:'zoning'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/FIRM/MapServer',          ids:[0],  name:'Flood Zones (FIRM)',       cat:'hydrology'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Drains/MapServer',        ids:[0],  name:'Drainage',                 cat:'hydrology'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/All_Flooding_Hazard_Areas/MapServer', ids:[0], name:'All Flood Hazard Areas', cat:'hydrology'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[30], name:'Roads / Centerlines',      cat:'transportation'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Road/MapServer',          ids:[0],  name:'Road Network',             cat:'transportation'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Road_ROW/MapServer',      ids:[0],  name:'Road Right of Way',        cat:'transportation'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Bridges/MapServer',       ids:[0],  name:'Bridges',                  cat:'transportation'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[60], name:'Cities & Towns',           cat:'civic'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[2],  name:'Townships',                cat:'civic'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[6],  name:'Tax Districts',            cat:'civic'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Sections/MapServer',      ids:[0],  name:'Survey Sections',          cat:'civic'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Voting/MapServer',        ids:[0],  name:'Voting Precincts',         cat:'districts'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Township_Trustees/MapServer', ids:[0], name:'Township Trustees',    cat:'districts'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Garage_Districts/MapServer',  ids:[0], name:'Garage Districts',      cat:'districts'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Contours_2023/MapServer', ids:[0],  name:'Contours 2023',           cat:'environment'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/soils/MapServer',         ids:[0],  name:'Soils',                   cat:'environment'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Statewide_Apt_Sales/MapServer', ids:[0], name:'Apartment Sales',    cat:'parcels'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Zoning_Violations/MapServer',  ids:[0], name:'Zoning Violations',   cat:'zoning'},
+    {svc:'https://maps.tippecanoe.in.gov/server/rest/services/Surveyor/MapServer',      ids:[0],  name:'Surveyor',                cat:'civic'},
   ],
 
 };
