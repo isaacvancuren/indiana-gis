@@ -1526,10 +1526,87 @@ const JOHNSON_LAYERS = [
   {svc:`${JC_BASE}/Council/MapServer`,                       ids:[0], name:'Council Districts',              cat:'districts'},
 ];
 
+
+// ── Marion County (Indianapolis) — Multi-service ArcGIS layer list ───────────
+// Primary server: https://gis.indy.gov/server/rest/services/MapIndy/
+// Sources confirmed from MapIndy service catalog:
+//   MapIndy/MapIndyProperty — parcels, address, buildings, zoning, utilities, boundaries
+//   MapIndy/Zoning          — zoning districts, variances, historic areas, flood zones
+//   MapIndy/PoliticalBoundaries — townships, cities, school corps, voting districts
+//   MapIndy/LawEnforcementFeatures — police, fire, emergency
+//   MapIndy/IndyBrownfields — brownfield inventory
+//   MapIndy/VotingPrecinctsElectionResults — precincts, election results
+const MC_BASE = 'https://gis.indy.gov/server/rest/services/MapIndy';
+const MARION_LAYERS = [
+
+  // ── PARCELS & PROPERTY ──────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[10],  name:'Parcels',                       cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[0],   name:'Address Points',                cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[8],   name:'Buildings',                     cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[9],   name:'Right of Way',                  cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[11],  name:'Abandoned & Vacant Properties', cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[16],  name:'Abandoned & Vacant (Points)',   cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[27],  name:'Registered Landlord Properties',cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[13],  name:'Easements',                     cat:'parcels'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[19],  name:'Subdivisions',                  cat:'parcels'},
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[4],   name:'Building Footprints (Zoning)',  cat:'parcels'},
+
+  // ── PARCEL ANNOTATIONS ──────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[12],  name:'Street Labels',                 cat:'annotations'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[1],   name:'Landmarks',                     cat:'annotations'},
+
+  // ── ZONING & PLANNING ───────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[6],   name:'Zoning Districts',              cat:'zoning'},
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[5],   name:'Rezoning',                      cat:'zoning'},
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[1],   name:'Zoning Variances',              cat:'zoning'},
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[2],   name:'Legal Non-Conforming Use',      cat:'zoning'},
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[3],   name:'Development Approvals',         cat:'zoning'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[17],  name:'Zoning (Property View)',        cat:'zoning'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[18],  name:'Rezoning (Property View)',      cat:'zoning'},
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[8],   name:'Historically Significant Areas',cat:'zoning'},
+
+  // ── HYDROLOGY & FLOOD ───────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/Zoning/MapServer`,          ids:[7],   name:'Flood Zones (FEMA)',            cat:'hydrology'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[28],  name:'Flood Zones (Property View)',   cat:'hydrology'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[14],  name:'Legal Drains',                  cat:'hydrology'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[4,5], name:'Sanitary Sewers & Manholes',   cat:'hydrology'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[6,7], name:'Storm Sewers & Manholes',      cat:'hydrology'},
+
+  // ── TRANSPORTATION ──────────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[2,3], name:'Contours (2016)',               cat:'environment'},
+
+  // ── CIVIC BOUNDARIES ────────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[20],  name:'Excluded Cities',               cat:'civic'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[21],  name:'Towns',                         cat:'civic'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[22],  name:'Zip Codes',                     cat:'civic'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[23],  name:'2010 Census Tracts',            cat:'civic'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[24],  name:'Survey Quarter Sections',       cat:'civic'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[25],  name:'Township Boundaries',           cat:'civic'},
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[0], name:'Cities (Indianapolis)',       cat:'civic'},
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[2], name:'Towns (Boundaries)',          cat:'civic'},
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[3], name:'Township Boundaries (Political)', cat:'civic'},
+
+  // ── DISTRICTS & POLITICAL ───────────────────────────────────────────────────
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[1], name:'School Corporations',        cat:'districts'},
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[4], name:'Voting Township Boards',     cat:'districts'},
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[6], name:'Voting Township Boards (Current)', cat:'districts'},
+  {svc:`${MC_BASE}/PoliticalBoundaries/MapServer`, ids:[7], name:'Town Council Districts',     cat:'districts'},
+  {svc:`${MC_BASE}/VotingPrecinctsElectionResults/MapServer`, ids:[0], name:'Voting Precincts', cat:'districts'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[26],  name:'Fire Marshal Districts',       cat:'districts'},
+
+  // ── POINTS OF INTEREST / CIVIC FACILITIES ───────────────────────────────────
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[15],  name:'Fire Stations',                cat:'poi'},
+  {svc:`${MC_BASE}/LawEnforcementFeatures/MapServer`, ids:[0], name:'Law Enforcement Features', cat:'poi'},
+
+  // ── ENVIRONMENT ─────────────────────────────────────────────────────────────
+  {svc:`${MC_BASE}/IndyBrownfields/MapServer`, ids:[0],   name:'Brownfields Site Inventory',   cat:'environment'},
+  {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[29],  name:'Brownfields (Property View)',  cat:'environment'},
+];
 // ── County layer registry ─────────────────────────────────────────────────────
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
   johnson:     JOHNSON_LAYERS,
+  marion:      MARION_LAYERS,
 };
 
 async function fetchCountyLayers(cKey) {
