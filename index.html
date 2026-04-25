@@ -103,13 +103,58 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .hbtn-accent:hover{border-color:var(--accent)!important;background:var(--accent-dim)!important;}
 
 /* county selector */
-#county-sel{
+#county-picker-wrap{position:relative;flex-shrink:0;}
+#county-picker-display{
+  display:flex;align-items:center;gap:5px;
   background:var(--panel2);border:1px solid var(--border);
-  color:var(--text);padding:6px 8px;border-radius:var(--radius);
-  font-size:12px;font-family:'Barlow',sans-serif;cursor:pointer;outline:none;
-  transition:border-color .15s;
+  border-radius:var(--radius);padding:4px 8px;cursor:pointer;
+  min-width:150px;max-width:260px;font-size:11px;
+  transition:border-color .15s;user-select:none;
 }
-#county-sel:focus{border-color:var(--accent);}
+#county-picker-display:hover{border-color:var(--border2);}
+#county-tags{display:flex;gap:3px;flex-wrap:wrap;flex:1;min-width:0;align-items:center;}
+.ctag{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.35);
+  color:#67e8f9;border-radius:10px;padding:1px 6px 1px 7px;font-size:10px;
+  white-space:nowrap;
+}
+.ctag-x{cursor:pointer;opacity:.7;font-size:9px;margin-left:1px;}
+.ctag-x:hover{opacity:1;color:#fff;}
+.ctag-placeholder{color:var(--text3);font-size:11px;}
+#county-dropdown{
+  position:absolute;top:calc(100% + 4px);left:0;z-index:2000;
+  background:var(--panel);border:1px solid var(--border2);
+  border-radius:var(--radius);width:230px;box-shadow:0 8px 24px rgba(0,0,0,.5);
+  display:none;flex-direction:column;max-height:340px;overflow:hidden;
+}
+#county-dropdown.open{display:flex;}
+#county-search-wrap{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+#county-search-inp{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-size:11px;font-family:'Barlow',sans-serif;
+}
+#county-list-scroll{overflow-y:auto;flex:1;max-height:280px;}
+.copt{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;cursor:pointer;font-size:12px;color:var(--text2);
+  transition:background .1s;
+}
+.copt:hover{background:var(--panel2);}
+.copt.selected{color:var(--accent);}
+.copt-check{
+  width:13px;height:13px;border:1px solid var(--border2);
+  border-radius:3px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:8px;transition:all .1s;
+}
+.copt.selected .copt-check{background:var(--accent);border-color:var(--accent);color:#080b0f;}
+.copt-group{
+  padding:5px 10px 2px;font-size:9px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--text3);pointer-events:none;
+}
 
 /* ━━━ LAYOUT ━━━ */
 #app{position:fixed;top:var(--header);left:0;right:0;bottom:0;display:flex;}
@@ -573,7 +618,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   #mobile-nav{display:flex;}
   #app{bottom:56px;}
   #sbar{display:none;}
-  #header #county-sel{display:none;}
+  #header #county-picker-wrap{display:none;}
 }
 .li-ctrl{display:flex;align-items:center;gap:4px;margin-left:auto;}
 .li-opac{width:52px;accent-color:var(--accent);cursor:pointer;height:3px;}
@@ -712,113 +757,20 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   </div>
 
   <div class="hsep"></div>
-  <select id="county-sel" title="Select County">
-    <option value="all">🗺 All Indiana</option>
-    <optgroup label="── Central ──">
-    <option value="bartholomew" selected>Bartholomew</option>
-    <option value="boone">Boone</option>
-    <option value="hamilton">Hamilton</option>
-    <option value="hancock">Hancock</option>
-    <option value="hendricks">Hendricks</option>
-    <option value="johnson">Johnson</option>
-    <option value="madison">Madison</option>
-    <option value="marion">Marion</option>
-    <option value="morgan">Morgan</option>
-    <option value="shelby">Shelby</option>
-    </optgroup>
-    <optgroup label="── North ──">
-    <option value="allen">Allen</option>
-    <option value="cass">Cass</option>
-    <option value="dekalb">DeKalb</option>
-    <option value="elkhart">Elkhart</option>
-    <option value="fulton">Fulton</option>
-    <option value="howard">Howard</option>
-    <option value="huntington">Huntington</option>
-    <option value="jasper">Jasper</option>
-    <option value="kosciusko">Kosciusko</option>
-    <option value="lagrange">LaGrange</option>
-    <option value="lake">Lake</option>
-    <option value="laporte">LaPorte</option>
-    <option value="marshall">Marshall</option>
-    <option value="miami">Miami</option>
-    <option value="newton">Newton</option>
-    <option value="noble">Noble</option>
-    <option value="porter">Porter</option>
-    <option value="pulaski">Pulaski</option>
-    <option value="starke">Starke</option>
-    <option value="stjoseph">St. Joseph</option>
-    <option value="steuben">Steuben</option>
-    <option value="tippecanoe">Tippecanoe</option>
-    <option value="tipton">Tipton</option>
-    <option value="wabash">Wabash</option>
-    <option value="wells">Wells</option>
-    <option value="white">White</option>
-    <option value="whitley">Whitley</option>
-    </optgroup>
-    <optgroup label="── East ──">
-    <option value="adams">Adams</option>
-    <option value="blackford">Blackford</option>
-    <option value="carroll">Carroll</option>
-    <option value="clinton">Clinton</option>
-    <option value="delaware">Delaware</option>
-    <option value="fayette">Fayette</option>
-    <option value="fountain">Fountain</option>
-    <option value="grant">Grant</option>
-    <option value="henry">Henry</option>
-    <option value="jay">Jay</option>
-    <option value="montgomery">Montgomery</option>
-    <option value="randolph">Randolph</option>
-    <option value="rush">Rush</option>
-    <option value="union">Union</option>
-    <option value="wayne">Wayne</option>
-    </optgroup>
-    <optgroup label="── Southeast ──">
-    <option value="brown">Brown</option>
-    <option value="clark">Clark</option>
-    <option value="dearborn">Dearborn</option>
-    <option value="decatur">Decatur</option>
-    <option value="floyd">Floyd</option>
-    <option value="franklin">Franklin</option>
-    <option value="jackson">Jackson</option>
-    <option value="jefferson">Jefferson</option>
-    <option value="jennings">Jennings</option>
-    <option value="ohio">Ohio</option>
-    <option value="ripley">Ripley</option>
-    <option value="scott">Scott</option>
-    <option value="switzerland">Switzerland</option>
-    </optgroup>
-    <optgroup label="── South ──">
-    <option value="crawford">Crawford</option>
-    <option value="daviess">Daviess</option>
-    <option value="dubois">Dubois</option>
-    <option value="gibson">Gibson</option>
-    <option value="greene">Greene</option>
-    <option value="harrison">Harrison</option>
-    <option value="knox">Knox</option>
-    <option value="lawrence">Lawrence</option>
-    <option value="martin">Martin</option>
-    <option value="monroe">Monroe</option>
-    <option value="orange">Orange</option>
-    <option value="owen">Owen</option>
-    <option value="perry">Perry</option>
-    <option value="pike">Pike</option>
-    <option value="posey">Posey</option>
-    <option value="spencer">Spencer</option>
-    <option value="sullivan">Sullivan</option>
-    <option value="vanderburgh">Vanderburgh</option>
-    <option value="warrick">Warrick</option>
-    <option value="washington">Washington</option>
-    </optgroup>
-    <optgroup label="── West ──">
-    <option value="benton">Benton</option>
-    <option value="clay">Clay</option>
-    <option value="parke">Parke</option>
-    <option value="putnam">Putnam</option>
-    <option value="vermillion">Vermillion</option>
-    <option value="vigo">Vigo</option>
-    <option value="warren">Warren</option>
-    </optgroup>
-  </select>
+  <div id="county-picker-wrap">
+    <div id="county-picker-display" onclick="toggleCountyDropdown(event)" title="Select one or more counties">
+      <i class="fas fa-map-location-dot" style="color:var(--accent);font-size:11px;flex-shrink:0;"></i>
+      <div id="county-tags"></div>
+      <i class="fas fa-chevron-down" style="font-size:9px;color:var(--text3);margin-left:auto;flex-shrink:0;"></i>
+    </div>
+    <div id="county-dropdown">
+      <div id="county-search-wrap">
+        <i class="fas fa-magnifying-glass" style="font-size:10px;color:var(--text3);"></i>
+        <input id="county-search-inp" placeholder="Search county…" oninput="filterCountyList(this.value)" onclick="event.stopPropagation()" autocomplete="off"/>
+      </div>
+      <div id="county-list-scroll"></div>
+    </div>
+  </div>
 
   <div id="hbtns">
     <button class="hbtn" onclick="openModal('print-modal')" title="Print Map">
@@ -4476,6 +4428,9 @@ window.addEventListener('load', async () => {
 
   updateLegend();
   setTimeout(() => notify('Mapnova — Live data loading…', 'fa-map-location-dot'), 700);
+  // Initialize multi-county picker display
+  INDIANA_COUNTIES.bartholomew.key = 'bartholomew';
+  if (typeof renderCountyTags === 'function') renderCountyTags();
 });
 window.addEventListener('resize',()=>map.invalidateSize());
 // ══════════════════════════════════════════════

@@ -1714,12 +1714,96 @@ async function buildCountyLayerPanel(cKey) {
 }
 
 async function refreshCountyLayers() {
-  const cKey = activeCounty
-    ? activeCounty.name.toLowerCase().replace(' county','').replace(/[^a-z]/g,'')
-    : 'bartholomew';
-  await buildCountyLayerPanel(cKey);
+  const keys = activeCounties.length
+    ? activeCounties.map(c => c.key || c.name.toLowerCase().replace(' county','').replace(/[^a-z]/g,''))
+    : ['bartholomew'];
+  await buildMultiCountyLayerPanel(keys);
   Object.keys(ownerCache).forEach(k => delete ownerCache[k]);
   setTimeout(prefetchOwnershipForView, 1800);
+}
+
+// ── Multi-county layer panel builder ─────────────────────────────────────────
+async function buildMultiCountyLayerPanel(cKeys) {
+  const container = document.getElementById('county-layers-container');
+  if (!container) return;
+  const names = cKeys.map(k => (INDIANA_COUNTIES[k]||{name:k}).name).join(' + ');
+  container.innerHTML = `<div style="padding:14px;color:var(--text3);font-size:11px;text-align:center;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;color:var(--accent);"></i>Loading ${names}…</div>`;
+
+  // Remove old county layers
+  const KEEP = new Set(['parcels','flood','imagery','imagery-labels']);
+  Object.keys(gisLayers).forEach(k => {
+    if (KEEP.has(k)) return;
+    if (map.hasLayer(gisLayers[k])) map.removeLayer(gisLayers[k]);
+    delete gisLayers[k];
+  });
+  [...activeLyrs].forEach(k => { if (!KEEP.has(k)) activeLyrs.delete(k); });
+
+  // Fetch layers for all counties in parallel
+  const allLayerSets = await Promise.all(cKeys.map(k => fetchCountyLayers(k)));
+
+  // Merge: categories → layers, tagged with which counties they belong to
+  // Key = cat+name for dedup awareness; if same name exists in multiple counties keep both (they're different services)
+  const merged = {}; // cat → [{...lyr, _county: key}]
+  cKeys.forEach((cKey, ci) => {
+    (allLayerSets[ci]||[]).forEach(lyr => {
+      if (!merged[lyr.cat]) merged[lyr.cat] = [];
+      merged[lyr.cat].push({...lyr, _county: cKey});
+    });
+  });
+
+  const ts = Date.now();
+  const swatchIcons = {
+    parcels:      {icon:'fa-draw-polygon',  color:'#f59e0b'},
+    annotations:  {icon:'fa-pen-ruler',     color:'#94a3b8'},
+    zoning:       {icon:'fa-map',           color:'#eab308'},
+    hydrology:    {icon:'fa-water',         color:'#38bdf8'},
+    transportation:{icon:'fa-road',         color:'#94a3b8'},
+    districts:    {icon:'fa-flag',          color:'#60a5fa'},
+    civic:        {icon:'fa-landmark',      color:'#fbbf24'},
+    poi:          {icon:'fa-location-dot',  color:'#f472b6'},
+    utility:      {icon:'fa-bolt',          color:'#facc15'},
+    environment:  {icon:'fa-leaf',          color:'#4ade80'},
+    other:        {icon:'fa-layer-group',   color:'#a78bfa'},
+  };
+
+  let panelHtml = '';
+  let totalLayers = 0;
+
+  CAT_ORDER.forEach(cat => {
+    if (!merged[cat] || !merged[cat].length) return;
+    const meta = CATEGORY_META[cat];
+    panelHtml += `<div class="lgrp"><div class="lgh" onclick="toggleGrp(this)"><i class="fas ${meta.icon} gi" style="color:${meta.color};"></i> ${meta.label} <span style="font-size:9px;opacity:.4;margin-left:3px;">${merged[cat].length}</span><i class="fas fa-chevron-right arr"></i></div><div class="lgitems">`;
+
+    merged[cat].forEach((lyr, idx) => {
+      const key = 'lyr-' + lyr._county + '-' + cat + '-' + idx;
+      const ids  = lyr.ids || [lyr.id];
+      const svc  = lyr.svc || null;
+      const tl   = new ArcGISCountyLayer(ids, 0.75, svc);
+      tl._ts = ts;
+      gisLayers[key] = tl;
+      const sw   = swatchIcons[lyr.cat] || swatchIcons.other;
+      const safe = lyr.name.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
+      // Show county badge if multiple counties selected
+      const badge = cKeys.length > 1
+        ? `<span style="font-size:9px;opacity:.4;margin-left:3px;white-space:nowrap;">${lyr._county.slice(0,4)}</span>`
+        : '';
+      panelHtml += `<div class="li"><input type="checkbox" id="cb-${key}" onchange="toggleLyr('${key}',this)"><i class="fas ${sw.icon} li-icon" style="color:${sw.color};"></i><span class="ln">${safe}${badge}</span></div>`;
+      totalLayers++;
+    });
+    panelHtml += '</div></div>';
+  });
+
+  if (!panelHtml) {
+    container.innerHTML = `<div style="padding:14px;color:var(--text3);font-size:11px;">No layers found for selected counties.</div>`;
+    return;
+  }
+
+  container.innerHTML = panelHtml;
+  const firstHdr = container.querySelector('.lgh');
+  if (firstHdr) { firstHdr.classList.add('open'); firstHdr.nextElementSibling.classList.add('open'); }
+
+  updateLegend(); updateLayerBadge();
+  notify('Loaded ' + totalLayers + ' layers for ' + names, 'fa-layer-group');
 }
 
 // ── Permanent layer registry (statewide — all 92 counties) ───────────────────
@@ -2583,41 +2667,143 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
   }
 }
 // Active county state
-let activeCounty = INDIANA_COUNTIES.bartholomew;
+let activeCounty  = INDIANA_COUNTIES.bartholomew; // kept for legacy compat
+INDIANA_COUNTIES.bartholomew.key = 'bartholomew';
+let activeCounties = [INDIANA_COUNTIES.bartholomew];   // multi-county array
 
-// ── County selector handler ───────────────────────────────────────────────────
-document.getElementById('county-sel').addEventListener('change', function() {
-  const key = this.value;
+// ── Multi-County Picker ──────────────────────────────────────────────────────
+const ALL_COUNTY_KEYS = Object.keys(INDIANA_COUNTIES);
+
+function renderCountyTags() {
+  const wrap = document.getElementById('county-tags');
+  if (!wrap) return;
+  wrap.innerHTML = activeCounties.length === 0
+    ? '<span class="ctag-placeholder">Select county…</span>'
+    : activeCounties.map(c =>
+        `<span class="ctag">${c.name.replace(' County','')}<span class="ctag-x" onclick="removeCounty(event,'${c.key}')">✕</span></span>`
+      ).join('');
+}
+
+function buildCountyOptionList(filter) {
+  const scroll = document.getElementById('county-list-scroll');
+  if (!scroll) return;
+  const groups = {
+    'Central':['bartholomew','boone','hamilton','hancock','hendricks','johnson','madison','marion','morgan','shelby'],
+    'North':['allen','cass','dekalb','elkhart','fulton','howard','huntington','jasper','kosciusko','lagrange','lake','laporte','marshall','miami','newton','noble','porter','pulaski','starke','steuben','tipton','wabash','whitley'],
+    'South':['bartholomew','brown','clark','crawford','daviess','dearborn','decatur','dubois','fayette','floyd','franklin','gibson','greene','harrison','jackson','jefferson','jennings','knox','lawrence','martin','ohio','orange','perry','pike','posey','ripley','rush','scott','spencer','sullivan','switzerland','union','vanderburgh','vermillion','vigo','warrick','washington','wayne'],
+  };
+  // deduplicate
+  const seen = new Set();
+  const f = (filter||'').toLowerCase();
+  let html = '';
+  ['Central','North','South'].forEach(grp => {
+    const keys = (groups[grp]||[]).filter(k => {
+      if (seen.has(k)) return false;
+      const c = INDIANA_COUNTIES[k];
+      if (!c) return false;
+      if (f && !c.name.toLowerCase().includes(f)) return false;
+      seen.add(k);
+      return true;
+    });
+    if (!keys.length) return;
+    html += `<div class="copt-group">${grp}</div>`;
+    keys.forEach(k => {
+      const c = INDIANA_COUNTIES[k];
+      const sel = activeCounties.some(x => x.key === k);
+      html += `<div class="copt${sel?' selected':''}" onclick="toggleCounty('${k}')">
+        <span class="copt-check">${sel?'✓':''}</span>${c.name.replace(' County','')}</div>`;
+    });
+  });
+  // Any keys not in groups
+  const remaining = ALL_COUNTY_KEYS.filter(k => !seen.has(k) && INDIANA_COUNTIES[k] && (!f || INDIANA_COUNTIES[k].name.toLowerCase().includes(f)));
+  if (remaining.length) {
+    html += '<div class="copt-group">Other</div>';
+    remaining.forEach(k => {
+      const c = INDIANA_COUNTIES[k];
+      const sel = activeCounties.some(x => x.key === k);
+      html += `<div class="copt${sel?' selected':''}" onclick="toggleCounty('${k}')">
+        <span class="copt-check">${sel?'✓':''}</span>${c.name.replace(' County','')}</div>`;
+    });
+  }
+  scroll.innerHTML = html || '<div style="padding:12px;color:var(--text3);font-size:11px;">No matches</div>';
+}
+
+function toggleCountyDropdown(e) {
+  e && e.stopPropagation();
+  const dd = document.getElementById('county-dropdown');
+  if (!dd) return;
+  const isOpen = dd.classList.contains('open');
+  if (isOpen) { dd.classList.remove('open'); return; }
+  dd.classList.add('open');
+  buildCountyOptionList('');
+  const inp = document.getElementById('county-search-inp');
+  if (inp) { inp.value=''; inp.focus(); }
+}
+
+function filterCountyList(v) { buildCountyOptionList(v); }
+
+function toggleCounty(key) {
   const c = INDIANA_COUNTIES[key];
   if (!c) return;
-  activeCounty = c;
-  map.setView([c.lat, c.lng], c.z);
-  document.getElementById('county-disp').innerHTML =
-    `<i class="fas fa-map" style="margin-right:4px;"></i>${c.name}`;
+  c.key = key;
+  const idx = activeCounties.findIndex(x => x.key === key);
+  if (idx >= 0) {
+    if (activeCounties.length === 1) return; // must keep at least one
+    activeCounties.splice(idx, 1);
+  } else {
+    activeCounties.push(c);
+  }
+  activeCounty = activeCounties[activeCounties.length - 1];
+  activeCounty.key = Object.keys(INDIANA_COUNTIES).find(k => INDIANA_COUNTIES[k] === activeCounty);
+  renderCountyTags();
+  buildCountyOptionList(document.getElementById('county-search-inp')?.value || '');
+  onCountiesChanged();
+}
 
-  // Clear parcel cache and layer so new county loads fresh
+function removeCounty(e, key) {
+  e.stopPropagation();
+  if (activeCounties.length === 1) return;
+  const idx = activeCounties.findIndex(x => x.key === key);
+  if (idx >= 0) activeCounties.splice(idx, 1);
+  activeCounty = activeCounties[activeCounties.length - 1];
+  renderCountyTags();
+  onCountiesChanged();
+}
+
+function onCountiesChanged() {
+  // Pan to the last-added county
+  const c = activeCounties[activeCounties.length - 1];
+  if (c) map.setView([c.lat, c.lng], c.z);
+
+  // Update PRC county display
+  const cn = document.getElementById('prc-county-name');
+  if (cn) cn.textContent = activeCounties.map(x => x.name).join(', ');
+  document.getElementById('county-disp') &&
+    (document.getElementById('county-disp').innerHTML =
+      `<i class="fas fa-map" style="margin-right:4px;"></i>${activeCounties.map(x=>x.name).join(', ')}`);
+
+  // Clear parcel cache
   parcelTileCache.clear();
   loadedParcelIds.clear();
   parcelLayer.clearLayers();
-
-  // Update PRC county name in sidebar
-  const cn = document.getElementById('prc-county-name');
-  if (cn) cn.textContent = c.name;
-
-  // Clear selected parcel
   selectedLayer = null; selectedParcel = null; window._selectedLiveParcel = null;
-  document.getElementById('parcel-empty').style.display = '';
-  document.getElementById('parcel-detail').style.display = 'none';
+  const pe = document.getElementById('parcel-empty');
+  const pd = document.getElementById('parcel-detail');
+  if (pe) pe.style.display = '';
+  if (pd) pd.style.display = 'none';
 
-  // Trigger load for new county
   setTimeout(loadParcelsForView, 300);
-  // Refresh all county-specific GIS layers to show new county's data
   refreshCountyLayers();
-  // Clear ownership cache so new county's data is fetched fresh
   Object.keys(ownerCache).forEach(k => delete ownerCache[k]);
-  // Pre-warm new county's ownership after parcels load
   setTimeout(prefetchOwnershipForView, 2500);
-  notify('Switched to ' + c.name + ' — loading live data…', 'fa-map');
+  const names = activeCounties.map(x => x.name.replace(' County','')).join(' + ');
+  notify('Showing ' + names + ' — loading data…', 'fa-map');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+  const dd = document.getElementById('county-dropdown');
+  if (dd) dd.classList.remove('open');
 });
 
 
@@ -2746,7 +2932,7 @@ window.addEventListener('load', async () => {
   drawTrend();
 
   // Build county layer panel for default county (Bartholomew)
-  await buildCountyLayerPanel('bartholomew');
+  await buildMultiCountyLayerPanel(['bartholomew']);
 
   setTimeout(() => {
     updateLayerBadge();
