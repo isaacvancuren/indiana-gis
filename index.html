@@ -103,74 +103,17 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .hbtn-accent:hover{border-color:var(--accent)!important;background:var(--accent-dim)!important;}
 
 /* county selector */
-/* ── Custom county picker ─────────────────────────────────── */
-.county-picker{position:relative;flex-shrink:0;}
-.county-btn{
-  display:flex;align-items:center;gap:7px;
-  background:var(--panel2);border:1px solid var(--border);
-  border-radius:var(--radius);padding:5px 10px;
-  color:var(--text);font-size:12px;font-family:'Barlow',sans-serif;
-  cursor:pointer;transition:border-color .15s,background .15s;
-  white-space:nowrap;min-width:130px;max-width:220px;
+#county-sel{
+  background:var(--panel2);border:1px solid rgba(6,182,212,.3);
+  color:#67e8f9;padding:6px 10px;border-radius:var(--radius);
+  font-size:12px;font-family:'Barlow',sans-serif;cursor:pointer;outline:none;
+  transition:border-color .15s,background .15s;
+  -webkit-appearance:none;appearance:none;
 }
-.county-btn:hover{border-color:var(--border2);background:var(--panel3);}
-.county-btn.open{border-color:var(--accent);background:var(--panel3);}
-#county-btn-label{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;}
-.county-btn-arrow{font-size:9px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
-.county-btn.open .county-btn-arrow{transform:rotate(180deg);color:var(--accent);}
-.county-dropdown{
-  position:absolute;top:calc(100% + 5px);left:0;z-index:9999;
-  background:var(--panel);border:1px solid var(--border2);
-  border-radius:var(--radius);width:210px;
-  box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 0 1px rgba(6,182,212,.08);
-  display:none;flex-direction:column;overflow:hidden;
-}
-.county-dropdown.open{display:flex;}
-.county-search-row{
-  display:flex;align-items:center;gap:7px;
-  padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.county-search{
-  flex:1;background:transparent;border:none;outline:none;
-  color:var(--text);font-size:11px;font-family:'Barlow',sans-serif;
-}
-.county-search::placeholder{color:var(--text3);}
-.county-clear-btn{
-  background:none;border:none;color:var(--text3);cursor:pointer;
-  font-size:10px;padding:0 2px;line-height:1;
-}
-.county-clear-btn:hover{color:var(--text);}
-.county-hint{
-  font-size:9px;color:var(--text3);padding:4px 10px;
-  border-bottom:1px solid var(--border);background:var(--panel2);
-  letter-spacing:.2px;flex-shrink:0;
-}
-.county-list{overflow-y:auto;max-height:280px;padding:4px 0;}
-.county-list::-webkit-scrollbar{width:4px;}
-.county-list::-webkit-scrollbar-track{background:transparent;}
-.county-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.county-group-label{
-  font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
-  color:var(--text3);padding:6px 10px 3px;pointer-events:none;
-}
-.county-opt{
-  display:flex;align-items:center;gap:9px;
-  padding:6px 10px;cursor:pointer;font-size:12px;color:var(--text2);
-  transition:background .08s,color .08s;border-radius:0;
-}
-.county-opt:hover{background:var(--panel2);color:var(--text);}
-.county-opt.selected{color:var(--accent);}
-.county-opt.selected:hover{background:rgba(6,182,212,.08);}
-.county-check{
-  width:14px;height:14px;border:1px solid var(--border2);
-  border-radius:3px;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;font-size:8px;color:transparent;
-  transition:all .1s;background:transparent;
-}
-.county-opt.selected .county-check{
-  background:var(--accent);border-color:var(--accent);color:#080b0f;
-}
-.county-opt[style*="display:none"]{display:none!important;}
+#county-sel:hover{border-color:rgba(6,182,212,.6);background:var(--panel3);}
+#county-sel:focus{border-color:var(--accent);background:var(--panel3);}
+#county-sel option{background:#0e1420;color:#dde4f0;}
+#county-sel optgroup{background:#0a0e18;color:rgba(6,182,212,.5);font-size:10px;}
 
 /* ━━━ LAYOUT ━━━ */
 #app{position:fixed;top:var(--header);left:0;right:0;bottom:0;display:flex;}
@@ -634,7 +577,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   #mobile-nav{display:flex;}
   #app{bottom:56px;}
   #sbar{display:none;}
-  #header .county-picker{display:none;}
+  #header #county-sel{display:none;}
 }
 .li-ctrl{display:flex;align-items:center;gap:4px;margin-left:auto;}
 .li-opac{width:52px;accent-color:var(--accent);cursor:pointer;height:3px;}
@@ -773,399 +716,113 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   </div>
 
   <div class="hsep"></div>
-    <!-- Custom county dropdown — replaces native select for proper dark theme styling -->
-  <div id="county-picker" class="county-picker">
-    <button id="county-btn" class="county-btn" onclick="toggleCountyPicker(event)" type="button">
-      <i class="fas fa-map-location-dot" style="color:var(--accent);font-size:10px;flex-shrink:0;"></i>
-      <span id="county-btn-label">Bartholomew</span>
-      <i class="fas fa-chevron-down county-btn-arrow" id="county-arrow"></i>
-    </button>
-    <div id="county-dropdown" class="county-dropdown">
-      <div class="county-search-row">
-        <i class="fas fa-magnifying-glass" style="font-size:9px;color:var(--text3);flex-shrink:0;"></i>
-        <input id="county-search" class="county-search" placeholder="Search counties…" 
-               oninput="filterCounties(this.value)" onclick="event.stopPropagation()" autocomplete="off" type="text">
-        <button class="county-clear-btn" onclick="clearCountySearch()" type="button" title="Clear">✕</button>
-      </div>
-      <div class="county-hint">Ctrl+click or tap to select multiple</div>
-      <div id="county-list" class="county-list">
-        <div class="county-group-label">Central</div>
-        <div class="county-opt " data-value="bartholomew" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Bartholomew</span>
-        </div>
-        <div class="county-opt " data-value="boone" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Boone</span>
-        </div>
-        <div class="county-opt " data-value="hamilton" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Hamilton</span>
-        </div>
-        <div class="county-opt " data-value="hancock" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Hancock</span>
-        </div>
-        <div class="county-opt " data-value="hendricks" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Hendricks</span>
-        </div>
-        <div class="county-opt " data-value="johnson" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Johnson</span>
-        </div>
-        <div class="county-opt " data-value="madison" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Madison</span>
-        </div>
-        <div class="county-opt " data-value="marion" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Marion</span>
-        </div>
-        <div class="county-opt " data-value="morgan" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Morgan</span>
-        </div>
-        <div class="county-opt " data-value="shelby" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Shelby</span>
-        </div>
-        <div class="county-group-label">North</div>
-        <div class="county-opt " data-value="allen" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Allen</span>
-        </div>
-        <div class="county-opt " data-value="cass" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Cass</span>
-        </div>
-        <div class="county-opt " data-value="dekalb" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>DeKalb</span>
-        </div>
-        <div class="county-opt " data-value="elkhart" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Elkhart</span>
-        </div>
-        <div class="county-opt " data-value="fulton" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Fulton</span>
-        </div>
-        <div class="county-opt " data-value="howard" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Howard</span>
-        </div>
-        <div class="county-opt " data-value="huntington" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Huntington</span>
-        </div>
-        <div class="county-opt " data-value="jasper" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Jasper</span>
-        </div>
-        <div class="county-opt " data-value="kosciusko" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Kosciusko</span>
-        </div>
-        <div class="county-opt " data-value="lagrange" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>LaGrange</span>
-        </div>
-        <div class="county-opt " data-value="lake" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Lake</span>
-        </div>
-        <div class="county-opt " data-value="laporte" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>LaPorte</span>
-        </div>
-        <div class="county-opt " data-value="marshall" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Marshall</span>
-        </div>
-        <div class="county-opt " data-value="miami" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Miami</span>
-        </div>
-        <div class="county-opt " data-value="newton" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Newton</span>
-        </div>
-        <div class="county-opt " data-value="noble" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Noble</span>
-        </div>
-        <div class="county-opt " data-value="porter" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Porter</span>
-        </div>
-        <div class="county-opt " data-value="pulaski" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Pulaski</span>
-        </div>
-        <div class="county-opt " data-value="starke" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Starke</span>
-        </div>
-        <div class="county-opt " data-value="stjoseph" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>St. Joseph</span>
-        </div>
-        <div class="county-opt " data-value="steuben" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Steuben</span>
-        </div>
-        <div class="county-opt " data-value="tippecanoe" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Tippecanoe</span>
-        </div>
-        <div class="county-opt " data-value="tipton" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Tipton</span>
-        </div>
-        <div class="county-opt " data-value="wabash" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Wabash</span>
-        </div>
-        <div class="county-opt " data-value="wells" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Wells</span>
-        </div>
-        <div class="county-opt " data-value="white" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>White</span>
-        </div>
-        <div class="county-opt " data-value="whitley" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Whitley</span>
-        </div>
-        <div class="county-group-label">East</div>
-        <div class="county-opt " data-value="adams" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Adams</span>
-        </div>
-        <div class="county-opt " data-value="blackford" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Blackford</span>
-        </div>
-        <div class="county-opt " data-value="carroll" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Carroll</span>
-        </div>
-        <div class="county-opt " data-value="clinton" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Clinton</span>
-        </div>
-        <div class="county-opt " data-value="delaware" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Delaware</span>
-        </div>
-        <div class="county-opt " data-value="fayette" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Fayette</span>
-        </div>
-        <div class="county-opt " data-value="fountain" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Fountain</span>
-        </div>
-        <div class="county-opt " data-value="grant" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Grant</span>
-        </div>
-        <div class="county-opt " data-value="henry" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Henry</span>
-        </div>
-        <div class="county-opt " data-value="jay" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Jay</span>
-        </div>
-        <div class="county-opt " data-value="montgomery" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Montgomery</span>
-        </div>
-        <div class="county-opt " data-value="randolph" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Randolph</span>
-        </div>
-        <div class="county-opt " data-value="rush" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Rush</span>
-        </div>
-        <div class="county-opt " data-value="union" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Union</span>
-        </div>
-        <div class="county-opt " data-value="wayne" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Wayne</span>
-        </div>
-        <div class="county-group-label">Southeast</div>
-        <div class="county-opt " data-value="brown" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Brown</span>
-        </div>
-        <div class="county-opt " data-value="clark" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Clark</span>
-        </div>
-        <div class="county-opt " data-value="dearborn" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Dearborn</span>
-        </div>
-        <div class="county-opt " data-value="decatur" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Decatur</span>
-        </div>
-        <div class="county-opt " data-value="floyd" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Floyd</span>
-        </div>
-        <div class="county-opt " data-value="franklin" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Franklin</span>
-        </div>
-        <div class="county-opt " data-value="jackson" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Jackson</span>
-        </div>
-        <div class="county-opt " data-value="jefferson" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Jefferson</span>
-        </div>
-        <div class="county-opt " data-value="jennings" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Jennings</span>
-        </div>
-        <div class="county-opt " data-value="ohio" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Ohio</span>
-        </div>
-        <div class="county-opt " data-value="ripley" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Ripley</span>
-        </div>
-        <div class="county-opt " data-value="scott" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Scott</span>
-        </div>
-        <div class="county-opt " data-value="switzerland" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Switzerland</span>
-        </div>
-        <div class="county-group-label">South</div>
-        <div class="county-opt " data-value="crawford" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Crawford</span>
-        </div>
-        <div class="county-opt " data-value="daviess" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Daviess</span>
-        </div>
-        <div class="county-opt " data-value="dubois" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Dubois</span>
-        </div>
-        <div class="county-opt " data-value="gibson" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Gibson</span>
-        </div>
-        <div class="county-opt " data-value="greene" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Greene</span>
-        </div>
-        <div class="county-opt " data-value="harrison" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Harrison</span>
-        </div>
-        <div class="county-opt " data-value="knox" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Knox</span>
-        </div>
-        <div class="county-opt " data-value="lawrence" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Lawrence</span>
-        </div>
-        <div class="county-opt " data-value="martin" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Martin</span>
-        </div>
-        <div class="county-opt " data-value="monroe" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Monroe</span>
-        </div>
-        <div class="county-opt " data-value="orange" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Orange</span>
-        </div>
-        <div class="county-opt " data-value="owen" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Owen</span>
-        </div>
-        <div class="county-opt " data-value="perry" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Perry</span>
-        </div>
-        <div class="county-opt " data-value="pike" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Pike</span>
-        </div>
-        <div class="county-opt " data-value="posey" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Posey</span>
-        </div>
-        <div class="county-opt " data-value="spencer" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Spencer</span>
-        </div>
-        <div class="county-opt " data-value="sullivan" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Sullivan</span>
-        </div>
-        <div class="county-opt " data-value="vanderburgh" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Vanderburgh</span>
-        </div>
-        <div class="county-opt " data-value="warrick" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Warrick</span>
-        </div>
-        <div class="county-opt " data-value="washington" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Washington</span>
-        </div>
-        <div class="county-group-label">West</div>
-        <div class="county-opt " data-value="benton" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Benton</span>
-        </div>
-        <div class="county-opt " data-value="clay" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Clay</span>
-        </div>
-        <div class="county-opt " data-value="parke" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Parke</span>
-        </div>
-        <div class="county-opt " data-value="putnam" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Putnam</span>
-        </div>
-        <div class="county-opt " data-value="vermillion" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Vermillion</span>
-        </div>
-        <div class="county-opt " data-value="vigo" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Vigo</span>
-        </div>
-        <div class="county-opt " data-value="warren" onclick="toggleCountyOpt(this,event)">
-          <span class="county-check"><i class="fas fa-check"></i></span>
-          <span>Warren</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <select id="county-sel" title="Select County">
+    <option value="all">🗺 All Indiana</option>
+    <optgroup label="── Central ──">
+    <option value="bartholomew" selected>Bartholomew</option>
+    <option value="boone">Boone</option>
+    <option value="hamilton">Hamilton</option>
+    <option value="hancock">Hancock</option>
+    <option value="hendricks">Hendricks</option>
+    <option value="johnson">Johnson</option>
+    <option value="madison">Madison</option>
+    <option value="marion">Marion</option>
+    <option value="morgan">Morgan</option>
+    <option value="shelby">Shelby</option>
+    </optgroup>
+    <optgroup label="── North ──">
+    <option value="allen">Allen</option>
+    <option value="cass">Cass</option>
+    <option value="dekalb">DeKalb</option>
+    <option value="elkhart">Elkhart</option>
+    <option value="fulton">Fulton</option>
+    <option value="howard">Howard</option>
+    <option value="huntington">Huntington</option>
+    <option value="jasper">Jasper</option>
+    <option value="kosciusko">Kosciusko</option>
+    <option value="lagrange">LaGrange</option>
+    <option value="lake">Lake</option>
+    <option value="laporte">LaPorte</option>
+    <option value="marshall">Marshall</option>
+    <option value="miami">Miami</option>
+    <option value="newton">Newton</option>
+    <option value="noble">Noble</option>
+    <option value="porter">Porter</option>
+    <option value="pulaski">Pulaski</option>
+    <option value="starke">Starke</option>
+    <option value="stjoseph">St. Joseph</option>
+    <option value="steuben">Steuben</option>
+    <option value="tippecanoe">Tippecanoe</option>
+    <option value="tipton">Tipton</option>
+    <option value="wabash">Wabash</option>
+    <option value="wells">Wells</option>
+    <option value="white">White</option>
+    <option value="whitley">Whitley</option>
+    </optgroup>
+    <optgroup label="── East ──">
+    <option value="adams">Adams</option>
+    <option value="blackford">Blackford</option>
+    <option value="carroll">Carroll</option>
+    <option value="clinton">Clinton</option>
+    <option value="delaware">Delaware</option>
+    <option value="fayette">Fayette</option>
+    <option value="fountain">Fountain</option>
+    <option value="grant">Grant</option>
+    <option value="henry">Henry</option>
+    <option value="jay">Jay</option>
+    <option value="montgomery">Montgomery</option>
+    <option value="randolph">Randolph</option>
+    <option value="rush">Rush</option>
+    <option value="union">Union</option>
+    <option value="wayne">Wayne</option>
+    </optgroup>
+    <optgroup label="── Southeast ──">
+    <option value="brown">Brown</option>
+    <option value="clark">Clark</option>
+    <option value="dearborn">Dearborn</option>
+    <option value="decatur">Decatur</option>
+    <option value="floyd">Floyd</option>
+    <option value="franklin">Franklin</option>
+    <option value="jackson">Jackson</option>
+    <option value="jefferson">Jefferson</option>
+    <option value="jennings">Jennings</option>
+    <option value="ohio">Ohio</option>
+    <option value="ripley">Ripley</option>
+    <option value="scott">Scott</option>
+    <option value="switzerland">Switzerland</option>
+    </optgroup>
+    <optgroup label="── South ──">
+    <option value="crawford">Crawford</option>
+    <option value="daviess">Daviess</option>
+    <option value="dubois">Dubois</option>
+    <option value="gibson">Gibson</option>
+    <option value="greene">Greene</option>
+    <option value="harrison">Harrison</option>
+    <option value="knox">Knox</option>
+    <option value="lawrence">Lawrence</option>
+    <option value="martin">Martin</option>
+    <option value="monroe">Monroe</option>
+    <option value="orange">Orange</option>
+    <option value="owen">Owen</option>
+    <option value="perry">Perry</option>
+    <option value="pike">Pike</option>
+    <option value="posey">Posey</option>
+    <option value="spencer">Spencer</option>
+    <option value="sullivan">Sullivan</option>
+    <option value="vanderburgh">Vanderburgh</option>
+    <option value="warrick">Warrick</option>
+    <option value="washington">Washington</option>
+    </optgroup>
+    <optgroup label="── West ──">
+    <option value="benton">Benton</option>
+    <option value="clay">Clay</option>
+    <option value="parke">Parke</option>
+    <option value="putnam">Putnam</option>
+    <option value="vermillion">Vermillion</option>
+    <option value="vigo">Vigo</option>
+    <option value="warren">Warren</option>
+    </optgroup>
+  </select>
 
   <div id="hbtns">
     <button class="hbtn" onclick="openModal('print-modal')" title="Print Map">
