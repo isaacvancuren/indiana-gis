@@ -333,9 +333,23 @@ function getBBoxCenter(geometry) {
 }
 
 // ── Show/hide the loading spinner ────────────────────────────────────────────
+let _loadTimer = null;
 function showLoadingIndicator(show) {
   const el = document.getElementById('loading');
-  if (el) el.classList.toggle('gone', !show);
+  if (!el) return;
+  if (show) {
+    // Only show after 400ms delay — fast loads never show the indicator
+    if (!_loadTimer) {
+      _loadTimer = setTimeout(() => {
+        el.classList.remove('gone');
+        _loadTimer = null;
+      }, 400);
+    }
+  } else {
+    // Hide immediately, cancel pending show
+    if (_loadTimer) { clearTimeout(_loadTimer); _loadTimer = null; }
+    el.classList.add('gone');
+  }
 }
 
 // ── Zoom hint ─────────────────────────────────────────────────────────────────

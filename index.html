@@ -533,11 +533,11 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .info-box i{flex-shrink:0;margin-top:1px;}
 
 /* loading */
-#loading{position:absolute;inset:0;background:rgba(10,14,20,.85);z-index:1100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+#loading{position:absolute;bottom:28px;right:12px;z-index:1100;display:flex;align-items:center;gap:7px;background:rgba(8,11,15,.82);border:1px solid rgba(6,182,212,.2);border-radius:20px;padding:5px 12px 5px 8px;pointer-events:none;backdrop-filter:blur(4px);transition:opacity .3s;}
 #loading.gone{display:none;}
 .spin{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.load-txt{font-size:13px;color:var(--text2);}
+.load-txt{font-size:13px;color:var(--text2);}.spin-sm{width:13px;height:13px;border:2px solid rgba(6,182,212,.2);border-top-color:#06b6d4;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}.load-txt-sm{font-size:11px;color:var(--text2);letter-spacing:.3px;}
 
 /* notification */
 #notif{
@@ -1300,8 +1300,8 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 
   <!-- Loading -->
   <div id="loading" class="gone">
-    <div class="spin"></div>
-    <div class="load-txt">Loading map data…</div>
+    <div class="spin-sm"></div>
+    <span class="load-txt-sm">Loading…</span>
   </div>
 </div>
 
