@@ -1611,21 +1611,26 @@ const countyLayerCache = {
 
 async function fetchCountyLayers(cKey) {
   if (countyLayerCache[cKey]) return countyLayerCache[cKey];
-  const base = getActiveDynamicBase();
-  if (!base) { countyLayerCache[cKey] = []; return []; }
-  try {
-    const r = await fetch(base + '?f=json', { signal: AbortSignal.timeout(12000) });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    const layers = (d.layers || []).filter(l => l.type !== 'Group Layer')
-      .map(l => ({ id: l.id, name: l.name, cat: categorizeLayer(l.name) }));
-    countyLayerCache[cKey] = layers;
-    return layers;
-  } catch(e) {
-    console.warn('[fetchCountyLayers]', cKey, e.message);
-    countyLayerCache[cKey] = [];
-    return [];
+  if (typeof COUNTY_GIS_SERVERS !== 'undefined' && COUNTY_GIS_SERVERS[cKey]) {
+    countyLayerCache[cKey] = COUNTY_GIS_SERVERS[cKey];
+    return countyLayerCache[cKey];
   }
+  const base = getActiveDynamicBase();
+  if (base) {
+    try {
+      const r = await fetch(base + '?f=json', { signal: AbortSignal.timeout(12000) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      const layers = (d.layers || []).filter(l => l.type !== 'Group Layer')
+        .map(l => ({ id: l.id, name: l.name, cat: categorizeLayer(l.name) }));
+      countyLayerCache[cKey] = layers;
+      return layers;
+    } catch(e) {
+      console.warn('[fetchCountyLayers]', cKey, e.message);
+    }
+  }
+  countyLayerCache[cKey] = [];
+  return [];
 }
 
 function categorizeLayer(name) {
