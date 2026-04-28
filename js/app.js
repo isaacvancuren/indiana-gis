@@ -477,6 +477,7 @@ const COUNTY_PARCEL_APIS = {
     mailAddrField:   'OWNADDRESS', mailCityField: 'OWNCITY',
     mailStField:     'OWNSTATE',   mailZipField:  'OWNZIP',
     schema: 'hamilton',
+    noUnformatted: true,
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
 
@@ -806,8 +807,10 @@ async function fetchOwnershipByPin(pin) {
         if (stripped !== pin)  clauses.push(`${cfg.pinField}='${stripped}'`);
         if (digits && digits !== stripped) clauses.push(`${cfg.pinField}='${digits}'`);
       }
-      clauses.push(`UNFORMATTED='${stripped}'`);
-      if (digits && digits !== stripped) clauses.push(`UNFORMATTED='${digits}'`);
+      if (!cfg.noUnformatted) {
+        clauses.push(`UNFORMATTED='${stripped}'`);
+        if (digits && digits !== stripped) clauses.push(`UNFORMATTED='${digits}'`);
+      }
       const where = clauses.join(' OR ');
       params = new URLSearchParams({
         where, outFields: '*', returnGeometry: 'false',
