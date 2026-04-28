@@ -481,44 +481,64 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
 
-  // Allen County (Fort Wayne) â county parcel service
+  // Allen County — gis.cityoffortwayne.org down; needs verified endpoint
   allen: {
-    url: 'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Parcels/FeatureServer/0/query',
-    pinField: 'PARCEL_ID', ownerField: 'OWNER', addrField: 'PROP_ADDR',
-    avField: 'TOTAL_AV', acresField: 'ACRES', schema: 'standard',
-    lookupUrl: 'https://www.allencounty.in.gov/egov/apps/assessor/index.egov'
+    url:       'https://maps.fortwayneindiana.gov/arcgis/rest/services/Parcels/FeatureServer/0/query',
+    pinField:  'PARCEL_ID',        ownerField:  'OWNER',
+    addrField: 'PROP_ADDR',        avField:     'TOTAL_AV',    acresField: 'ACRES',
+    noUnformatted: true,
+    schema:    'allenIN',          lookupUrl: 'https://www.allencounty.in.gov/egov/apps/assessor/index.egov'
   },
 
-  // Lake County Indiana
+  // Lake County — ArcGIS Online confirmed: PARCELID=IGIO PIN, mdeededOwner
   lake: {
-    url: 'https://gis.lakecountyin.org/arcgis/rest/services/Assessment/PublicParcels/FeatureServer/0/query',
-    pinField: 'PARCELNO', ownerField: 'OWNER', addrField: 'SITUS_ADDRESS',
-    avField: 'NET_AV', acresField: 'ACRES', schema: 'standard',
-    lookupUrl: 'https://lakeinsurveyor.mygisonline.com/'
+    url:           'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Lake_County_Parcels/FeatureServer/0/query',
+    pinField:      'PARCELID',         ownerField:    'mdeededOwner',
+    addrField:     'Situs_Add',        mailAddrField: 'Mail_Add',
+    mailCityField: 'mailcity',         mailStField:   'mailstate',   mailZipField: 'mailzipCode',
+    acresField:    'macres',           legalField:    'mlegalDescription',
+    classField:    'mpropertyclass',   twpField:      'Township',
+    noUnformatted: true,
+    schema:        'lakeIN',           lookupUrl: 'https://assessor.lakecounty.in.gov/'
   },
 
-  // St. Joseph County (South Bend/Mishawaka)
+  // St. Joseph County (South Bend) — gis.southbendin.gov confirmed
   stjoseph: {
-    url: 'https://gisapps.sjcgov.org/arcgis/rest/services/Public/Parcels/FeatureServer/0/query',
-    pinField: 'PARCEL_ID', ownerField: 'OWNER_NAME', addrField: 'PROP_ADDR',
-    avField: 'AV_TOTAL', acresField: 'CALC_ACRES', schema: 'standard',
-    lookupUrl: 'https://sjcgov.org/department/assessor'
+    url:           'https://gis.southbendin.gov/arcgis/rest/services/LandRecords/Parcels_County/MapServer/0/query',
+    pinField:      'PARCELID',         ownerField:    'NAME_1',
+    addrField:     'PROP_ADDR',        cityField:     'PROP_CITY',   zipField:     'PROP_ZIP',
+    mailAddrField: 'MAILINGADD',       mailCityField: 'MAILINGCIT',  mailStField:  'MAILINGSTA', mailZipField: 'MAILINGZIP',
+    lvField:       'REALLANDVA',       ivField:       'REALIMPROV',
+    acresField:    'ACREAGE',          twpField:      'TOWNSHIP',
+    saleDateField: 'SALESDATE',        salePriceField:'SALESPRICE',
+    classField:    'CLASSCODE',        legalField:    'LEGALDESCR',
+    noUnformatted: true,
+    schema:        'stjosephIN',       lookupUrl: 'https://sjcassessor.com/'
   },
 
-  // Vanderburgh County (Evansville) â confirmed public MapServer
+  // Vanderburgh County (Evansville) — confirmed: StatePIN=IGIO PIN
   vanderburgh: {
-    url:      'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/PARCELS/MapServer/0/query',
-    pinField: 'STATE_PARCEL_ID', ownerField: 'OWNER_NAME', addrField: 'PROP_ADDR',
-    acresField: 'CALC_ACRES', schema: 'vanderburgh',
-    lookupUrl: 'https://maps.evansvillegis.com/'
+    url:           'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/PARCELS/MapServer/0/query',
+    pinField:      'StatePIN',         ownerField:    'OWNER1',
+    addrField:     'prop_street',      cityField:     'prop_city',   zipField:     'prop_zip',
+    mailAddrField: 'own_street',       mailCityField: 'own_city',    mailStField:  'own_state',  mailZipField: 'own_zip',
+    avField:       'tot_assess',       lvField:       'land_assess', ivField:      'imp_assess',
+    acresField:    'acreage',          twpField:      'TownshipName',
+    saleDateField: 'LastSaleDate',     salePriceField:'LastSalePrice',
+    classField:    'property_class',
+    noUnformatted: true,
+    schema:        'vanderburghIN',    lookupUrl: 'https://maps.evansvillegis.com/'
   },
 
-  // Tippecanoe County (Lafayette) â ArcGIS Online public layer
+  // Tippecanoe County — WFS layer 58 has AV/address; no owner in WFS
   tippecanoe: {
-    url: 'https://services1.arcgis.com/FvF9MZKp3JWPrSsg/arcgis/rest/services/Tippecanoe_Parcels/FeatureServer/0/query',
-    pinField: 'PARCEL_NUMBER', ownerField: 'OWNER_NAME', addrField: 'PROPERTY_ADDRESS',
-    avField: 'ASSESSED_VALUE', acresField: 'ACRES', schema: 'standard',
-    lookupUrl: 'https://beacon.schneidercorp.com/?site=TippecanoeCountyIN'
+    url:       'https://wfs.schneidercorp.com/arcgis/rest/services/TippecanoeCountyIN_WFS/MapServer/58/query',
+    pinField:  'StKeyFull',        ownerField:  null,
+    addrField: 'Address',          avField:     'CurTotAV',
+    lvField:   'CurLandAV',        ivField:     'CurImpAV',
+    twpField:  'TownshipName',
+    noUnformatted: true,
+    schema:    'tippecanoeavonly', lookupUrl: 'https://beacon.schneidercorp.com/?site=TippecanoeCountyIN'
   },
 
   // ââ TIER 2B: Schneider WFS â confirmed field schemas âââââââââââââââââââââââ
@@ -664,6 +684,32 @@ const COUNTY_PARCEL_APIS = {
     classField:    'prop_class_desc',
     schema:        'schneidermg',        lookupUrl: 'https://beacon.schneidercorp.com/?site=WhiteCountyIN'
   },
+
+  // ─── Tier 2C: Additional verified county services ─────────────────────────
+
+  // Hendricks County — Schneider WFS layer 2, confirmed FIELD13=IGIO PIN, OwnerName1
+  hendricks: {
+    url:           'https://wfs.schneidercorp.com/arcgis/rest/services/HendricksCountyIN_WFS/MapServer/2/query',
+    pinField:      'FIELD13',          ownerField:    'OwnerName1',
+    addrField:     'PropertyAddress',  cityField:     'PropertyCity',
+    mailAddrField: 'OwnerAddress1',    mailCityStZipField: 'OwnerCityStZip',
+    acresField:    'ACREAGE',          legalField:    'LegalDescr',
+    classField:    'ClassDescr',       twpField:      'UNITNAME',
+    noUnformatted: true,
+    schema:        'schneiderhd',      lookupUrl: 'https://beacon.schneidercorp.com/?site=HendricksCountyIN'
+  },
+
+  // Madison County — Schneider WFS layer 0, confirmed Frmtd_PIN=IGIO PIN, OwnerName
+  madison: {
+    url:           'https://wfs.schneidercorp.com/arcgis/rest/services/MadisonCountyIN_WFS/MapServer/0/query',
+    pinField:      'Frmtd_PIN',        ownerField:    'OwnerName',
+    addrField:     'StreetAddress',    cityField:     'City',         zipField:     'Zip',
+    mailAddrField: 'OwnerAddress',     mailCityField: 'OwnerCity',    mailStField:  'OwnerState', mailZipField: 'OwnerZip',
+    lvField:       'LandValue',
+    acresField:    'Legal_Acreage',    saleDateField: 'SaleDate',
+    noUnformatted: true,
+    schema:        'schneidermad',     lookupUrl: 'https://beacon.schneidercorp.com/?site=MadisonCountyIN'
+  }
 };
 
 // ââ Get county key ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
