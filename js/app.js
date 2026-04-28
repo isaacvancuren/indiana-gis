@@ -481,6 +481,19 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
 
+  // Adams County — confirmed fields from adamsingis.adams.in.us live schema (no AV in public layer)
+    adams: { //  LOCKED — Parcel_ID matches IGIO parcel_id, confirmed working
+          url:           'https://adamsingis.adams.in.us/arcgis/rest/services/General/TaxParcels/MapServer/0/query',
+          pinField:      'Parcel_ID',     ownerField:    'DeededOwne',
+          addrField:     'PropertyAd',    cityField:     'PropertyCi',  zipField:     'PropertyZi',
+          mailAddrField: 'MailingAdd',    mailCityField: 'MailingCit',  mailStField:  'MailingSta', mailZipField: 'MailingZip',
+          legalField:    'LegalDesc',     acresField:    'Acreage',
+          twpField:      'TownshipNa',    schoolField:   'SchoolCorp',
+          classField:    'PropertyCl',
+          schema:        'adamsIN',       noUnformatted: true,
+          lookupUrl:     'https://www.co.adams.in.us/'
+    },
+
   // Allen County — gis.cityoffortwayne.org down; needs verified endpoint
   allen: {
     url:       'https://maps.fortwayneindiana.gov/arcgis/rest/services/Parcels/FeatureServer/0/query',
