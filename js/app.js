@@ -465,15 +465,17 @@ const COUNTY_PARCEL_APIS = {
   },
 
   // Hamilton County â confirmed fields from gis1.hamiltoncounty.in.gov live schema
-  hamilton: {
-    url:           'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelsPublic/FeatureServer/0/query',
-    pinField:      'FMTPRCLNO',  ownerField:    'DEEDEDOWNR',
-    addrField:     'LOCADDRESS', cityField:     'LOCCITY',    zipField:  'LOCZIP',
-    legalField:    'LEGALDESC',  saleDateField: 'LSTXFRDATE',
-    acresField:    'DEEDACRES',  avField:       'AVTOTGROSS',
-    twpField:      'TOWNSHIP',   schoolField:   'TAXDISTNAM',
-    mailAddrField: 'OWNADDRESS', mailCityField: 'OWNCITY',
-    mailStField:   'OWNSTATE',   mailZipField:  'OWNZIP',
+  hamilton: { // 🔒 LOCKED — STPRCLNO matches IGIO parcel_id, confirmed working
+    url:             'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelsPublic/FeatureServer/0/query',
+    pinField:        'STPRCLNO',   ownerField:    'DEEDEDOWNR',
+    addrField:       'LOCADDRESS', cityField:     'LOCCITY',    zipField:  'LOCZIP',
+    legalField:      'LEGALDESC',  saleDateField: 'LSTXFRDATE',
+    acresField:      'DEEDACRES',  avField:       'AVTOTGROSS',
+    landValueField:  'AVLAND',     improvValueField: 'AVIMPROVE',
+    twpField:        'POLTWP',     schoolField:   'TAXDISTNAM',
+    classField:      'PROPUSE',
+    mailAddrField:   'OWNADDRESS', mailCityField: 'OWNCITY',
+    mailStField:     'OWNSTATE',   mailZipField:  'OWNZIP',
     schema: 'hamilton',
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
@@ -858,6 +860,9 @@ function _normalizeCountyAttr(raw, cfg) {
     legal_desc:         get(cfg.legalField),
     legal_acreage:      getNum(cfg.acresField),
     tot_assessed_value: getNum(cfg.avField),
+    land_value:         getNum(cfg.landValueField),
+    improv_value:       getNum(cfg.improvValueField),
+    prop_class_desc:    get(cfg.classField),
     political_twp:      get(cfg.twpField),
     school_corporation: get(cfg.schoolField),
     latest_sale_date:   saleDate,
