@@ -494,6 +494,21 @@ const COUNTY_PARCEL_APIS = {
           lookupUrl:     'https://www.co.adams.in.us/'
     },
 
+  // Dearborn County — confirmed fields from third-party ArcGIS Online (services5.arcgis.com)
+    //   official county GIS at gis.dearborncounty.in.gov does not expose owner/AV publicly;
+    //   third-party copy provides full owner+address data. AV not exposed.
+    dearborn: {
+          url:           'https://services5.arcgis.com/9Z9r3rLUCq0SjsRb/arcgis/rest/services/Dearborn_Indiana_Parcels/FeatureServer/0/query',
+          pinField:      'Num',           ownerField:    'OwnerName',
+          addrField:     'StreetAddr',    cityField:     'City',        zipField:     'Zip',
+          mailAddrField: 'OwnerAddre',    mailCityField: 'OwnerCity',   mailStField:  'OwnerState', mailZipField: 'OwnerZip',
+          legalField:    'LegalDesc',     acresField:    'Acreage',
+          twpField:      'TownshipNa',    schoolField:   'SchoolCorp',
+          classField:    'PropertyCl',
+          schema:        'dearbornIN',    noUnformatted: true,
+          lookupUrl:     'https://www.dearborncounty.org/'
+    },
+
   // Allen County — gis.cityoffortwayne.org down; needs verified endpoint
   allen: {
     url:       'https://maps.fortwayneindiana.gov/arcgis/rest/services/Parcels/FeatureServer/0/query',
