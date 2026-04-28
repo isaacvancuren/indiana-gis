@@ -1,4 +1,5 @@
-boone:       BOONE_LAYERS,
+const HOWARD_LAYERS = [
+  boone:       BOONE_LAYERS,
   
 // ââââââââââââââââââââââââââââââââââââââââââââââ
 //  MAP INITIALIZATION
@@ -1993,9 +1994,35 @@ const HOWC_BASE = 'https://services2.arcgis.com/xAEbEfvA4av8VdwR/arcgis/rest/ser
 const HOWARD_LAYERS = [
     // Civic Boundaries
   {svc:`${HOWC_BASE}/Howard_County_Boundary/FeatureServer`,    ids:[0], name:'Howard County Boundary',           cat:'civic'},
+
+  // ── Clark County (Jeffersonville) ────────────────────────
+  const CLC_BASE = 'https://services.arcgis.com/5BYw7o0uNAgcAttE/arcgis/rest/services';
+const CLARK_LAYERS = [
+    // Parcels & Property
+  {svc:`${CLC_BASE}/Clark_County_Boundary_Data/FeatureServer`, ids:[2], name:'Parcels',                  cat:'parcels'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[0], name:'Address Points',           cat:'parcels'},
+
+    // Hydrology
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[1], name:'Rivers',                   cat:'hydrology'},
+
+    // Transportation
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[2], name:'Roads',                    cat:'transportation'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[3], name:'Railroads',                cat:'transportation'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[4], name:'Interstates',              cat:'transportation'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[6], name:'Bridges',                  cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${CLC_BASE}/Clark_County_Boundary_Data/FeatureServer`, ids:[0], name:'Clark County Boundary',    cat:'civic'},
+  {svc:`${CLC_BASE}/Clark_County_Boundary_Data/FeatureServer`, ids:[1], name:'City Boundaries',          cat:'civic'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[5], name:'Corporate Boundary',       cat:'civic'},
   ];
-  ];
-// ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// ── Beacon counties without a public ArcGIS Online layer org (parcel data only via COUNTY_PARCEL_APIS / Beacon link fallback) ──────────────
+//   vigo, kosciusko, elkhart, cass, grant, laporte, jackson — no county-hosted ArcGIS REST
+//   feature server with rich layer catalog discoverable as of 2026-04-28. They use the Beacon
+//   Schneider HTML viewer for everything beyond the IndianaMap statewide parcels feed.
+//   Re-investigate periodically; new public AGOL orgs may appear over time.
+   ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
   johnson:     JOHNSON_LAYERS,
@@ -2006,6 +2033,7 @@ const countyLayerCache = {
   floyd:       FLOYD_LAYERS,
   delaware:    DELAWARE_LAYERS,
   howard:      HOWARD_LAYERS,
+  clark:       CLARK_LAYERS,
 };
 
 async function fetchCountyLayers(cKey) {
