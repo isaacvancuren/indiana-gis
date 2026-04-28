@@ -1810,12 +1810,47 @@ const HAMILTON_LAYERS = [
   {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[1],         name:'Spot Elevations (2024)',               cat:'environment'},
   {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[18],        name:'Hillshade',                            cat:'environment'},
   ];
+
+// ── Boone County (services1.arcgis.com — boonemapping AGOL org) ────────────
+const BC_BASE = 'https://services1.arcgis.com/GkTTq9BaSPUnctWP/arcgis/rest/services';
+const BOONE_LAYERS = [
+    // Parcels & Property
+  {svc:`${BC_BASE}/BC_Parcels2024/FeatureServer`,            ids:[0], name:'Parcels (2025)',                  cat:'parcels'},
+  {svc:`${BC_BASE}/BC_Assessor_points2020/FeatureServer`,    ids:[0], name:'Assessor Points (2020)',          cat:'parcels'},
+  {svc:`${BC_BASE}/BC_Points/FeatureServer`,                 ids:[0], name:'Address / Building Points',       cat:'parcels'},
+
+    // Hydrology
+  {svc:`${BC_BASE}/Boone_County_Streams/FeatureServer`,      ids:[0], name:'Streams & Water Features',        cat:'hydrology'},
+  {svc:`${BC_BASE}/BC_Low_Water_Crossings/FeatureServer`,    ids:[0], name:'Low Water Crossings',             cat:'hydrology'},
+  {svc:`${BC_BASE}/Boone_County_Fire_Hydrants/FeatureServer`,ids:[0], name:'Fire Hydrants',                   cat:'hydrology'},
+
+    // Transportation
+  {svc:`${BC_BASE}/Boone_County_Roads/FeatureServer`,        ids:[0], name:'Roads',                           cat:'transportation'},
+  {svc:`${BC_BASE}/Roadcenter04112024/FeatureServer`,        ids:[0], name:'Road Centerlines (2024)',         cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${BC_BASE}/Boone_County_Line/FeatureServer`,         ids:[0], name:'Boone County Boundary',           cat:'civic'},
+  {svc:`${BC_BASE}/City_Limits2020/FeatureServer`,           ids:[0], name:'City Limits (2020)',              cat:'civic'},
+  {svc:`${BC_BASE}/HSN_CityLimit_2016/FeatureServer`,        ids:[0], name:'Historic City Limits (2016)',     cat:'civic'},
+  {svc:`${BC_BASE}/BCSO_Patrol_Zones/FeatureServer`,         ids:[0], name:'Sheriff Patrol Zones',            cat:'civic'},
+
+    // Districts
+  {svc:`${BC_BASE}/BC_FireDistricts2021/FeatureServer`,      ids:[0], name:'Fire Districts (2021)',           cat:'districts'},
+  {svc:`${BC_BASE}/HarrisonFirezones/FeatureServer`,         ids:[0], name:'Harrison Fire Zones',             cat:'districts'},
+  {svc:`${BC_BASE}/Responder_Area/FeatureServer`,            ids:[0], name:'Responder Areas',                 cat:'districts'},
+  {svc:`${BC_BASE}/Fire_Responder/FeatureServer`,            ids:[0], name:'Fire Responders',                 cat:'districts'},
+
+    // Points of Interest
+  {svc:`${BC_BASE}/Fire_Stations/FeatureServer`,             ids:[0], name:'Fire Stations',                   cat:'poi'},
+  {svc:`${BC_BASE}/Air_Evac_LZ/FeatureServer`,               ids:[0], name:'Air Evac Landing Zones',          cat:'poi'},
+  ];
 // ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
   johnson:     JOHNSON_LAYERS,
   marion:      MARION_LAYERS,
   hamilton:    HAMILTON_LAYERS,
+  boone:       BOONE_LAYERS,
 };
 
 async function fetchCountyLayers(cKey) {
