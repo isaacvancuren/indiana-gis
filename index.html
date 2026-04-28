@@ -2214,7 +2214,7 @@ const COUNTY_PARCEL_APIS = {
 
   // Lake County Indiana
   lake: {
-    url: 'https://gis.lakecountyin.org/arcgis/rest/services/Assessment/PublicParcels/FeatureServer/0/query',
+    url: 'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Lake_County_Parcels/FeatureServer/0/query',
     pinField: 'PARCELNO', ownerField: 'OWNER', addrField: 'SITUS_ADDRESS',
     avField: 'NET_AV', acresField: 'ACRES', schema: 'standard',
     lookupUrl: 'https://lakeinsurveyor.mygisonline.com/'
@@ -2222,7 +2222,7 @@ const COUNTY_PARCEL_APIS = {
 
   // St. Joseph County (South Bend/Mishawaka)
   stjoseph: {
-    url: 'https://gisapps.sjcgov.org/arcgis/rest/services/Public/Parcels/FeatureServer/0/query',
+    url: 'https://gis.southbendin.gov/arcgis/rest/services/LandRecords/Parcels_County/MapServer/0/query',
     pinField: 'PARCEL_ID', ownerField: 'OWNER_NAME', addrField: 'PROP_ADDR',
     avField: 'AV_TOTAL', acresField: 'CALC_ACRES', schema: 'standard',
     lookupUrl: 'https://sjcgov.org/department/assessor'
@@ -2238,7 +2238,7 @@ const COUNTY_PARCEL_APIS = {
 
   // Tippecanoe County (Lafayette) â ArcGIS Online public layer
   tippecanoe: {
-    url: 'https://services1.arcgis.com/FvF9MZKp3JWPrSsg/arcgis/rest/services/Tippecanoe_Parcels/FeatureServer/0/query',
+    url: 'https://wfs.schneidercorp.com/arcgis/rest/services/TippecanoeCountyIN_WFS/MapServer/58/query',
     pinField: 'PARCEL_NUMBER', ownerField: 'OWNER_NAME', addrField: 'PROPERTY_ADDRESS',
     avField: 'ASSESSED_VALUE', acresField: 'ACRES', schema: 'standard',
     lookupUrl: 'https://beacon.schneidercorp.com/?site=TippecanoeCountyIN'
