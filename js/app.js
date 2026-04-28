@@ -738,6 +738,15 @@ const COUNTY_PARCEL_APIS = {
     noUnformatted: true,
     schema:        'schneidermad',     lookupUrl: 'https://beacon.schneidercorp.com/?site=MadisonCountyIN'
   }
+    // ───── No-public-endpoint counties (investigated 4/28/2026) ─────
+    //   The following Indiana counties were verified to have NO public ArcGIS REST
+    //   endpoint exposing parcel ownership data. Their parcel data is gated behind
+    //   Schneider Beacon (HTML-only viewer) or vendor portals not REST-accessible:
+    //     blackford, carroll, clay, clinton, crawford, fayette, franklin, montgomery
+    //   Huntington has a Schneider WFS but exposes only PIN/acreage (no owner/AV),
+    //   so it falls through to BEACON_APPS lookup rather than a partial entry.
+    //   These counties currently use the Beacon link fallback (see BEACON_APPS).
+    //   Re-investigate periodically; new public endpoints may appear over time.
 };
 
 // ââ Get county key ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
