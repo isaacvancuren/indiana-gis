@@ -1739,11 +1739,83 @@ const MARION_LAYERS = [
   {svc:`${MC_BASE}/IndyBrownfields/MapServer`, ids:[0],   name:'Brownfields Site Inventory',   cat:'environment'},
   {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[29],  name:'Brownfields (Property View)',  cat:'environment'},
 ];
+
+// ── Hamilton County (gis1.hamiltoncounty.in.gov) ───────────────────────────
+const HC_BASE = 'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services';
+const HAMILTON_LAYERS = [
+    // Parcels & Property
+  {svc:`${HC_BASE}/HamCoParcelsPublic/MapServer`,             ids:[0],         name:'Parcels',                              cat:'parcels'},
+  {svc:`${HC_BASE}/HamCoParcelLabels/MapServer`,              ids:[0],         name:'Parcel Labels',                        cat:'parcels'},
+  {svc:`${HC_BASE}/HamCoSubdivisions/MapServer`,              ids:[0],         name:'Subdivisions',                         cat:'parcels'},
+  {svc:`${HC_BASE}/HamCoPlat/MapServer`,                      ids:[0],         name:'Plats',                                cat:'parcels'},
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[8],         name:'Building Footprints',                  cat:'parcels'},
+
+    // Annotations
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[9],         name:'Subdivision Labels',                   cat:'annotations'},
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[1],         name:'County Boundary Labels',               cat:'annotations'},
+  {svc:`${HC_BASE}/HamCoCorporateLimits_NewViewer/MapServer`, ids:[0],         name:'Corporate Limits (Label)',             cat:'annotations'},
+
+    // Zoning & Planning
+  {svc:`${HC_BASE}/HamCoPlanning/MapServer`,                  ids:[1],         name:'Zoning (County)',                      cat:'zoning'},
+  {svc:`${HC_BASE}/HamCoPlanning/MapServer`,                  ids:[0],         name:'Planning Jurisdictions',               cat:'zoning'},
+  {svc:`${HC_BASE}/HamCoTIFDistricts/MapServer`,              ids:[0],         name:'TIF Districts',                        cat:'zoning'},
+  {svc:`${HC_BASE}/HamCoAnnexation/MapServer`,                ids:[0],         name:'Annexations',                          cat:'zoning'},
+
+    // Hydrology & Flooding
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[2,3],       name:'Hydroline & Hydro Area',               cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[5],         name:'Lakes and Reservoirs',                 cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[6,7,8],     name:'Streams, Centerline & Pond Area',      cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[0],         name:'Dams',                                 cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[10,11,12],  name:'Aquifers (PSM)',                       cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[16,17,18,19], name:'Regulated Drains',                   cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[1],         name:'Drain Names',                          cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[0],         name:'Drainage Structures',                  cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[25],        name:'Drains Under Construction',            cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrainageSheds/MapServer`,             ids:[0,1,2,3,4], name:'Drainage Sheds & Basins',              cat:'hydrology'},
+
+    // Transportation
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[4,5,6,7],   name:'Roads (Interstates, State, Major, Minor)', cat:'transportation'},
+  {svc:`${HC_BASE}/HamCoEdgeOfPavement/MapServer`,            ids:[0],         name:'Edge of Pavement (2024)',              cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${HC_BASE}/HamCoBoundary/MapServer`,                  ids:[0],         name:'Hamilton County Boundary',             cat:'civic'},
+  {svc:`${HC_BASE}/HamCoCorporateLimits_NewViewer/MapServer`, ids:[1,2],       name:'Corporate Limits (Cities)',            cat:'civic'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[0],         name:'Civil Townships',                      cat:'civic'},
+  {svc:`${HC_BASE}/HamCoTaxDistricts/MapServer`,              ids:[0],         name:'Tax Districts',                        cat:'civic'},
+  {svc:`${HC_BASE}/HamCoVoting/MapServer`,                    ids:[3],         name:'Voting Precincts (2026)',              cat:'civic'},
+  {svc:`${HC_BASE}/HamCoVoting/MapServer`,                    ids:[2],         name:'Precinct Townships',                   cat:'civic'},
+
+    // Districts & Political
+  {svc:`${HC_BASE}/HamCoSchools/MapServer`,                   ids:[1],         name:'School Board Districts (2022)',        cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[1],         name:'County Commissioner Districts',        cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[2],         name:'County Council Districts',             cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[7],         name:'Municipal Council Districts',          cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[3],         name:'Indiana House Districts (123rd)',      cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[5],         name:'Indiana Senate Districts (123rd)',     cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[6],         name:'Congressional Districts (117th)',      cat:'districts'},
+
+    // Points of Interest
+  {svc:`${HC_BASE}/HamCoSchools/MapServer`,                   ids:[0],         name:'Schools',                              cat:'poi'},
+  {svc:`${HC_BASE}/HamCoParks/MapServer`,                     ids:[4],         name:'Park Boundaries',                      cat:'poi'},
+  {svc:`${HC_BASE}/HamCoParks/MapServer`,                     ids:[3],         name:'Trails',                               cat:'poi'},
+  {svc:`${HC_BASE}/HamCoParks/MapServer`,                     ids:[2],         name:'Trailheads',                           cat:'poi'},
+  {svc:`${HC_BASE}/HamCoCemeteries/MapServer`,                ids:[0],         name:'Cemeteries',                           cat:'poi'},
+  {svc:`${HC_BASE}/HamCoHealth/MapServer`,                    ids:[0],         name:'Health Care Facilities',               cat:'poi'},
+  {svc:`${HC_BASE}/HamCoHealth/MapServer`,                    ids:[1],         name:'Pharmacies',                           cat:'poi'},
+  {svc:`${HC_BASE}/HamCoVoting/MapServer`,                    ids:[0],         name:'Voting Locations',                     cat:'poi'},
+  {svc:`${HC_BASE}/HamCoEarlyVoting/MapServer`,               ids:[84],        name:'Early Voting Locations',               cat:'poi'},
+
+    // Environment
+  {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[2,3,4,5],   name:'Contours (2024 — 10/5/2/1 ft)',         cat:'environment'},
+  {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[1],         name:'Spot Elevations (2024)',               cat:'environment'},
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[18],        name:'Hillshade',                            cat:'environment'},
+  ];
 // ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
   johnson:     JOHNSON_LAYERS,
   marion:      MARION_LAYERS,
+  hamilton:    HAMILTON_LAYERS,
 };
 
 async function fetchCountyLayers(cKey) {
