@@ -2753,7 +2753,11 @@ function buildPopupHTML(p) {
         <div class="mpop-owner" style="color:${hasOwner ? '#34d399' : '#94a3b8'};">
           ${hasOwner
             ? `<i class="fas fa-user" style="font-size:9px;margin-right:4px;opacity:.8;"></i>${p.owner}`
-            : `<span style="font-size:10px;">${p.use || 'Parcel'} Â· ${p.pid ? p.pid.substring(0,14)+'â¦' : 'No PIN'}</span>`}
+            
+            : p._enriched
+              `<span style="font-size:10px;">${p.use || 'Parcel'} Â· ${p.pid ? p.pid.substring(0,14)+'â¦' : 'No PIN'}</span>`
+              : `<span style="font-size:10px;color:#60a5fa;"><i class="fas fa-circle-notch fa-spin" style="margin-right:4px;"></i>Loading owner…</span>`
+          }
         </div>
       </div>
       <div class="mpop-body">
@@ -3029,7 +3033,7 @@ map.on('zoomend', function() {
     `<i class="fas fa-magnifying-glass-plus" style="margin-right:4px;color:var(--text3);"></i>Zoom: ${map.getZoom()}`;
   loadParcelsForView();
   clearTimeout(_ownerPrefetchTimer);
-  _ownerPrefetchTimer = setTimeout(prefetchOwnershipForView, 1200);
+  _ownerPrefetchTimer = setTimeout(prefetchOwnershipForView, 300);
 });
 
 let _ownerPrefetchTimer = null;
@@ -3038,7 +3042,7 @@ map.on('moveend', function() {
   if (Date.now() - _lastZoomTime < 300) return;
   loadParcelsForView();
   clearTimeout(_ownerPrefetchTimer);
-  _ownerPrefetchTimer = setTimeout(prefetchOwnershipForView, 1200);
+  _ownerPrefetchTimer = setTimeout(prefetchOwnershipForView, 300);
 });
 
 
