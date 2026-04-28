@@ -1,4 +1,6 @@
-
+const HOWARD_LAYERS = [
+  boone:       BOONE_LAYERS,
+  
 // ââââââââââââââââââââââââââââââââââââââââââââââ
 //  MAP INITIALIZATION
 // ââââââââââââââââââââââââââââââââââââââââââââââ
@@ -481,6 +483,34 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
 
+  // Adams County — confirmed fields from adamsingis.adams.in.us live schema (no AV in public layer)
+    adams: { //  LOCKED — Parcel_ID matches IGIO parcel_id, confirmed working
+          url:           'https://adamsingis.adams.in.us/arcgis/rest/services/General/TaxParcels/MapServer/0/query',
+          pinField:      'Parcel_ID',     ownerField:    'DeededOwne',
+          addrField:     'PropertyAd',    cityField:     'PropertyCi',  zipField:     'PropertyZi',
+          mailAddrField: 'MailingAdd',    mailCityField: 'MailingCit',  mailStField:  'MailingSta', mailZipField: 'MailingZip',
+          legalField:    'LegalDesc',     acresField:    'Acreage',
+          twpField:      'TownshipNa',    schoolField:   'SchoolCorp',
+          classField:    'PropertyCl',
+          schema:        'adamsIN',       noUnformatted: true,
+          lookupUrl:     'https://www.co.adams.in.us/'
+    },
+
+  // Dearborn County — confirmed fields from third-party ArcGIS Online (services5.arcgis.com)
+    //   official county GIS at gis.dearborncounty.in.gov does not expose owner/AV publicly;
+    //   third-party copy provides full owner+address data. AV not exposed.
+    dearborn: {
+          url:           'https://services5.arcgis.com/9Z9r3rLUCq0SjsRb/arcgis/rest/services/Dearborn_Indiana_Parcels/FeatureServer/0/query',
+          pinField:      'Num',           ownerField:    'OwnerName',
+          addrField:     'StreetAddr',    cityField:     'City',        zipField:     'Zip',
+          mailAddrField: 'OwnerAddre',    mailCityField: 'OwnerCity',   mailStField:  'OwnerState', mailZipField: 'OwnerZip',
+          legalField:    'LegalDesc',     acresField:    'Acreage',
+          twpField:      'TownshipNa',    schoolField:   'SchoolCorp',
+          classField:    'PropertyCl',
+          schema:        'dearbornIN',    noUnformatted: true,
+          lookupUrl:     'https://www.dearborncounty.org/'
+    },
+
   // Allen County — gis.cityoffortwayne.org down; needs verified endpoint
   allen: {
     url:       'https://maps.fortwayneindiana.gov/arcgis/rest/services/Parcels/FeatureServer/0/query',
@@ -710,6 +740,15 @@ const COUNTY_PARCEL_APIS = {
     noUnformatted: true,
     schema:        'schneidermad',     lookupUrl: 'https://beacon.schneidercorp.com/?site=MadisonCountyIN'
   }
+    // ───── No-public-endpoint counties (investigated 4/28/2026) ─────
+    //   The following Indiana counties were verified to have NO public ArcGIS REST
+    //   endpoint exposing parcel ownership data. Their parcel data is gated behind
+    //   Schneider Beacon (HTML-only viewer) or vendor portals not REST-accessible:
+    //     blackford, carroll, clay, clinton, crawford, fayette, franklin, montgomery
+    //   Huntington has a Schneider WFS but exposes only PIN/acreage (no owner/AV),
+    //   so it falls through to BEACON_APPS lookup rather than a partial entry.
+    //   These counties currently use the Beacon link fallback (see BEACON_APPS).
+    //   Re-investigate periodically; new public endpoints may appear over time.
 };
 
 // ââ Get county key ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -1702,11 +1741,299 @@ const MARION_LAYERS = [
   {svc:`${MC_BASE}/IndyBrownfields/MapServer`, ids:[0],   name:'Brownfields Site Inventory',   cat:'environment'},
   {svc:`${MC_BASE}/MapIndyProperty/MapServer`, ids:[29],  name:'Brownfields (Property View)',  cat:'environment'},
 ];
-// ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// ── Hamilton County (gis1.hamiltoncounty.in.gov) ───────────────────────────
+const HC_BASE = 'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services';
+const HAMILTON_LAYERS = [
+    // Parcels & Property
+  {svc:`${HC_BASE}/HamCoParcelsPublic/MapServer`,             ids:[0],         name:'Parcels',                              cat:'parcels'},
+  {svc:`${HC_BASE}/HamCoParcelLabels/MapServer`,              ids:[0],         name:'Parcel Labels',                        cat:'parcels'},
+  {svc:`${HC_BASE}/HamCoSubdivisions/MapServer`,              ids:[0],         name:'Subdivisions',                         cat:'parcels'},
+  {svc:`${HC_BASE}/HamCoPlat/MapServer`,                      ids:[0],         name:'Plats',                                cat:'parcels'},
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[8],         name:'Building Footprints',                  cat:'parcels'},
+
+    // Annotations
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[9],         name:'Subdivision Labels',                   cat:'annotations'},
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[1],         name:'County Boundary Labels',               cat:'annotations'},
+  {svc:`${HC_BASE}/HamCoCorporateLimits_NewViewer/MapServer`, ids:[0],         name:'Corporate Limits (Label)',             cat:'annotations'},
+
+    // Zoning & Planning
+  {svc:`${HC_BASE}/HamCoPlanning/MapServer`,                  ids:[1],         name:'Zoning (County)',                      cat:'zoning'},
+  {svc:`${HC_BASE}/HamCoPlanning/MapServer`,                  ids:[0],         name:'Planning Jurisdictions',               cat:'zoning'},
+  {svc:`${HC_BASE}/HamCoTIFDistricts/MapServer`,              ids:[0],         name:'TIF Districts',                        cat:'zoning'},
+  {svc:`${HC_BASE}/HamCoAnnexation/MapServer`,                ids:[0],         name:'Annexations',                          cat:'zoning'},
+
+    // Hydrology & Flooding
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[2,3],       name:'Hydroline & Hydro Area',               cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[5],         name:'Lakes and Reservoirs',                 cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[6,7,8],     name:'Streams, Centerline & Pond Area',      cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[0],         name:'Dams',                                 cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoHydro/MapServer`,                     ids:[10,11,12],  name:'Aquifers (PSM)',                       cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[16,17,18,19], name:'Regulated Drains',                   cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[1],         name:'Drain Names',                          cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[0],         name:'Drainage Structures',                  cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrains/MapServer`,                    ids:[25],        name:'Drains Under Construction',            cat:'hydrology'},
+  {svc:`${HC_BASE}/HamCoDrainageSheds/MapServer`,             ids:[0,1,2,3,4], name:'Drainage Sheds & Basins',              cat:'hydrology'},
+
+    // Transportation
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[4,5,6,7],   name:'Roads (Interstates, State, Major, Minor)', cat:'transportation'},
+  {svc:`${HC_BASE}/HamCoEdgeOfPavement/MapServer`,            ids:[0],         name:'Edge of Pavement (2024)',              cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${HC_BASE}/HamCoBoundary/MapServer`,                  ids:[0],         name:'Hamilton County Boundary',             cat:'civic'},
+  {svc:`${HC_BASE}/HamCoCorporateLimits_NewViewer/MapServer`, ids:[1,2],       name:'Corporate Limits (Cities)',            cat:'civic'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[0],         name:'Civil Townships',                      cat:'civic'},
+  {svc:`${HC_BASE}/HamCoTaxDistricts/MapServer`,              ids:[0],         name:'Tax Districts',                        cat:'civic'},
+  {svc:`${HC_BASE}/HamCoVoting/MapServer`,                    ids:[3],         name:'Voting Precincts (2026)',              cat:'civic'},
+  {svc:`${HC_BASE}/HamCoVoting/MapServer`,                    ids:[2],         name:'Precinct Townships',                   cat:'civic'},
+
+    // Districts & Political
+  {svc:`${HC_BASE}/HamCoSchools/MapServer`,                   ids:[1],         name:'School Board Districts (2022)',        cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[1],         name:'County Commissioner Districts',        cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[2],         name:'County Council Districts',             cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[7],         name:'Municipal Council Districts',          cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[3],         name:'Indiana House Districts (123rd)',      cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[5],         name:'Indiana Senate Districts (123rd)',     cat:'districts'},
+  {svc:`${HC_BASE}/HamCoPolitical/MapServer`,                 ids:[6],         name:'Congressional Districts (117th)',      cat:'districts'},
+
+    // Points of Interest
+  {svc:`${HC_BASE}/HamCoSchools/MapServer`,                   ids:[0],         name:'Schools',                              cat:'poi'},
+  {svc:`${HC_BASE}/HamCoParks/MapServer`,                     ids:[4],         name:'Park Boundaries',                      cat:'poi'},
+  {svc:`${HC_BASE}/HamCoParks/MapServer`,                     ids:[3],         name:'Trails',                               cat:'poi'},
+  {svc:`${HC_BASE}/HamCoParks/MapServer`,                     ids:[2],         name:'Trailheads',                           cat:'poi'},
+  {svc:`${HC_BASE}/HamCoCemeteries/MapServer`,                ids:[0],         name:'Cemeteries',                           cat:'poi'},
+  {svc:`${HC_BASE}/HamCoHealth/MapServer`,                    ids:[0],         name:'Health Care Facilities',               cat:'poi'},
+  {svc:`${HC_BASE}/HamCoHealth/MapServer`,                    ids:[1],         name:'Pharmacies',                           cat:'poi'},
+  {svc:`${HC_BASE}/HamCoVoting/MapServer`,                    ids:[0],         name:'Voting Locations',                     cat:'poi'},
+  {svc:`${HC_BASE}/HamCoEarlyVoting/MapServer`,               ids:[84],        name:'Early Voting Locations',               cat:'poi'},
+
+    // Environment
+  {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[2,3,4,5],   name:'Contours (2024 — 10/5/2/1 ft)',         cat:'environment'},
+  {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[1],         name:'Spot Elevations (2024)',               cat:'environment'},
+  {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[18],        name:'Hillshade',                            cat:'environment'},
+  ];
+
+// ── Boone County (services1.arcgis.com — boonemapping AGOL org) ────────────
+const BC_BASE = 'https://services1.arcgis.com/GkTTq9BaSPUnctWP/arcgis/rest/services';
+const BOONE_LAYERS = [
+    // Parcels & Property
+  {svc:`${BC_BASE}/BC_Parcels2024/FeatureServer`,            ids:[0], name:'Parcels (2025)',                  cat:'parcels'},
+  {svc:`${BC_BASE}/BC_Assessor_points2020/FeatureServer`,    ids:[0], name:'Assessor Points (2020)',          cat:'parcels'},
+  {svc:`${BC_BASE}/BC_Points/FeatureServer`,                 ids:[0], name:'Address / Building Points',       cat:'parcels'},
+
+    // Hydrology
+  {svc:`${BC_BASE}/Boone_County_Streams/FeatureServer`,      ids:[0], name:'Streams & Water Features',        cat:'hydrology'},
+  {svc:`${BC_BASE}/BC_Low_Water_Crossings/FeatureServer`,    ids:[0], name:'Low Water Crossings',             cat:'hydrology'},
+  {svc:`${BC_BASE}/Boone_County_Fire_Hydrants/FeatureServer`,ids:[0], name:'Fire Hydrants',                   cat:'hydrology'},
+
+    // Transportation
+  {svc:`${BC_BASE}/Boone_County_Roads/FeatureServer`,        ids:[0], name:'Roads',                           cat:'transportation'},
+  {svc:`${BC_BASE}/Roadcenter04112024/FeatureServer`,        ids:[0], name:'Road Centerlines (2024)',         cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${BC_BASE}/Boone_County_Line/FeatureServer`,         ids:[0], name:'Boone County Boundary',           cat:'civic'},
+  {svc:`${BC_BASE}/City_Limits2020/FeatureServer`,           ids:[0], name:'City Limits (2020)',              cat:'civic'},
+  {svc:`${BC_BASE}/HSN_CityLimit_2016/FeatureServer`,        ids:[0], name:'Historic City Limits (2016)',     cat:'civic'},
+  {svc:`${BC_BASE}/BCSO_Patrol_Zones/FeatureServer`,         ids:[0], name:'Sheriff Patrol Zones',            cat:'civic'},
+
+    // Districts
+  {svc:`${BC_BASE}/BC_FireDistricts2021/FeatureServer`,      ids:[0], name:'Fire Districts (2021)',           cat:'districts'},
+  {svc:`${BC_BASE}/HarrisonFirezones/FeatureServer`,         ids:[0], name:'Harrison Fire Zones',             cat:'districts'},
+  {svc:`${BC_BASE}/Responder_Area/FeatureServer`,            ids:[0], name:'Responder Areas',                 cat:'districts'},
+  {svc:`${BC_BASE}/Fire_Responder/FeatureServer`,            ids:[0], name:'Fire Responders',                 cat:'districts'},
+
+    // Points of Interest
+  {svc:`${BC_BASE}/Fire_Stations/FeatureServer`,             ids:[0], name:'Fire Stations',                   cat:'poi'},
+  {svc:`${BC_BASE}/Air_Evac_LZ/FeatureServer`,               ids:[0], name:'Air Evac Landing Zones',          cat:'poi'},
+
+  // ── Wayne County (Richmond/WCRGIS AGOL org) ────────────────────────
+  const WC_BASE = 'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services';
+const WAYNE_LAYERS = [
+    // Parcels & Property
+  {svc:`${WC_BASE}/Parcel_BND_Cama/FeatureServer`,            ids:[0], name:'Parcels (BND/CAMA)',              cat:'parcels'},
+  {svc:`${WC_BASE}/Richmond_Parcels_v2/FeatureServer`,        ids:[0], name:'Richmond Parcels',                cat:'parcels'},
+  {svc:`${WC_BASE}/Land_Use/FeatureServer`,                   ids:[0], name:'Land Use',                        cat:'parcels'},
+  {svc:`${WC_BASE}/Public_Right_of_Way/FeatureServer`,        ids:[0], name:'Public Right of Way',             cat:'parcels'},
+
+    // Zoning & Planning
+  {svc:`${WC_BASE}/Development_Zones/FeatureServer`,          ids:[0], name:'Development Zones',               cat:'zoning'},
+  {svc:`${WC_BASE}/TIF/FeatureServer`,                        ids:[0], name:'TIF Districts',                   cat:'zoning'},
+  {svc:`${WC_BASE}/Richmond_Opportunity_Zone/FeatureServer`,  ids:[0], name:'Opportunity Zone',                cat:'zoning'},
+  {svc:`${WC_BASE}/Historic_Richmond_Conservation_District/FeatureServer`, ids:[0], name:'Historic Conservation District', cat:'zoning'},
+  {svc:`${WC_BASE}/Outdoor_Refreshment_Area/FeatureServer`,   ids:[0], name:'Outdoor Refreshment Area',        cat:'zoning'},
+
+    // Hydrology
+  {svc:`${WC_BASE}/IDNR_Best_Available_Flood_Areas/FeatureServer`, ids:[0], name:'IDNR Flood Areas',           cat:'hydrology'},
+  {svc:`${WC_BASE}/NFHL_Flood_Areas/FeatureServer`,           ids:[0], name:'NFHL Flood Areas',                cat:'hydrology'},
+  {svc:`${WC_BASE}/Aquifer_Systems_of_Wayne_County/FeatureServer`, ids:[0], name:'Aquifer Systems',            cat:'hydrology'},
+  {svc:`${WC_BASE}/Legal_Drain_Russell/FeatureServer`,        ids:[0], name:'Legal Drain (Russell)',           cat:'hydrology'},
+  {svc:`${WC_BASE}/MWIP_Wetlands/FeatureServer`,              ids:[0], name:'MWIP Wetlands',                   cat:'hydrology'},
+
+    // Transportation
+  {svc:`${WC_BASE}/Street_Centerline/FeatureServer`,          ids:[0], name:'Street Centerlines',              cat:'transportation'},
+  {svc:`${WC_BASE}/Community_Crossings/FeatureServer`,        ids:[0], name:'Community Crossings',             cat:'transportation'},
+  {svc:`${WC_BASE}/June_2022_PASER_Ratings/FeatureServer`,    ids:[0], name:'PASER Pavement Ratings (2022)',   cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${WC_BASE}/Richmond_City_Limits/FeatureServer`,       ids:[0], name:'Richmond City Limits',            cat:'civic'},
+{svc:`${WC_BASE}/Richmond_Limits/FeatureServer`,            ids:[0], name:'Richmond Limits',                 cat:'civic'},
+{svc:`${WC_BASE}/Centerville_Main_Street/FeatureServer`,    ids:[0], name:'Centerville Main Street',         cat:'civic'},
+{svc:`${WC_BASE}/Political_County_Precincts/FeatureServer`, ids:[0], name:'Voting Precincts',                cat:'civic'},
+
+    // Districts
+{svc:`${WC_BASE}/Richmond_Certified_Technology_Park/FeatureServer`, ids:[0], name:'Certified Technology Park',  cat:'districts'},
+
+    // Points of Interest
+{svc:`${WC_BASE}/Community_Assets/FeatureServer`,           ids:[0], name:'Community Assets',                cat:'poi'},
+{svc:`${WC_BASE}/Historic_Sites_and_Buildings/FeatureServer`, ids:[0], name:'Historic Sites & Buildings',     cat:'poi'},
+{svc:`${WC_BASE}/Park_and_Recreation_Facilities_public/FeatureServer`, ids:[0], name:'Parks & Recreation',     cat:'poi'},
+{svc:`${WC_BASE}/Tree_Inventory_2022/FeatureServer`,        ids:[0], name:'Tree Inventory (2022)',           cat:'poi'},
+  ];
+
+// ── Floyd County (New Albany / OHM AGOL org) ─────────────────────
+const FC_BASE = 'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services';
+const FLOYD_LAYERS = [
+    // Parcels & Property
+  {svc:`${FC_BASE}/Floyd_County_Parcel_view/FeatureServer`,    ids:[0], name:'Parcels',                          cat:'parcels'},
+  {svc:`${FC_BASE}/floyd_parcels/FeatureServer`,               ids:[0], name:'Parcels (Source)',                 cat:'parcels'},
+  {svc:`${FC_BASE}/Permit_Parcels/FeatureServer`,              ids:[0], name:'Permit Parcels',                   cat:'parcels'},
+  {svc:`${FC_BASE}/Floyd_County_Subdivisions_view/FeatureServer`, ids:[0], name:'Subdivisions',                  cat:'parcels'},
+  {svc:`${FC_BASE}/Address_Points_view/FeatureServer`,         ids:[0], name:'Address Points',                   cat:'parcels'},
+  {svc:`${FC_BASE}/Floyd_County_Section_Corners/FeatureServer`,ids:[0], name:'Section Corners',                  cat:'parcels'},
+  {svc:`${FC_BASE}/Sections_2_shp/FeatureServer`,              ids:[0], name:'Land Sections',                    cat:'parcels'},
+
+    // Zoning & Planning
+  {svc:`${FC_BASE}/County_Zone_Map_view/FeatureServer`,        ids:[0], name:'County Zoning',                    cat:'zoning'},
+  {svc:`${FC_BASE}/New_Albany_Zoning_view/FeatureServer`,      ids:[0], name:'New Albany Zoning',                 cat:'zoning'},
+  {svc:`${FC_BASE}/Greenville_Zone_Map_view/FeatureServer`,    ids:[0], name:'Greenville Zoning',                 cat:'zoning'},
+  {svc:`${FC_BASE}/Greenville_Historic_District_Zoning_view/FeatureServer`, ids:[0], name:'Greenville Historic District', cat:'zoning'},
+  {svc:`${FC_BASE}/New_Albany_Planning_Fringe_view/FeatureServer`, ids:[0], name:'New Albany Planning Fringe',     cat:'zoning'},
+  {svc:`${FC_BASE}/Floyd_County_TIF_Districts_view/FeatureServer`, ids:[0], name:'TIF Districts',                  cat:'zoning'},
+
+    // Hydrology
+  {svc:`${FC_BASE}/DNR_Floodplain_for_Floyd_County/FeatureServer`, ids:[0], name:'DNR Floodplain',                cat:'hydrology'},
+  {svc:`${FC_BASE}/FloodHazard_BestAvai_DNR_Water/FeatureServer`,  ids:[0], name:'Best Available Flood Hazard',   cat:'hydrology'},
+  {svc:`${FC_BASE}/Floyd_County_Steep_Slope_view/FeatureServer`,   ids:[0], name:'Steep Slopes',                  cat:'hydrology'},
+  {svc:`${FC_BASE}/Stormwater_Lines/FeatureServer`,            ids:[0], name:'Stormwater Lines',                 cat:'hydrology'},
+  {svc:`${FC_BASE}/Stormwater_Points/FeatureServer`,           ids:[0], name:'Stormwater Points',                cat:'hydrology'},
+  {svc:`${FC_BASE}/Muddy_Fork/FeatureServer`,                  ids:[0], name:'Muddy Fork',                       cat:'hydrology'},
+
+    // Transportation
+  {svc:`${FC_BASE}/Road_Centerlines_view/FeatureServer`,       ids:[0], name:'Road Centerlines',                 cat:'transportation'},
+  {svc:`${FC_BASE}/_Floyd_County_Non_Local_Roads/FeatureServer`, ids:[0], name:'Non-Local Roads',                cat:'transportation'},
+  {svc:`${FC_BASE}/Snow_Routes/FeatureServer`,                 ids:[0], name:'Snow Routes',                      cat:'transportation'},
+  {svc:`${FC_BASE}/Floyd_County_Sign_Inventory_view/FeatureServer`, ids:[0], name:'Sign Inventory',              cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${FC_BASE}/County_Boundaries/FeatureServer`,           ids:[0], name:'County Boundary',                  cat:'civic'},
+{svc:`${FC_BASE}/County_Townships/FeatureServer`,            ids:[0], name:'Townships',                        cat:'civic'},
+{svc:`${FC_BASE}/Floyd_County_Cities_view/FeatureServer`,    ids:[0], name:'Cities',                           cat:'civic'},
+{svc:`${FC_BASE}/Township_Boundaries/FeatureServer`,         ids:[0], name:'Township Boundaries',              cat:'civic'},
+{svc:`${FC_BASE}/Unincorporated_Areas_of_Floyd_County/FeatureServer`, ids:[0], name:'Unincorporated Areas',     cat:'civic'},
+
+    // Districts
+{svc:`${FC_BASE}/Commissioner_Dist/FeatureServer`,           ids:[0], name:'Commissioner Districts',          cat:'districts'},
+{svc:`${FC_BASE}/Floyd_County_Council_Districts/FeatureServer`, ids:[0], name:'County Council Districts',     cat:'districts'},
+{svc:`${FC_BASE}/Floyd_County_Indiana_House_Area/FeatureServer`, ids:[0], name:'Indiana House Area',          cat:'districts'},
+{svc:`${FC_BASE}/Floyd_County_Indiana_Senate_Area/FeatureServer`, ids:[0], name:'Indiana Senate Area',         cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_1_(Public)/FeatureServer`, ids:[0], name:'School Board District 1',     cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_2_(Public)/FeatureServer`, ids:[0], name:'School Board District 2',     cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_3_(Public)/FeatureServer`, ids:[0], name:'School Board District 3',     cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_4_(Public)/FeatureServer`, ids:[0], name:'School Board District 4',     cat:'districts'},
+
+    // Points of Interest
+{svc:`${FC_BASE}/Floyd_County_Parks/FeatureServer`,          ids:[0], name:'Parks',                            cat:'poi'},
+{svc:`${FC_BASE}/Capital_Projects/FeatureServer`,            ids:[0], name:'Capital Projects',                 cat:'poi'},
+  ];
+
+// ── Delaware County (Muncie / kyleajohnson AGOL org) ────────────────
+const DC_BASE = 'https://services.arcgis.com/VyRjdyMziYNF5Bwe/arcgis/rest/services';
+const DELAWARE_LAYERS = [
+    // Parcels & Property
+  {svc:`${DC_BASE}/ParcelWebpublish/FeatureServer`,            ids:[0], name:'Parcels',                          cat:'parcels'},
+  {svc:`${DC_BASE}/CountyOwnedProperties_July_2024/FeatureServer`, ids:[0], name:'County-Owned Properties',     cat:'parcels'},
+  {svc:`${DC_BASE}/Building_Permit/FeatureServer`,             ids:[0], name:'Building Permits',                 cat:'parcels'},
+
+    // Zoning & Planning
+  {svc:`${DC_BASE}/Administrative_Jurisdictions/FeatureServer`,ids:[0], name:'Administrative Jurisdictions',     cat:'zoning'},
+  {svc:`${DC_BASE}/Taxing_Units/FeatureServer`,                ids:[0], name:'Taxing Units',                     cat:'zoning'},
+
+    // Hydrology
+  {svc:`${DC_BASE}/county_drains_incomplete/FeatureServer`,    ids:[0], name:'County Drains',                    cat:'hydrology'},
+  {svc:`${DC_BASE}/Drainage_Maps_webpublish/FeatureServer`,    ids:[0], name:'Drainage Maps',                    cat:'hydrology'},
+
+    // Transportation
+  {svc:`${DC_BASE}/CountyPavedRoads_2017_2019/FeatureServer`,  ids:[0], name:'Paved Roads',                      cat:'transportation'},
+  {svc:`${DC_BASE}/County_Road_Problem_Reports_Public/FeatureServer`, ids:[0], name:'Road Problem Reports',     cat:'transportation'},
+  {svc:`${DC_BASE}/CGW_Bridges/FeatureServer`,                 ids:[0], name:'Bridges',                          cat:'transportation'},
+  {svc:`${DC_BASE}/Bicycle_amenities_hosted/FeatureServer`,    ids:[0], name:'Bicycle Amenities',                cat:'transportation'},
+  {svc:`${DC_BASE}/Bike_Ped_Plans_Routes/FeatureServer`,       ids:[0], name:'Bike/Ped Plan Routes',             cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${DC_BASE}/Incorporated_Areas_and_Political_Townships/FeatureServer`, ids:[0], name:'Incorporated Areas & Townships', cat:'civic'},
+{svc:`${DC_BASE}/CensusBlocks_2020/FeatureServer`,           ids:[0], name:'Census Blocks (2020)',             cat:'civic'},
+
+    // Districts
+{svc:`${DC_BASE}/County_council_2012/FeatureServer`,         ids:[0], name:'County Council Districts',         cat:'districts'},
+{svc:`${DC_BASE}/CountyCommissioner_districts_2012/FeatureServer`, ids:[0], name:'Commissioner Districts',     cat:'districts'},
+{svc:`${DC_BASE}/Delaware_County_Council_At_Large/FeatureServer`, ids:[0], name:'County Council At-Large',     cat:'districts'},
+{svc:`${DC_BASE}/DelawareCountySchoolsk12_HigherEd/FeatureServer`, ids:[0], name:'Schools (K-12 & Higher Ed)', cat:'districts'},
+
+    // Points of Interest
+{svc:`${DC_BASE}/ALL_FIRE_EMS_STATIONS_UPDATED/FeatureServer`, ids:[0], name:'Fire & EMS Stations',            cat:'poi'},
+{svc:`${DC_BASE}/Arts_and_Culture/FeatureServer`,            ids:[0], name:'Arts & Culture',                   cat:'poi'},
+{svc:`${DC_BASE}/2nd_Harvest_Food_Distribution_Locations/FeatureServer`, ids:[0], name:'Food Distribution',     cat:'poi'},
+
+    // Environment
+{svc:`${DC_BASE}/2ft_Contours_spot_elevations/FeatureServer`,ids:[0], name:'Contours (2 ft) & Spot Elevations',cat:'environment'},
+{svc:`${DC_BASE}/CAFO_Restricted_Areas/FeatureServer`,       ids:[0], name:'CAFO Restricted Areas',            cat:'environment'},
+  ];
+
+// ── Howard County (Kokomo) ────────────────────────────────────
+const HOWC_BASE = 'https://services2.arcgis.com/xAEbEfvA4av8VdwR/arcgis/rest/services';
+const HOWARD_LAYERS = [
+    // Civic Boundaries
+  {svc:`${HOWC_BASE}/Howard_County_Boundary/FeatureServer`,    ids:[0], name:'Howard County Boundary',           cat:'civic'},
+
+  // ── Clark County (Jeffersonville) ────────────────────────
+  const CLC_BASE = 'https://services.arcgis.com/5BYw7o0uNAgcAttE/arcgis/rest/services';
+const CLARK_LAYERS = [
+    // Parcels & Property
+  {svc:`${CLC_BASE}/Clark_County_Boundary_Data/FeatureServer`, ids:[2], name:'Parcels',                  cat:'parcels'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[0], name:'Address Points',           cat:'parcels'},
+
+    // Hydrology
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[1], name:'Rivers',                   cat:'hydrology'},
+
+    // Transportation
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[2], name:'Roads',                    cat:'transportation'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[3], name:'Railroads',                cat:'transportation'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[4], name:'Interstates',              cat:'transportation'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[6], name:'Bridges',                  cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${CLC_BASE}/Clark_County_Boundary_Data/FeatureServer`, ids:[0], name:'Clark County Boundary',    cat:'civic'},
+  {svc:`${CLC_BASE}/Clark_County_Boundary_Data/FeatureServer`, ids:[1], name:'City Boundaries',          cat:'civic'},
+  {svc:`${CLC_BASE}/Clark_County_Reference_Data/FeatureServer`,ids:[5], name:'Corporate Boundary',       cat:'civic'},
+  ];
+
+// ── Beacon counties without a public ArcGIS Online layer org (parcel data only via COUNTY_PARCEL_APIS / Beacon link fallback) ──────────────
+//   vigo, kosciusko, elkhart, cass, grant, laporte, jackson — no county-hosted ArcGIS REST
+//   feature server with rich layer catalog discoverable as of 2026-04-28. They use the Beacon
+//   Schneider HTML viewer for everything beyond the IndianaMap statewide parcels feed.
+//   Re-investigate periodically; new public AGOL orgs may appear over time.
+   ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
   johnson:     JOHNSON_LAYERS,
   marion:      MARION_LAYERS,
+  hamilton:    HAMILTON_LAYERS,
+  boone:       BOONE_LAYERS,
+  wayne:       WAYNE_LAYERS,
+  floyd:       FLOYD_LAYERS,
+  delaware:    DELAWARE_LAYERS,
+  howard:      HOWARD_LAYERS,
+  clark:       CLARK_LAYERS,
 };
 
 async function fetchCountyLayers(cKey) {
