@@ -1,4 +1,5 @@
-
+boone:       BOONE_LAYERS,
+  
 // ââââââââââââââââââââââââââââââââââââââââââââââ
 //  MAP INITIALIZATION
 // ââââââââââââââââââââââââââââââââââââââââââââââ
@@ -1843,6 +1844,156 @@ const BOONE_LAYERS = [
     // Points of Interest
   {svc:`${BC_BASE}/Fire_Stations/FeatureServer`,             ids:[0], name:'Fire Stations',                   cat:'poi'},
   {svc:`${BC_BASE}/Air_Evac_LZ/FeatureServer`,               ids:[0], name:'Air Evac Landing Zones',          cat:'poi'},
+
+  // ── Wayne County (Richmond/WCRGIS AGOL org) ────────────────────────
+  const WC_BASE = 'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services';
+const WAYNE_LAYERS = [
+    // Parcels & Property
+  {svc:`${WC_BASE}/Parcel_BND_Cama/FeatureServer`,            ids:[0], name:'Parcels (BND/CAMA)',              cat:'parcels'},
+  {svc:`${WC_BASE}/Richmond_Parcels_v2/FeatureServer`,        ids:[0], name:'Richmond Parcels',                cat:'parcels'},
+  {svc:`${WC_BASE}/Land_Use/FeatureServer`,                   ids:[0], name:'Land Use',                        cat:'parcels'},
+  {svc:`${WC_BASE}/Public_Right_of_Way/FeatureServer`,        ids:[0], name:'Public Right of Way',             cat:'parcels'},
+
+    // Zoning & Planning
+  {svc:`${WC_BASE}/Development_Zones/FeatureServer`,          ids:[0], name:'Development Zones',               cat:'zoning'},
+  {svc:`${WC_BASE}/TIF/FeatureServer`,                        ids:[0], name:'TIF Districts',                   cat:'zoning'},
+  {svc:`${WC_BASE}/Richmond_Opportunity_Zone/FeatureServer`,  ids:[0], name:'Opportunity Zone',                cat:'zoning'},
+  {svc:`${WC_BASE}/Historic_Richmond_Conservation_District/FeatureServer`, ids:[0], name:'Historic Conservation District', cat:'zoning'},
+  {svc:`${WC_BASE}/Outdoor_Refreshment_Area/FeatureServer`,   ids:[0], name:'Outdoor Refreshment Area',        cat:'zoning'},
+
+    // Hydrology
+  {svc:`${WC_BASE}/IDNR_Best_Available_Flood_Areas/FeatureServer`, ids:[0], name:'IDNR Flood Areas',           cat:'hydrology'},
+  {svc:`${WC_BASE}/NFHL_Flood_Areas/FeatureServer`,           ids:[0], name:'NFHL Flood Areas',                cat:'hydrology'},
+  {svc:`${WC_BASE}/Aquifer_Systems_of_Wayne_County/FeatureServer`, ids:[0], name:'Aquifer Systems',            cat:'hydrology'},
+  {svc:`${WC_BASE}/Legal_Drain_Russell/FeatureServer`,        ids:[0], name:'Legal Drain (Russell)',           cat:'hydrology'},
+  {svc:`${WC_BASE}/MWIP_Wetlands/FeatureServer`,              ids:[0], name:'MWIP Wetlands',                   cat:'hydrology'},
+
+    // Transportation
+  {svc:`${WC_BASE}/Street_Centerline/FeatureServer`,          ids:[0], name:'Street Centerlines',              cat:'transportation'},
+  {svc:`${WC_BASE}/Community_Crossings/FeatureServer`,        ids:[0], name:'Community Crossings',             cat:'transportation'},
+  {svc:`${WC_BASE}/June_2022_PASER_Ratings/FeatureServer`,    ids:[0], name:'PASER Pavement Ratings (2022)',   cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${WC_BASE}/Richmond_City_Limits/FeatureServer`,       ids:[0], name:'Richmond City Limits',            cat:'civic'},
+{svc:`${WC_BASE}/Richmond_Limits/FeatureServer`,            ids:[0], name:'Richmond Limits',                 cat:'civic'},
+{svc:`${WC_BASE}/Centerville_Main_Street/FeatureServer`,    ids:[0], name:'Centerville Main Street',         cat:'civic'},
+{svc:`${WC_BASE}/Political_County_Precincts/FeatureServer`, ids:[0], name:'Voting Precincts',                cat:'civic'},
+
+    // Districts
+{svc:`${WC_BASE}/Richmond_Certified_Technology_Park/FeatureServer`, ids:[0], name:'Certified Technology Park',  cat:'districts'},
+
+    // Points of Interest
+{svc:`${WC_BASE}/Community_Assets/FeatureServer`,           ids:[0], name:'Community Assets',                cat:'poi'},
+{svc:`${WC_BASE}/Historic_Sites_and_Buildings/FeatureServer`, ids:[0], name:'Historic Sites & Buildings',     cat:'poi'},
+{svc:`${WC_BASE}/Park_and_Recreation_Facilities_public/FeatureServer`, ids:[0], name:'Parks & Recreation',     cat:'poi'},
+{svc:`${WC_BASE}/Tree_Inventory_2022/FeatureServer`,        ids:[0], name:'Tree Inventory (2022)',           cat:'poi'},
+  ];
+
+// ── Floyd County (New Albany / OHM AGOL org) ─────────────────────
+const FC_BASE = 'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services';
+const FLOYD_LAYERS = [
+    // Parcels & Property
+  {svc:`${FC_BASE}/Floyd_County_Parcel_view/FeatureServer`,    ids:[0], name:'Parcels',                          cat:'parcels'},
+  {svc:`${FC_BASE}/floyd_parcels/FeatureServer`,               ids:[0], name:'Parcels (Source)',                 cat:'parcels'},
+  {svc:`${FC_BASE}/Permit_Parcels/FeatureServer`,              ids:[0], name:'Permit Parcels',                   cat:'parcels'},
+  {svc:`${FC_BASE}/Floyd_County_Subdivisions_view/FeatureServer`, ids:[0], name:'Subdivisions',                  cat:'parcels'},
+  {svc:`${FC_BASE}/Address_Points_view/FeatureServer`,         ids:[0], name:'Address Points',                   cat:'parcels'},
+  {svc:`${FC_BASE}/Floyd_County_Section_Corners/FeatureServer`,ids:[0], name:'Section Corners',                  cat:'parcels'},
+  {svc:`${FC_BASE}/Sections_2_shp/FeatureServer`,              ids:[0], name:'Land Sections',                    cat:'parcels'},
+
+    // Zoning & Planning
+  {svc:`${FC_BASE}/County_Zone_Map_view/FeatureServer`,        ids:[0], name:'County Zoning',                    cat:'zoning'},
+  {svc:`${FC_BASE}/New_Albany_Zoning_view/FeatureServer`,      ids:[0], name:'New Albany Zoning',                 cat:'zoning'},
+  {svc:`${FC_BASE}/Greenville_Zone_Map_view/FeatureServer`,    ids:[0], name:'Greenville Zoning',                 cat:'zoning'},
+  {svc:`${FC_BASE}/Greenville_Historic_District_Zoning_view/FeatureServer`, ids:[0], name:'Greenville Historic District', cat:'zoning'},
+  {svc:`${FC_BASE}/New_Albany_Planning_Fringe_view/FeatureServer`, ids:[0], name:'New Albany Planning Fringe',     cat:'zoning'},
+  {svc:`${FC_BASE}/Floyd_County_TIF_Districts_view/FeatureServer`, ids:[0], name:'TIF Districts',                  cat:'zoning'},
+
+    // Hydrology
+  {svc:`${FC_BASE}/DNR_Floodplain_for_Floyd_County/FeatureServer`, ids:[0], name:'DNR Floodplain',                cat:'hydrology'},
+  {svc:`${FC_BASE}/FloodHazard_BestAvai_DNR_Water/FeatureServer`,  ids:[0], name:'Best Available Flood Hazard',   cat:'hydrology'},
+  {svc:`${FC_BASE}/Floyd_County_Steep_Slope_view/FeatureServer`,   ids:[0], name:'Steep Slopes',                  cat:'hydrology'},
+  {svc:`${FC_BASE}/Stormwater_Lines/FeatureServer`,            ids:[0], name:'Stormwater Lines',                 cat:'hydrology'},
+  {svc:`${FC_BASE}/Stormwater_Points/FeatureServer`,           ids:[0], name:'Stormwater Points',                cat:'hydrology'},
+  {svc:`${FC_BASE}/Muddy_Fork/FeatureServer`,                  ids:[0], name:'Muddy Fork',                       cat:'hydrology'},
+
+    // Transportation
+  {svc:`${FC_BASE}/Road_Centerlines_view/FeatureServer`,       ids:[0], name:'Road Centerlines',                 cat:'transportation'},
+  {svc:`${FC_BASE}/_Floyd_County_Non_Local_Roads/FeatureServer`, ids:[0], name:'Non-Local Roads',                cat:'transportation'},
+  {svc:`${FC_BASE}/Snow_Routes/FeatureServer`,                 ids:[0], name:'Snow Routes',                      cat:'transportation'},
+  {svc:`${FC_BASE}/Floyd_County_Sign_Inventory_view/FeatureServer`, ids:[0], name:'Sign Inventory',              cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${FC_BASE}/County_Boundaries/FeatureServer`,           ids:[0], name:'County Boundary',                  cat:'civic'},
+{svc:`${FC_BASE}/County_Townships/FeatureServer`,            ids:[0], name:'Townships',                        cat:'civic'},
+{svc:`${FC_BASE}/Floyd_County_Cities_view/FeatureServer`,    ids:[0], name:'Cities',                           cat:'civic'},
+{svc:`${FC_BASE}/Township_Boundaries/FeatureServer`,         ids:[0], name:'Township Boundaries',              cat:'civic'},
+{svc:`${FC_BASE}/Unincorporated_Areas_of_Floyd_County/FeatureServer`, ids:[0], name:'Unincorporated Areas',     cat:'civic'},
+
+    // Districts
+{svc:`${FC_BASE}/Commissioner_Dist/FeatureServer`,           ids:[0], name:'Commissioner Districts',          cat:'districts'},
+{svc:`${FC_BASE}/Floyd_County_Council_Districts/FeatureServer`, ids:[0], name:'County Council Districts',     cat:'districts'},
+{svc:`${FC_BASE}/Floyd_County_Indiana_House_Area/FeatureServer`, ids:[0], name:'Indiana House Area',          cat:'districts'},
+{svc:`${FC_BASE}/Floyd_County_Indiana_Senate_Area/FeatureServer`, ids:[0], name:'Indiana Senate Area',         cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_1_(Public)/FeatureServer`, ids:[0], name:'School Board District 1',     cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_2_(Public)/FeatureServer`, ids:[0], name:'School Board District 2',     cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_3_(Public)/FeatureServer`, ids:[0], name:'School Board District 3',     cat:'districts'},
+{svc:`${FC_BASE}/School_Board_District_4_(Public)/FeatureServer`, ids:[0], name:'School Board District 4',     cat:'districts'},
+
+    // Points of Interest
+{svc:`${FC_BASE}/Floyd_County_Parks/FeatureServer`,          ids:[0], name:'Parks',                            cat:'poi'},
+{svc:`${FC_BASE}/Capital_Projects/FeatureServer`,            ids:[0], name:'Capital Projects',                 cat:'poi'},
+  ];
+
+// ── Delaware County (Muncie / kyleajohnson AGOL org) ────────────────
+const DC_BASE = 'https://services.arcgis.com/VyRjdyMziYNF5Bwe/arcgis/rest/services';
+const DELAWARE_LAYERS = [
+    // Parcels & Property
+  {svc:`${DC_BASE}/ParcelWebpublish/FeatureServer`,            ids:[0], name:'Parcels',                          cat:'parcels'},
+  {svc:`${DC_BASE}/CountyOwnedProperties_July_2024/FeatureServer`, ids:[0], name:'County-Owned Properties',     cat:'parcels'},
+  {svc:`${DC_BASE}/Building_Permit/FeatureServer`,             ids:[0], name:'Building Permits',                 cat:'parcels'},
+
+    // Zoning & Planning
+  {svc:`${DC_BASE}/Administrative_Jurisdictions/FeatureServer`,ids:[0], name:'Administrative Jurisdictions',     cat:'zoning'},
+  {svc:`${DC_BASE}/Taxing_Units/FeatureServer`,                ids:[0], name:'Taxing Units',                     cat:'zoning'},
+
+    // Hydrology
+  {svc:`${DC_BASE}/county_drains_incomplete/FeatureServer`,    ids:[0], name:'County Drains',                    cat:'hydrology'},
+  {svc:`${DC_BASE}/Drainage_Maps_webpublish/FeatureServer`,    ids:[0], name:'Drainage Maps',                    cat:'hydrology'},
+
+    // Transportation
+  {svc:`${DC_BASE}/CountyPavedRoads_2017_2019/FeatureServer`,  ids:[0], name:'Paved Roads',                      cat:'transportation'},
+  {svc:`${DC_BASE}/County_Road_Problem_Reports_Public/FeatureServer`, ids:[0], name:'Road Problem Reports',     cat:'transportation'},
+  {svc:`${DC_BASE}/CGW_Bridges/FeatureServer`,                 ids:[0], name:'Bridges',                          cat:'transportation'},
+  {svc:`${DC_BASE}/Bicycle_amenities_hosted/FeatureServer`,    ids:[0], name:'Bicycle Amenities',                cat:'transportation'},
+  {svc:`${DC_BASE}/Bike_Ped_Plans_Routes/FeatureServer`,       ids:[0], name:'Bike/Ped Plan Routes',             cat:'transportation'},
+
+    // Civic Boundaries
+  {svc:`${DC_BASE}/Incorporated_Areas_and_Political_Townships/FeatureServer`, ids:[0], name:'Incorporated Areas & Townships', cat:'civic'},
+{svc:`${DC_BASE}/CensusBlocks_2020/FeatureServer`,           ids:[0], name:'Census Blocks (2020)',             cat:'civic'},
+
+    // Districts
+{svc:`${DC_BASE}/County_council_2012/FeatureServer`,         ids:[0], name:'County Council Districts',         cat:'districts'},
+{svc:`${DC_BASE}/CountyCommissioner_districts_2012/FeatureServer`, ids:[0], name:'Commissioner Districts',     cat:'districts'},
+{svc:`${DC_BASE}/Delaware_County_Council_At_Large/FeatureServer`, ids:[0], name:'County Council At-Large',     cat:'districts'},
+{svc:`${DC_BASE}/DelawareCountySchoolsk12_HigherEd/FeatureServer`, ids:[0], name:'Schools (K-12 & Higher Ed)', cat:'districts'},
+
+    // Points of Interest
+{svc:`${DC_BASE}/ALL_FIRE_EMS_STATIONS_UPDATED/FeatureServer`, ids:[0], name:'Fire & EMS Stations',            cat:'poi'},
+{svc:`${DC_BASE}/Arts_and_Culture/FeatureServer`,            ids:[0], name:'Arts & Culture',                   cat:'poi'},
+{svc:`${DC_BASE}/2nd_Harvest_Food_Distribution_Locations/FeatureServer`, ids:[0], name:'Food Distribution',     cat:'poi'},
+
+    // Environment
+{svc:`${DC_BASE}/2ft_Contours_spot_elevations/FeatureServer`,ids:[0], name:'Contours (2 ft) & Spot Elevations',cat:'environment'},
+{svc:`${DC_BASE}/CAFO_Restricted_Areas/FeatureServer`,       ids:[0], name:'CAFO Restricted Areas',            cat:'environment'},
+  ];
+
+// ── Howard County (Kokomo) ────────────────────────────────────
+const HOWC_BASE = 'https://services2.arcgis.com/xAEbEfvA4av8VdwR/arcgis/rest/services';
+const HOWARD_LAYERS = [
+    // Civic Boundaries
+  {svc:`${HOWC_BASE}/Howard_County_Boundary/FeatureServer`,    ids:[0], name:'Howard County Boundary',           cat:'civic'},
+  ];
   ];
 // ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
@@ -1851,6 +2002,10 @@ const countyLayerCache = {
   marion:      MARION_LAYERS,
   hamilton:    HAMILTON_LAYERS,
   boone:       BOONE_LAYERS,
+  wayne:       WAYNE_LAYERS,
+  floyd:       FLOYD_LAYERS,
+  delaware:    DELAWARE_LAYERS,
+  howard:      HOWARD_LAYERS,
 };
 
 async function fetchCountyLayers(cKey) {
