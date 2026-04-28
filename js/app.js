@@ -1032,7 +1032,7 @@ function buildPopupHTML(p) {
             ? `<i class="fas fa-user" style="font-size:9px;margin-right:4px;opacity:.8;"></i>${p.owner}`
             
             : p._enriched
-              `<span style="font-size:10px;">${p.use || 'Parcel'} Â· ${p.pid ? p.pid.substring(0,14)+'â¦' : 'No PIN'}</span>`
+              ? `<span style="font-size:10px;">${p.use || 'Parcel'} Â· ${p.pid ? p.pid.substring(0,14)+'â¦' : 'No PIN'}</span>`
               : `<span style="font-size:10px;color:#60a5fa;"><i class="fas fa-circle-notch fa-spin" style="margin-right:4px;"></i>Loading owner…</span>`
           }
         </div>
