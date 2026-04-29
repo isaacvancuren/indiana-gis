@@ -3843,6 +3843,76 @@ const COUNTY_GIS_SERVERS = {
     {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Morgan_County_GIS_Map/FeatureServer', ids:[0], name:'Cemeteries', cat:'poi'},
   ],
 
+
+
+  // Lake County (lakecountyod AGOL + lcsogis.lakecountyin.org)
+  lake: [
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Lake_County_Parcels/FeatureServer', ids:[0], name:'Lake County Parcels', cat:'parcels'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Lake_County_Address_Points/FeatureServer', ids:[0], name:'Lake County Address Points', cat:'parcels'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Building_Footprints_2023/FeatureServer', ids:[0], name:'Building Footprints (2023)', cat:'parcels'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Subdivisions/FeatureServer', ids:[0], name:'Subdivisions', cat:'parcels'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Cadastral_Lines/FeatureServer', ids:[0], name:'Cadastral Lines', cat:'parcels'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Lot_Boundaries/FeatureServer', ids:[0], name:'Lot Boundaries', cat:'parcels'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Corporate_Boundaries/FeatureServer', ids:[0], name:'Corporate Boundaries', cat:'districts'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/TIF_Districts/FeatureServer', ids:[0], name:'TIF Districts', cat:'districts'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Geographic_Township_Boundary/FeatureServer', ids:[0], name:'Township Boundaries', cat:'districts'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Zip_Code_Poly_Clip/FeatureServer', ids:[0], name:'ZIP Code Boundaries', cat:'districts'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Centerlines/FeatureServer', ids:[0], name:'Road Centerlines', cat:'transportation'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/DFIRM/FeatureServer', ids:[0], name:'DFIRM Flood Zones', cat:'hydrology'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Lake_County_Wetlands/FeatureServer', ids:[0], name:'Wetlands', cat:'environment'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/NHD_Flowlines/FeatureServer', ids:[0], name:'NHD Flowlines', cat:'hydrology'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/NHD_Lakes/FeatureServer', ids:[0], name:'NHD Lakes', cat:'hydrology'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/NHD_Waterbody/FeatureServer', ids:[0], name:'NHD Waterbodies', cat:'hydrology'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Drainage/FeatureServer', ids:[0], name:'Drainage Network', cat:'hydrology'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Watershed_Divide/FeatureServer', ids:[0], name:'Watershed Divides', cat:'environment'},
+    {svc:'https://lcsogis.lakecountyin.org/server/rest/services/Hydrography_2013/FeatureServer', ids:[0], name:'Hydrography (2013)', cat:'hydrology'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Fire_Stations/FeatureServer', ids:[0], name:'Fire Stations', cat:'civic'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Police_Stations/FeatureServer', ids:[0], name:'Police Stations', cat:'civic'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Hospitals/FeatureServer', ids:[0], name:'Healthcare Facilities', cat:'civic'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Schools/FeatureServer', ids:[0], name:'Schools', cat:'civic'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Emergency_Shelters/FeatureServer', ids:[0], name:'Emergency Shelters', cat:'civic'},
+    {svc:'https://services5.arcgis.com/8CXRnvSfSpwdf0R6/arcgis/rest/services/Section_Corners/FeatureServer', ids:[0], name:'Section Corners', cat:'parcels'}
+  ],
+  // Porter County (PorterCountyGov + smcdaniel21 base data)
+  porter: [
+    {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Parcel_view/FeatureServer', ids:[0], name:'Parcels (2026)', cat:'parcels'},
+    {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Zoning_Districts/FeatureServer', ids:[0], name:'Zoning Districts', cat:'zoning'},
+    {svc:'https://services6.arcgis.com/TQ2Al5QIvv4tMBL7/arcgis/rest/services/UDO_Zoning_Districts/FeatureServer', ids:[0], name:'UDO Zoning Districts', cat:'zoning'},
+    {svc:'https://services6.arcgis.com/TQ2Al5QIvv4tMBL7/arcgis/rest/services/MunicipalBoundaries/FeatureServer', ids:[0], name:'Municipal Boundaries', cat:'districts'},
+    {svc:'https://services6.arcgis.com/TQ2Al5QIvv4tMBL7/arcgis/rest/services/RoadCenterline/FeatureServer', ids:[0], name:'Road Centerlines', cat:'transportation'},
+    {svc:'https://services6.arcgis.com/TQ2Al5QIvv4tMBL7/arcgis/rest/services/Subdivisions/FeatureServer', ids:[0], name:'Subdivisions', cat:'parcels'},
+    {svc:'https://services6.arcgis.com/TQ2Al5QIvv4tMBL7/arcgis/rest/services/RegulatedDrains/FeatureServer', ids:[0], name:'Regulated Drains', cat:'hydrology'},
+    {svc:'https://services6.arcgis.com/TQ2Al5QIvv4tMBL7/arcgis/rest/services/Legal_Drain_Centerline/FeatureServer', ids:[0], name:'Legal Drain Centerlines', cat:'hydrology'},
+    {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Park_and_Recreation_Inventory_Viewing/FeatureServer', ids:[7,15,18], name:'Parks, Trails & Natural Areas', cat:'civic'},
+    {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/TIF_Areas/FeatureServer', ids:[1,2,3,4,5,6,7], name:'TIF Allocation Areas', cat:'districts'},
+    {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Council_Reps/FeatureServer', ids:[0], name:'City Council Members', cat:'districts'},
+    {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Sign_Inventory/FeatureServer', ids:[0,1], name:'Sign Inventory & Poles', cat:'transportation'}
+  ],
+  // Vanderburgh County (Evansville GIS server)
+  vanderburgh: [
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/PARCELS/MapServer', ids:[0], name:'Parcels', cat:'parcels'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/PROPERTY_BOUNDARIES/MapServer', ids:[0], name:'Property Boundaries', cat:'parcels'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/SUBDIVISIONS/MapServer', ids:[0], name:'Subdivisions', cat:'parcels'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/BUILDINGS_2023/MapServer', ids:[0], name:'Building Footprints (2023)', cat:'parcels'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/ZONING/MapServer', ids:[0], name:'Zoning', cat:'zoning'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/EXISTING_LAND_USE/MapServer', ids:[0], name:'Existing Land Use', cat:'zoning'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/FUTURE_LAND_USE/MapServer', ids:[0], name:'Future Land Use', cat:'zoning'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/BOUNDARIES/CITY_LIMITS/MapServer', ids:[0], name:'City Limits', cat:'districts'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/POLITICAL/CITY_COUNCIL_WARDS/MapServer', ids:[0], name:'City Council Wards', cat:'districts'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/POLITICAL/PRECINCTS/MapServer', ids:[0], name:'Precincts', cat:'districts'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/POLITICAL/VOTE_CENTERS/MapServer', ids:[0], name:'Voting Centers (2026)', cat:'civic'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/HYDROLOGY/AREA_WETLANDS/MapServer', ids:[0], name:'Wetlands', cat:'environment'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/HYDROLOGY/HYDROLOGY/MapServer', ids:[0], name:'Hydrology', cat:'hydrology'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/HYDROLOGY/FLOODZONES_DYNAMIC/MapServer', ids:[0], name:'Flood Zones', cat:'hydrology'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/HYDROLOGY/REGULATED_DRAINS/MapServer', ids:[0], name:'Regulated Drains', cat:'hydrology'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/TRANSPORTATION/TRANSPORTATION_DYNAMIC/MapServer', ids:[0,4], name:'Streets & Major Roads', cat:'transportation'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/TRANSPORTATION/Greenway_Bike_Network/MapServer', ids:[0,1], name:'Greenway & Bike Network', cat:'transportation'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/TRANSPORTATION/METS_BUS_STOPS/MapServer', ids:[0], name:'METS Bus Stops', cat:'transportation'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/TRANSPORTATION/VC_BRIDGES/MapServer', ids:[0], name:'County Bridges', cat:'transportation'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/ENVIRONMENTAL/PARKS/MapServer', ids:[0], name:'Parks', cat:'civic'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/ENVIRONMENTAL/SOILS/MapServer', ids:[0], name:'Soils', cat:'environment'},
+    {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/HISTORICAL/HISTORIC_DISTRICTS/MapServer', ids:[0], name:'Historic Districts', cat:'districts'}
+  ]
 };
 // IndianaMap statewide fallback layers - applies to any county not in COUNTY_GIS_SERVERS / countyLayerCache
 // All layers verified live from gisdata.in.gov
@@ -4004,6 +4074,62 @@ const MUNICIPAL_GIS_SERVERS = {
         {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer', ids:[9], name:'Indy School Board Districts', cat:'districts'},
         {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Infrastructure/MapServer', ids:[2], name:'Indy Vacant & Abandoned Houses', cat:'parcels'},
         {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Infrastructure/MapServer', ids:[5], name:'Indy Storm Sewers', cat:'utility'}
+      ]
+    }
+  }
+,
+  // Hendricks County: Avon, Brownsburg, Plainfield
+  hendricks: {
+    avon: {
+      name: 'Avon',
+      layers: [
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[7], name:'Avon Parcels', cat:'parcels'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[10], name:'Avon Town Limits', cat:'districts'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[6], name:'Avon Wetlands', cat:'environment'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[5], name:'Avon Floodplains', cat:'hydrology'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[3], name:'Avon Streams & Drains', cat:'hydrology'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[0], name:'Avon Cemeteries', cat:'civic'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[1], name:'Avon Pipelines', cat:'utility'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Avon_UDO/FeatureServer', ids:[2], name:'Avon Railroads', cat:'transportation'}
+      ]
+    },
+    brownsburg: {
+      name: 'Brownsburg',
+      layers: [
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[7], name:'Brownsburg Parcels', cat:'parcels'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[11], name:'Brownsburg Town Limits', cat:'districts'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[5], name:'Brownsburg Wetlands', cat:'environment'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[6], name:'Brownsburg Floodplains', cat:'hydrology'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[2], name:'Brownsburg Streams & Drains', cat:'hydrology'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[8], name:'Brownsburg Electric Service', cat:'utility'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[0], name:'Brownsburg Cemeteries', cat:'civic'},
+        {svc:'https://services2.arcgis.com/Y0fDSibEfxdu2Ya6/arcgis/rest/services/Brownsburg_UDO_Map/FeatureServer', ids:[1], name:'Brownsburg Railroads', cat:'transportation'}
+      ]
+    }
+  },
+  // Vanderburgh: Evansville (city-specific subset)
+  vanderburgh: {
+    evansville: {
+      name: 'Evansville',
+      layers: [
+        {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/BUILDINGS_2023/MapServer', ids:[0], name:'Evansville Buildings (2023)', cat:'parcels'},
+        {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/POLITICAL/CITY_COUNCIL_WARDS/MapServer', ids:[0], name:'Evansville City Council Wards', cat:'districts'},
+        {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/HISTORICAL/HISTORIC_DISTRICTS/MapServer', ids:[0], name:'Evansville Historic Districts', cat:'districts'},
+        {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/TRANSPORTATION/Greenway_Bike_Network/MapServer', ids:[0,1], name:'Evansville Greenway & Bike Network', cat:'transportation'},
+        {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/TRANSPORTATION/METS_BUS_STOPS/MapServer', ids:[0], name:'METS Bus Stops', cat:'transportation'},
+        {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/ENVIRONMENTAL/PARKS/MapServer', ids:[0], name:'Evansville Parks', cat:'civic'}
+      ]
+    }
+  },
+  // Porter: Valparaiso (PorterCountyGov has city of Valparaiso data)
+  porter: {
+    valparaiso: {
+      name: 'Valparaiso',
+      layers: [
+        {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Council_Reps/FeatureServer', ids:[0], name:'Valparaiso City Council Members', cat:'districts'},
+        {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/TIF_Areas/FeatureServer', ids:[1,2,3,4,5,6,7], name:'Valparaiso TIF Allocation Areas', cat:'districts'},
+        {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Park_and_Recreation_Inventory_Viewing/FeatureServer', ids:[7,15,18], name:'Valparaiso Parks & Trails', cat:'civic'},
+        {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Sign_Inventory/FeatureServer', ids:[0,1], name:'Valparaiso Sign Inventory', cat:'transportation'}
       ]
     }
   }
