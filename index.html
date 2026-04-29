@@ -956,6 +956,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
           <button class="mn-natfilter-item" data-key="esri-boundaries" onclick="window.MNNatFilter.toggleLayer('esri-boundaries',this)"><i class="fas fa-flag"></i> Boundaries</button>
           <button class="mn-natfilter-item" data-key="esri-transport" onclick="window.MNNatFilter.toggleLayer('esri-transport',this)"><i class="fas fa-route"></i> Highways</button>
                   <button class="mn-natfilter-item" data-key="imagery" onclick="window.MNNatFilter.toggleLayer('imagery',this)"><i class="fas fa-satellite"></i> Satellite</button>
+                  <button class="mn-natfilter-item" data-key="imagery-labels" onclick="window.MNNatFilter.toggleLayer('imagery-labels',this)"><i class="fas fa-tag"></i> Labels</button>
         </div>
         <div class="mn-natfilter-section-title"><i class="fas fa-tree"></i> Environmental & Land Use</div>
         <div class="mn-natfilter-grid" data-section="environment">
@@ -1003,18 +1004,6 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <div class="tpane on" id="tab-layers">
 
       <!-- STATEWIDE LAYERS — always present, always working -->
-      <div class="lgrp" id="grp-statewide">
-        <div class="lgh open" onclick="toggleGrp(this)">
-          <i class="fas fa-globe-americas gi" style="color:#60a5fa;"></i> Statewide (All 92 Counties)
-          <i class="fas fa-chevron-right arr"></i>
-        </div>
-        <div class="lgitems open">
-          <div class="li" id="li-parcels"><input type="checkbox" id="lc-parcels" checked onchange="toggleLyr('parcels',this)"><i class="fas fa-draw-polygon li-icon" style="color:#f59e0b;"></i><span class="ln">Parcel Boundaries (IGIO)</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="100" oninput="setLyrOpac('parcels',this)"><span class="li-opac-val">100%</span></div></div>
-          <div class="li" id="li-flood"><input type="checkbox" id="lc-flood" onchange="toggleLyr('flood',this)"><i class="fas fa-water li-icon" style="color:#38bdf8;"></i><span class="ln">FEMA Floodplain (Live)</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="55" oninput="setLyrOpac('flood',this)"><span class="li-opac-val">55%</span></div></div>
-          <div class="li"><input type="checkbox" id="lc-imagery" onchange="toggleLyr('imagery',this)"><i class="fas fa-satellite li-icon" style="color:#94a3b8;"></i><span class="ln">Esri World Imagery</span><div class="li-ctrl"><input type="range" class="li-opac" min="0" max="100" value="85" oninput="setLyrOpac('imagery',this)"><span class="li-opac-val">85%</span></div></div>
-          <div class="li"><input type="checkbox" id="lc-imagery-labels" onchange="toggleLyr('imagery-labels',this)"><i class="fas fa-font li-icon" style="color:#9ca3af;"></i><span class="ln">Imagery Labels Overlay</span></div>
-        </div>
-      </div>
 
       <!-- COUNTY-SPECIFIC LAYERS — populated dynamically on county switch -->
       <div id="county-layers-container">
@@ -5795,6 +5784,7 @@ function chipToggle(chipName, chipEl) {
       parcels:  'parcels',
       flood:    'flood',
       imagery:  'imagery',
+      'imagery-labels': 'imagery-labels',
       'usgs-topo':         'usgs-topo',
       'opentopomap':       'opentopomap',
       'usgs-shaded':       'usgs-shaded',
