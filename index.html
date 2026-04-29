@@ -605,6 +605,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
           mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
 }
+.fchip-section{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:#7dd3fc;letter-spacing:.5px;padding:0 8px;height:22px;display:flex;align-items:center;text-transform:uppercase;background:rgba(56,189,248,0.10);border-radius:4px;margin:0 4px;border:1px solid rgba(56,189,248,0.25);}
 #filter-strip::-webkit-scrollbar{height:4px}
 #filter-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 #filter-strip .fchip{flex-shrink:0}
@@ -939,6 +940,25 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <div class="fchip"     id="chip-nexrad-radar"  onclick="chipToggle('nexrad-radar',this)"  title="NEXRAD live weather radar"><i class="fas fa-cloud-bolt"></i> Radar</div>
     <div class="fchip"     id="chip-noaa-warnings" onclick="chipToggle('noaa-warnings',this)" title="NWS active weather warnings"><i class="fas fa-triangle-exclamation"></i> Warnings</div>
     <div class="fchip"     id="chip-earthquakes"   onclick="chipToggle('earthquakes',this)"   title="USGS earthquakes 30 days M2.5+"><i class="fas fa-house-tsunami"></i> Quakes</div>
+    <div class="fchip-section">UNIVERSAL ICONS</div>
+    <div class="fchip" id="chip-poi-hospital" onclick="chipToggle('poi-hospital',this)" title="Hospitals (zoom 11+)"><i class="fas fa-hospital"></i> Hospitals</div>
+    <div class="fchip" id="chip-poi-school" onclick="chipToggle('poi-school',this)" title="Schools (zoom 13+)"><i class="fas fa-graduation-cap"></i> Schools</div>
+    <div class="fchip" id="chip-poi-police" onclick="chipToggle('poi-police',this)" title="Police (zoom 12+)"><i class="fas fa-shield-halved"></i> Police</div>
+    <div class="fchip" id="chip-poi-fire" onclick="chipToggle('poi-fire',this)" title="Fire Stations (zoom 12+)"><i class="fas fa-fire"></i> Fire</div>
+    <div class="fchip" id="chip-poi-airport" onclick="chipToggle('poi-airport',this)" title="Airports (zoom 9+)"><i class="fas fa-plane"></i> Airports</div>
+    <div class="fchip" id="chip-poi-fuel" onclick="chipToggle('poi-fuel',this)" title="Gas Stations (zoom 13+)"><i class="fas fa-gas-pump"></i> Gas</div>
+    <div class="fchip" id="chip-poi-bank" onclick="chipToggle('poi-bank',this)" title="Banks (zoom 14+)"><i class="fas fa-building-columns"></i> Banks</div>
+    <div class="fchip" id="chip-poi-restaurant" onclick="chipToggle('poi-restaurant',this)" title="Restaurants (zoom 15+)"><i class="fas fa-utensils"></i> Food</div>
+    <div class="fchip" id="chip-poi-lodging" onclick="chipToggle('poi-lodging',this)" title="Hotels (zoom 13+)"><i class="fas fa-bed"></i> Lodging</div>
+    <div class="fchip" id="chip-poi-park" onclick="chipToggle('poi-park',this)" title="Parks (zoom 11+)"><i class="fas fa-tree-city"></i> Parks</div>
+    <div class="fchip" id="chip-poi-railway" onclick="chipToggle('poi-railway',this)" title="Railway (zoom 11+)"><i class="fas fa-train"></i> Rail</div>
+    <div class="fchip" id="chip-poi-grocery" onclick="chipToggle('poi-grocery',this)" title="Grocery (zoom 14+)"><i class="fas fa-cart-shopping"></i> Grocery</div>
+    <div class="fchip" id="chip-poi-pharmacy" onclick="chipToggle('poi-pharmacy',this)" title="Pharmacy (zoom 14+)"><i class="fas fa-prescription-bottle-medical"></i> Pharmacy</div>
+    <div class="fchip" id="chip-poi-charging" onclick="chipToggle('poi-charging',this)" title="EV Charging (zoom 13+)"><i class="fas fa-charging-station"></i> EV</div>
+    <div class="fchip" id="chip-poi-postoffice" onclick="chipToggle('poi-postoffice',this)" title="Post Offices (zoom 13+)"><i class="fas fa-envelope"></i> Post</div>
+    <div class="fchip" id="chip-poi-library" onclick="chipToggle('poi-library',this)" title="Libraries (zoom 13+)"><i class="fas fa-book"></i> Library</div>
+    <div class="fchip" id="chip-poi-worship" onclick="chipToggle('poi-worship',this)" title="Worship (zoom 14+)"><i class="fas fa-place-of-worship"></i> Worship</div>
+    <div class="fchip" id="chip-poi-cemetery" onclick="chipToggle('poi-cemetery',this)" title="Cemeteries (zoom 13+)"><i class="fas fa-cross"></i> Cemetery</div>
   </div>
   <div id="sbody">
 
@@ -4471,8 +4491,26 @@ async function refreshCountyLayers() {
 // ── Permanent layer registry (statewide — all 92 counties) ───────────────────
 const gisLayers = {};
 gisLayers['parcels']        = parcelLayer;
-gisLayers['flood']          = L.tileLayer.wms('https://hazards.fema.gov/gis/nfhl/services/public/NFHL/MapServer/WMSServer',
-  {layers:'28,29',format:'image/png',transparent:true,version:'1.3.0',opacity:0.60,attribution:'FEMA NFHL',keepBuffer:0});
+gisLayers['flood']          = (function(){
+    // FEMA NFHL via working ArcGIS REST /export endpoint (WMS endpoint returns 503)
+    const FemaTile = L.TileLayer.extend({
+      getTileUrl: function(coords) {
+        const tileBounds = this._tileCoordsToBounds(coords);
+        const ne = tileBounds.getNorthEast(), sw = tileBounds.getSouthWest();
+        const proj = L.Projection.SphericalMercator;
+        const neP = proj.project(ne), swP = proj.project(sw);
+        const params = 'bbox='+swP.x+','+swP.y+','+neP.x+','+neP.y+
+          '&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image'+
+          '&layers=show:28';
+        return 'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/export?'+params;
+      }
+    });
+    return new FemaTile('', {
+      maxZoom: 19, minZoom: 8,
+      opacity: 0.65,
+      attribution: '(c) FEMA NFHL'
+    });
+  })();
 gisLayers['imagery']        = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   {maxZoom:20,attribution:'© Esri, Maxar',opacity:0.85});
 gisLayers['imagery-labels'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
@@ -4538,6 +4576,81 @@ gisLayers['imagery-labels'] = L.tileLayer('https://server.arcgisonline.com/ArcGI
     return __eqOrigAdd.call(this, map);
   };
 
+  // ==================================================================
+  //  UNIVERSAL POI ICONS (worldwide via Overpass API)
+  // ==================================================================
+  function makePoiLayer(opts){
+    const lg = L.layerGroup();
+    lg._loaded = false;
+    lg._loading = false;
+    lg._minZoom = opts.minZoom || 11;
+    lg._query = opts.query;
+    lg._icon = opts.icon || 'fa-location-dot';
+    lg._color = opts.color || '#06b6d4';
+    lg._label = opts.label || 'POI';
+    lg._loader = function(map){
+      if(this._loading) return;
+      const z = map.getZoom();
+      if(z < this._minZoom){ return; }
+      this._loading = true;
+      const b = map.getBounds();
+      const bbox = b.getSouth()+','+b.getWest()+','+b.getNorth()+','+b.getEast();
+      const q = '[out:json][timeout:25];('+this._query.replace(/__BBOX__/g, bbox)+');out center 200;';
+      const url = 'https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q);
+      const self = this;
+      fetch(url).then(r=>r.json()).then(d=>{
+        self.clearLayers();
+        (d.elements||[]).slice(0,200).forEach(e=>{
+          const lat = e.lat || (e.center && e.center.lat);
+          const lon = e.lon || (e.center && e.center.lon);
+          if(lat==null||lon==null) return;
+          const name = (e.tags && (e.tags.name || e.tags['operator'] || e.tags.brand)) || self._label;
+          const html = '<div style="background:'+self._color+';color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.5)"><i class="fas '+self._icon+'"></i></div>';
+          const icon = L.divIcon({html:html,className:'mn-poi-icon',iconSize:[24,24],iconAnchor:[12,12]});
+          L.marker([lat,lon],{icon:icon}).bindPopup('<b>'+name+'</b><br/>'+(self._label)).addTo(self);
+        });
+        self._loaded = true;
+        self._loading = false;
+      }).catch(()=>{ self._loading = false; });
+    };
+    const _origAdd = lg.onAdd;
+    lg.onAdd = function(map){
+      this._map = map;
+      this._loader(map);
+      const handler = ()=>{ if(map.hasLayer(this)) this._loader(map); };
+      this._moveHandler = handler;
+      map.on('moveend', handler);
+      return _origAdd.call(this, map);
+    };
+    const _origRemove = lg.onRemove;
+    lg.onRemove = function(map){
+      if(this._moveHandler){ map.off('moveend', this._moveHandler); }
+      this.clearLayers();
+      this._loaded = false;
+      return _origRemove.call(this, map);
+    };
+    return lg;
+  }
+
+  gisLayers['poi-hospital']  = makePoiLayer({query:'node[amenity=hospital](__BBOX__);way[amenity=hospital](__BBOX__);', icon:'fa-hospital', color:'#ef4444', label:'Hospital', minZoom:11});
+  gisLayers['poi-school']    = makePoiLayer({query:'node[amenity~"^(school|university|college)$"](__BBOX__);way[amenity~"^(school|university|college)$"](__BBOX__);', icon:'fa-graduation-cap', color:'#a855f7', label:'School', minZoom:13});
+  gisLayers['poi-police']    = makePoiLayer({query:'node[amenity=police](__BBOX__);', icon:'fa-shield-halved', color:'#1e40af', label:'Police', minZoom:12});
+  gisLayers['poi-fire']      = makePoiLayer({query:'node[amenity=fire_station](__BBOX__);way[amenity=fire_station](__BBOX__);', icon:'fa-fire', color:'#dc2626', label:'Fire Station', minZoom:12});
+  gisLayers['poi-airport']   = makePoiLayer({query:'node[aeroway=aerodrome](__BBOX__);way[aeroway=aerodrome](__BBOX__);', icon:'fa-plane', color:'#0891b2', label:'Airport', minZoom:9});
+  gisLayers['poi-fuel']      = makePoiLayer({query:'node[amenity=fuel](__BBOX__);', icon:'fa-gas-pump', color:'#f59e0b', label:'Gas Station', minZoom:13});
+  gisLayers['poi-bank']      = makePoiLayer({query:'node[amenity=bank](__BBOX__);node[amenity=atm](__BBOX__);', icon:'fa-building-columns', color:'#16a34a', label:'Bank', minZoom:14});
+  gisLayers['poi-restaurant'] = makePoiLayer({query:'node[amenity~"^(restaurant|cafe|fast_food)$"](__BBOX__);', icon:'fa-utensils', color:'#ea580c', label:'Restaurant', minZoom:15});
+  gisLayers['poi-lodging']   = makePoiLayer({query:'node[tourism~"^(hotel|motel|hostel|guest_house)$"](__BBOX__);way[tourism~"^(hotel|motel|hostel|guest_house)$"](__BBOX__);', icon:'fa-bed', color:'#7c3aed', label:'Lodging', minZoom:13});
+  gisLayers['poi-park']      = makePoiLayer({query:'node[leisure~"^(park|nature_reserve)$"](__BBOX__);way[leisure~"^(park|nature_reserve)$"](__BBOX__);', icon:'fa-tree-city', color:'#16a34a', label:'Park', minZoom:11});
+  gisLayers['poi-railway']   = makePoiLayer({query:'node[railway=station](__BBOX__);', icon:'fa-train', color:'#475569', label:'Railway Station', minZoom:11});
+  gisLayers['poi-grocery']   = makePoiLayer({query:'node[shop~"^(supermarket|grocery)$"](__BBOX__);way[shop~"^(supermarket|grocery)$"](__BBOX__);', icon:'fa-cart-shopping', color:'#22c55e', label:'Grocery', minZoom:14});
+  gisLayers['poi-pharmacy']  = makePoiLayer({query:'node[amenity=pharmacy](__BBOX__);', icon:'fa-prescription-bottle-medical', color:'#10b981', label:'Pharmacy', minZoom:14});
+  gisLayers['poi-charging']  = makePoiLayer({query:'node[amenity=charging_station](__BBOX__);', icon:'fa-charging-station', color:'#06b6d4', label:'EV Charging', minZoom:13});
+  gisLayers['poi-postoffice'] = makePoiLayer({query:'node[amenity=post_office](__BBOX__);', icon:'fa-envelope', color:'#3b82f6', label:'Post Office', minZoom:13});
+  gisLayers['poi-library']   = makePoiLayer({query:'node[amenity=library](__BBOX__);way[amenity=library](__BBOX__);', icon:'fa-book', color:'#8b5cf6', label:'Library', minZoom:13});
+  gisLayers['poi-worship']   = makePoiLayer({query:'node[amenity=place_of_worship](__BBOX__);way[amenity=place_of_worship](__BBOX__);', icon:'fa-place-of-worship', color:'#a16207', label:'Place of Worship', minZoom:14});
+  gisLayers['poi-cemetery']  = makePoiLayer({query:'way[landuse=cemetery](__BBOX__);relation[landuse=cemetery](__BBOX__);', icon:'fa-cross', color:'#525252', label:'Cemetery', minZoom:13});
+
 
 
 const legendData = {
@@ -4564,7 +4677,27 @@ const legendData = {
   'carto-dark':        {'c':'#1f2937','l':'Dark'},
   'nexrad-radar':      {'c':'#10b981','l':'Weather Radar'},
   'noaa-warnings':     {'c':'#ef4444','l':'NWS Warnings'},
-  'earthquakes':       {'c':'#ef4444','l':'Earthquakes'}
+  'earthquakes':       {'c':'#ef4444','l':'Earthquakes'},
+  'poi-hospital':      {'c':'#ef4444','l':'Hospitals'},
+  'poi-school':        {'c':'#a855f7','l':'Schools'},
+  'poi-police':        {'c':'#1e40af','l':'Police'},
+  'poi-fire':          {'c':'#dc2626','l':'Fire Stations'},
+  'poi-airport':       {'c':'#0891b2','l':'Airports'},
+  'poi-fuel':          {'c':'#f59e0b','l':'Gas Stations'},
+  'poi-bank':          {'c':'#16a34a','l':'Banks'},
+  'poi-restaurant':    {'c':'#ea580c','l':'Restaurants'},
+  'poi-lodging':       {'c':'#7c3aed','l':'Lodging'},
+  'poi-park':          {'c':'#16a34a','l':'Parks'},
+  'poi-railway':       {'c':'#475569','l':'Rail Stations'},
+  'poi-grocery':       {'c':'#22c55e','l':'Grocery'},
+  'poi-pharmacy':      {'c':'#10b981','l':'Pharmacy'},
+  'poi-charging':      {'c':'#06b6d4','l':'EV Charging'},
+  'poi-postoffice':    {'c':'#3b82f6','l':'Post Office'},
+  'poi-library':       {'c':'#8b5cf6','l':'Library'},
+  'poi-worship':       {'c':'#a16207','l':'Worship'},
+  'poi-cemetery':      {'c':'#525252','l':'Cemetery'}
+
+
 
 
 };
@@ -5642,7 +5775,25 @@ function chipToggle(chipName, chipEl) {
       'carto-dark':        'carto-dark',
       'nexrad-radar':      'nexrad-radar',
       'noaa-warnings':     'noaa-warnings',
-      'earthquakes':       'earthquakes'
+      'earthquakes':       'earthquakes',
+      'poi-hospital':      'poi-hospital',
+      'poi-school':        'poi-school',
+      'poi-police':        'poi-police',
+      'poi-fire':          'poi-fire',
+      'poi-airport':       'poi-airport',
+      'poi-fuel':          'poi-fuel',
+      'poi-bank':          'poi-bank',
+      'poi-restaurant':    'poi-restaurant',
+      'poi-lodging':       'poi-lodging',
+      'poi-park':          'poi-park',
+      'poi-railway':       'poi-railway',
+      'poi-grocery':       'poi-grocery',
+      'poi-pharmacy':      'poi-pharmacy',
+      'poi-charging':      'poi-charging',
+      'poi-postoffice':    'poi-postoffice',
+      'poi-library':       'poi-library',
+      'poi-worship':       'poi-worship',
+      'poi-cemetery':      'poi-cemetery'
     };
 
   const staticKey = staticChipMap[chipName];
