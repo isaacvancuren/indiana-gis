@@ -7167,7 +7167,7 @@ window.selectParcel = function(p, layer) {
 <script>
 (function(){
   const M = { open:false, active:new Set() };
-  function open(){ M.open = true; const menu = document.getElementById("mn-natfilter-menu"); if(menu) menu.style.display = "block"; const inp = document.getElementById("mn-natfilter-search-input"); if(inp){ setTimeout(()=>inp.focus(), 50); } }
+  function open(){ M.open = true; const menu = document.getElementById("mn-natfilter-menu"); const btn = document.getElementById("mn-natfilter-btn"); if(menu && btn){ if(menu.parentElement !== document.body){ document.body.appendChild(menu); menu.style.position = "fixed"; menu.style.zIndex = "10000"; } const r = btn.getBoundingClientRect(); let left = r.left; if(left + 480 > window.innerWidth) left = window.innerWidth - 490; menu.style.top = (r.bottom + 6) + "px"; menu.style.left = Math.max(8, left) + "px"; menu.style.display = "block"; } const inp = document.getElementById("mn-natfilter-search-input"); if(inp){ setTimeout(()=>inp.focus(), 50); } }
   function close(){ M.open = false; const menu = document.getElementById("mn-natfilter-menu"); if(menu) menu.style.display = "none"; }
   function toggle(){ if(M.open) close(); else open(); }
   function toggleLayer(key, btn){
