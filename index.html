@@ -921,6 +921,24 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <div class="fchip"     id="chip-drain"         onclick="chipToggle('drain',this)"><i class="fas fa-water"></i> Drains</div>
     <div class="fchip"     id="chip-sections"      onclick="chipToggle('sections',this)"><i class="fas fa-th"></i> Sections</div>
     <div class="fchip"     id="chip-imagery"       onclick="chipToggle('imagery',this)"><i class="fas fa-satellite"></i> Imagery</div>
+    <div class="fchip"     id="chip-usgs-topo"     onclick="chipToggle('usgs-topo',this)"     title="USGS National Topographic Map"><i class="fas fa-mountain"></i> USGS Topo</div>
+    <div class="fchip"     id="chip-opentopomap"   onclick="chipToggle('opentopomap',this)"   title="OpenTopoMap worldwide topo"><i class="fas fa-mountain-sun"></i> Topo Global</div>
+    <div class="fchip"     id="chip-usgs-shaded"   onclick="chipToggle('usgs-shaded',this)"   title="USGS Shaded Relief Hillshade"><i class="fas fa-image"></i> Hillshade</div>
+    <div class="fchip"     id="chip-usgs-hydro"    onclick="chipToggle('usgs-hydro',this)"    title="USGS National Hydrography Dataset"><i class="fas fa-droplet"></i> Hydrography</div>
+    <div class="fchip"     id="chip-usgs-nlcd"     onclick="chipToggle('usgs-nlcd',this)"     title="USGS National Land Cover Database 2021"><i class="fas fa-tree"></i> Land Cover</div>
+    <div class="fchip"     id="chip-usda-cropland" onclick="chipToggle('usda-cropland',this)" title="USDA Cropland Data Layer 2023"><i class="fas fa-wheat-awn"></i> Cropland</div>
+    <div class="fchip"     id="chip-osm-base"      onclick="chipToggle('osm-base',this)"      title="OpenStreetMap base"><i class="fas fa-globe"></i> OSM</div>
+    <div class="fchip"     id="chip-osm-humanitarian" onclick="chipToggle('osm-humanitarian',this)" title="OSM Humanitarian style"><i class="fas fa-hand-holding-heart"></i> OSM HOT</div>
+    <div class="fchip"     id="chip-esri-streets"  onclick="chipToggle('esri-streets',this)"  title="Esri World Streets"><i class="fas fa-road"></i> Streets</div>
+    <div class="fchip"     id="chip-esri-natgeo"   onclick="chipToggle('esri-natgeo',this)"   title="National Geographic style"><i class="fas fa-compass"></i> NatGeo</div>
+    <div class="fchip"     id="chip-esri-ocean"    onclick="chipToggle('esri-ocean',this)"    title="Esri Ocean Basemap"><i class="fas fa-water"></i> Ocean</div>
+    <div class="fchip"     id="chip-esri-boundaries" onclick="chipToggle('esri-boundaries',this)" title="World Boundaries and Places"><i class="fas fa-flag"></i> Boundaries</div>
+    <div class="fchip"     id="chip-esri-transport" onclick="chipToggle('esri-transport',this)" title="World Transportation"><i class="fas fa-route"></i> Highways</div>
+    <div class="fchip"     id="chip-carto-light"   onclick="chipToggle('carto-light',this)"   title="CARTO Light basemap"><i class="fas fa-sun"></i> Light</div>
+    <div class="fchip"     id="chip-carto-dark"    onclick="chipToggle('carto-dark',this)"    title="CARTO Dark basemap"><i class="fas fa-moon"></i> Dark</div>
+    <div class="fchip"     id="chip-nexrad-radar"  onclick="chipToggle('nexrad-radar',this)"  title="NEXRAD live weather radar"><i class="fas fa-cloud-bolt"></i> Radar</div>
+    <div class="fchip"     id="chip-noaa-warnings" onclick="chipToggle('noaa-warnings',this)" title="NWS active weather warnings"><i class="fas fa-triangle-exclamation"></i> Warnings</div>
+    <div class="fchip"     id="chip-earthquakes"   onclick="chipToggle('earthquakes',this)"   title="USGS earthquakes 30 days M2.5+"><i class="fas fa-house-tsunami"></i> Quakes</div>
   </div>
   <div id="sbody">
 
@@ -4460,6 +4478,67 @@ gisLayers['imagery']        = L.tileLayer('https://server.arcgisonline.com/ArcGI
 gisLayers['imagery-labels'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
   {maxZoom:20,attribution:'© Esri',opacity:0.80});
 
+  // ==================================================================
+  //  UNIVERSAL / NATIONAL / GLOBAL LAYERS
+  // ==================================================================
+  gisLayers['usgs-topo']      = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:19,attribution:'(c) USGS National Map',opacity:0.85});
+  gisLayers['usgs-hydro']     = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSHydroCached/MapServer/WmsServer',
+    {layers:'0',format:'image/png',transparent:true,opacity:0.75,attribution:'(c) USGS NHD'});
+  gisLayers['usgs-shaded']    = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:16,attribution:'(c) USGS Shaded Relief',opacity:0.65});
+  gisLayers['usgs-nlcd']      = L.tileLayer.wms('https://www.mrlc.gov/geoserver/mrlc_display/NLCD_2021_Land_Cover_L48/wms',
+    {layers:'NLCD_2021_Land_Cover_L48',format:'image/png',transparent:true,opacity:0.55,attribution:'(c) USGS MRLC NLCD 2021'});
+  gisLayers['usda-cropland']  = L.tileLayer.wms('https://nassgeodata.gmu.edu/CropScapeService/wms_cdlall.cgi',
+    {layers:'cdl_2023',format:'image/png',transparent:true,opacity:0.55,attribution:'(c) USDA NASS CDL 2023'});
+  gisLayers['osm-base']       = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {maxZoom:19,attribution:'(c) OpenStreetMap',opacity:0.85});
+  gisLayers['osm-humanitarian'] = L.tileLayer('https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    {maxZoom:19,attribution:'(c) OSM Humanitarian',opacity:0.80});
+  gisLayers['opentopomap']    = L.tileLayer('https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+    {maxZoom:17,attribution:'(c) OpenTopoMap (CC-BY-SA)',opacity:0.85});
+  gisLayers['nexrad-radar']   = L.tileLayer.wms('https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi',
+    {layers:'nexrad-n0r-900913',format:'image/png',transparent:true,opacity:0.65,attribution:'(c) Iowa State Mesonet NEXRAD'});
+  gisLayers['noaa-warnings']  = L.tileLayer.wms('https://mesonet.agron.iastate.edu/cgi-bin/wms/us/wwa.cgi',
+    {layers:'warnings_active',format:'image/png',transparent:true,opacity:0.70,attribution:'(c) NWS Warnings'});
+  gisLayers['esri-streets']   = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:19,attribution:'(c) Esri Street Map',opacity:0.85});
+  gisLayers['esri-natgeo']    = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:16,attribution:'(c) Esri / NatGeo',opacity:0.85});
+  gisLayers['esri-ocean']     = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:13,attribution:'(c) Esri Ocean',opacity:0.85});
+  gisLayers['carto-dark']     = L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+    {maxZoom:20,attribution:'(c) CARTO',opacity:0.85});
+  gisLayers['carto-light']    = L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+    {maxZoom:20,attribution:'(c) CARTO',opacity:0.85});
+  gisLayers['esri-boundaries'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:18,attribution:'(c) Esri Boundaries',opacity:0.85});
+  gisLayers['esri-transport'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+    {maxZoom:19,attribution:'(c) Esri Transportation',opacity:0.85});
+  gisLayers['earthquakes']    = L.layerGroup();
+  gisLayers['earthquakes']._loaded = false;
+  gisLayers['earthquakes']._loader = function(){
+    if(this._loaded) return;
+    this._loaded = true;
+    fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson')
+      .then(r=>r.json()).then(d=>{
+        d.features.forEach(f=>{
+          const m=f.properties.mag, c=f.geometry.coordinates;
+          const r=Math.max(4, m*3);
+          const col=m>=6?'#ff2030':m>=4.5?'#ff8030':'#ffd030';
+          L.circleMarker([c[1],c[0]],{radius:r,color:col,fillColor:col,fillOpacity:0.55,weight:1.5})
+            .bindPopup('<b>M'+m.toFixed(1)+'</b><br/>'+f.properties.place+'<br/>'+new Date(f.properties.time).toLocaleString()+'<br/>Depth: '+c[2]+' km')
+            .addTo(this);
+        });
+      }).catch(()=>{});
+  };
+  const __eqOrigAdd = gisLayers['earthquakes'].onAdd;
+  gisLayers['earthquakes'].onAdd = function(map){
+    if(this._loader) this._loader();
+    return __eqOrigAdd.call(this, map);
+  };
+
+
 
 const legendData = {
   'parcels':         {'c':'#f59e0b','l':'Parcel Boundaries'},
@@ -4468,6 +4547,26 @@ const legendData = {
   'imagery-labels':  {'c':'#9ca3af','l':'Imagery Labels'},
   'plss-sections':   {'c':'#64748b','l':'PLSS Sections'},
   'plss-townships':  {'c':'#475569','l':'PLSS Townships'},
+  'usgs-topo':         {'c':'#8b7355','l':'USGS Topo'},
+  'opentopomap':       {'c':'#a08060','l':'Topo Global'},
+  'usgs-shaded':       {'c':'#999999','l':'Hillshade'},
+  'usgs-hydro':        {'c':'#3b82f6','l':'Hydrography'},
+  'usgs-nlcd':         {'c':'#22c55e','l':'Land Cover'},
+  'usda-cropland':     {'c':'#eab308','l':'Cropland'},
+  'osm-base':          {'c':'#7dd3fc','l':'OpenStreetMap'},
+  'osm-humanitarian':  {'c':'#fb7185','l':'OSM HOT'},
+  'esri-streets':      {'c':'#94a3b8','l':'Streets'},
+  'esri-natgeo':       {'c':'#a78bfa','l':'NatGeo'},
+  'esri-ocean':        {'c':'#0ea5e9','l':'Ocean'},
+  'esri-boundaries':   {'c':'#f97316','l':'Boundaries'},
+  'esri-transport':    {'c':'#64748b','l':'Highways'},
+  'carto-light':       {'c':'#e5e7eb','l':'Light'},
+  'carto-dark':        {'c':'#1f2937','l':'Dark'},
+  'nexrad-radar':      {'c':'#10b981','l':'Weather Radar'},
+  'noaa-warnings':     {'c':'#ef4444','l':'NWS Warnings'},
+  'earthquakes':       {'c':'#ef4444','l':'Earthquakes'}
+
+
 };
 
 
@@ -5523,10 +5622,28 @@ function setLyrOpac(name, slider) {
 function chipToggle(chipName, chipEl) {
   // Map chip names to stable statewide layer keys or dynamic category matches
   const staticChipMap = {
-    parcels:  'parcels',
-    flood:    'flood',
-    imagery:  'imagery',
-  };
+      parcels:  'parcels',
+      flood:    'flood',
+      imagery:  'imagery',
+      'usgs-topo':         'usgs-topo',
+      'opentopomap':       'opentopomap',
+      'usgs-shaded':       'usgs-shaded',
+      'usgs-hydro':        'usgs-hydro',
+      'usgs-nlcd':         'usgs-nlcd',
+      'usda-cropland':     'usda-cropland',
+      'osm-base':          'osm-base',
+      'osm-humanitarian':  'osm-humanitarian',
+      'esri-streets':      'esri-streets',
+      'esri-natgeo':       'esri-natgeo',
+      'esri-ocean':        'esri-ocean',
+      'esri-boundaries':   'esri-boundaries',
+      'esri-transport':    'esri-transport',
+      'carto-light':       'carto-light',
+      'carto-dark':        'carto-dark',
+      'nexrad-radar':      'nexrad-radar',
+      'noaa-warnings':     'noaa-warnings',
+      'earthquakes':       'earthquakes'
+    };
 
   const staticKey = staticChipMap[chipName];
   if (staticKey) {
