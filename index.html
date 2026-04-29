@@ -1926,9 +1926,21 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 // ══════════════════════════════════════════════
 //  MAP INITIALIZATION
 // ══════════════════════════════════════════════
+// Resolve initial view: profile/localStorage > full Indiana default
+const __initView = (function(){
+  const def = {lat: 39.770, lng: -86.150, z: 7};
+  try {
+    const saved = localStorage.getItem('mn_active_county');
+    if (saved) {
+      const cached = localStorage.getItem('mn_active_county_coords');
+      if (cached) { try { const o = JSON.parse(cached); if (o && o.lat && o.lng && o.z) return o; } catch(e){} }
+    }
+  } catch(e){}
+  return def;
+})();
 const map = L.map('map',{
-  center: [activeCounty.lat, activeCounty.lng],
-  zoom: activeCounty.z,
+  center: [__initView.lat, __initView.lng],
+  zoom: __initView.z,
   zoomControl: false,
   attributionControl: true,
   scrollWheelZoom: true,   // ← enable trackpad/mouse wheel zoom
@@ -5689,7 +5701,10 @@ document.getElementById('county-sel').addEventListener('change', function() {
   setTimeout(prefetchOwnershipForView, 2500);
   notify('Switched to ' + c.name + ' — loading live data…', 'fa-map');
   // Persist last-active county to localStorage (profile sync hooks in later)
-  try { localStorage.setItem('mn_active_county', this.value); } catch(e){}
+  try {
+    localStorage.setItem('mn_active_county', this.value);
+    if (c) localStorage.setItem('mn_active_county_coords', JSON.stringify({lat: c.lat, lng: c.lng, z: c.z}));
+  } catch(e){}
 });
 
 // State selector handler — switching state resets county to "full state" view
@@ -5734,6 +5749,7 @@ if (countrySelEl) {
     if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>' + activeCounty.name;
     const cn = document.getElementById('prc-county-name');
     if (cn) cn.textContent = activeCounty.name;
+    try { localStorage.setItem('mn_active_county_coords', JSON.stringify({lat: activeCounty.lat, lng: activeCounty.lng, z: activeCounty.z})); } catch(e){}
   }
 })();
 
