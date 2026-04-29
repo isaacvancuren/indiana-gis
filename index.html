@@ -605,6 +605,29 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
           mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
 }
+.mn-natfilter-btn{flex-shrink:0;background:linear-gradient(135deg,rgba(56,189,248,0.18),rgba(99,102,241,0.18))!important;border:1px solid rgba(56,189,248,0.45)!important;color:#7dd3fc!important;font-weight:700!important;letter-spacing:.4px;}
+.mn-natfilter-btn:hover{background:linear-gradient(135deg,rgba(56,189,248,0.28),rgba(99,102,241,0.28))!important;border-color:rgba(56,189,248,0.7)!important;}
+.mn-natfilter-btn.has-active{background:linear-gradient(135deg,#0891b2,#1e40af)!important;color:#fff!important;border-color:#06b6d4!important;}
+.mn-natfilter-menu{position:absolute;top:calc(100% + 6px);left:0;width:480px;max-height:560px;overflow-y:auto;background:#0f1722;border:1px solid #2b3a52;border-radius:8px;box-shadow:0 12px 36px rgba(0,0,0,0.55);z-index:1000;padding:8px;font-family:"Barlow Condensed",sans-serif;}
+.mn-natfilter-search{display:flex;align-items:center;gap:6px;background:#0a1018;border:1px solid #1e293b;border-radius:6px;padding:6px 10px;margin-bottom:8px;position:sticky;top:0;z-index:2;}
+.mn-natfilter-search i{color:#64748b;font-size:11px;}
+.mn-natfilter-search input{flex:1;background:transparent;border:none;outline:none;color:#e8eef7;font-size:13px;font-family:inherit;}
+.mn-natfilter-clear{background:transparent;border:none;color:#64748b;cursor:pointer;padding:2px 4px;border-radius:3px;}
+.mn-natfilter-clear:hover{color:#ef4444;background:rgba(239,68,68,0.1);}
+.mn-natfilter-section-title{font-size:10px;font-weight:700;color:#7dd3fc;letter-spacing:.6px;text-transform:uppercase;padding:8px 4px 6px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(56,189,248,0.15);margin-bottom:6px;}
+.mn-natfilter-section-title i{font-size:11px;}
+.mn-natfilter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px;}
+.mn-natfilter-item{display:flex;align-items:center;gap:6px;background:#0a1018;border:1px solid #1e293b;border-radius:5px;padding:7px 9px;color:#cbd5e1;font-size:11.5px;font-family:inherit;font-weight:500;cursor:pointer;text-align:left;transition:all 0.15s;letter-spacing:.2px;}
+.mn-natfilter-item i{font-size:11px;width:14px;text-align:center;color:#64748b;}
+.mn-natfilter-item:hover{background:#172033;border-color:#38bdf8;color:#fff;}
+.mn-natfilter-item:hover i{color:#7dd3fc;}
+.mn-natfilter-item.active{background:linear-gradient(135deg,#0891b2,#1e40af);border-color:#06b6d4;color:#fff;font-weight:700;}
+.mn-natfilter-item.active i{color:#fff;}
+.mn-natfilter-item.hidden{display:none;}
+.mn-natfilter-footer{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 2px;border-top:1px solid #1e293b;margin-top:4px;position:sticky;bottom:0;background:#0f1722;}
+#mn-natfilter-active-count{font-size:11px;color:#64748b;font-weight:600;}
+.mn-natfilter-done{background:#0891b2;border:none;color:#fff;padding:6px 16px;border-radius:5px;font-weight:700;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:.5px;text-transform:uppercase;}
+.mn-natfilter-done:hover{background:#0e7490;}
 .fchip-section{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:#7dd3fc;letter-spacing:.5px;padding:0 8px;height:22px;display:flex;align-items:center;text-transform:uppercase;background:rgba(56,189,248,0.10);border-radius:4px;margin:0 4px;border:1px solid rgba(56,189,248,0.25);}
 #filter-strip::-webkit-scrollbar{height:4px}
 #filter-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -912,6 +935,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   </div>
   <!-- Active layer filter chips -->
   <div id="filter-strip">
+
     <span style="font-size:10px;color:var(--text3);flex-shrink:0;"><i class="fas fa-layer-group"></i></span>
     <div class="fchip on"  id="chip-parcels"       onclick="chipToggle('parcels',this)"><i class="fas fa-house"></i> Parcels</div>
     <div class="fchip on"  id="chip-roads"         onclick="chipToggle('roads',this)"><i class="fas fa-road"></i> Roads</div>
@@ -922,43 +946,70 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <div class="fchip"     id="chip-drain"         onclick="chipToggle('drain',this)"><i class="fas fa-water"></i> Drains</div>
     <div class="fchip"     id="chip-sections"      onclick="chipToggle('sections',this)"><i class="fas fa-th"></i> Sections</div>
     <div class="fchip"     id="chip-imagery"       onclick="chipToggle('imagery',this)"><i class="fas fa-satellite"></i> Imagery</div>
-    <div class="fchip"     id="chip-usgs-topo"     onclick="chipToggle('usgs-topo',this)"     title="USGS National Topographic Map"><i class="fas fa-mountain"></i> USGS Topo</div>
-    <div class="fchip"     id="chip-opentopomap"   onclick="chipToggle('opentopomap',this)"   title="OpenTopoMap worldwide topo"><i class="fas fa-mountain-sun"></i> Topo Global</div>
-    <div class="fchip"     id="chip-usgs-shaded"   onclick="chipToggle('usgs-shaded',this)"   title="USGS Shaded Relief Hillshade"><i class="fas fa-image"></i> Hillshade</div>
-    <div class="fchip"     id="chip-usgs-hydro"    onclick="chipToggle('usgs-hydro',this)"    title="USGS National Hydrography Dataset"><i class="fas fa-droplet"></i> Hydrography</div>
-    <div class="fchip"     id="chip-usgs-nlcd"     onclick="chipToggle('usgs-nlcd',this)"     title="USGS National Land Cover Database 2021"><i class="fas fa-tree"></i> Land Cover</div>
-    <div class="fchip"     id="chip-usda-cropland" onclick="chipToggle('usda-cropland',this)" title="USDA Cropland Data Layer 2023"><i class="fas fa-wheat-awn"></i> Cropland</div>
-    <div class="fchip"     id="chip-osm-base"      onclick="chipToggle('osm-base',this)"      title="OpenStreetMap base"><i class="fas fa-globe"></i> OSM</div>
-    <div class="fchip"     id="chip-osm-humanitarian" onclick="chipToggle('osm-humanitarian',this)" title="OSM Humanitarian style"><i class="fas fa-hand-holding-heart"></i> OSM HOT</div>
-    <div class="fchip"     id="chip-esri-streets"  onclick="chipToggle('esri-streets',this)"  title="Esri World Streets"><i class="fas fa-road"></i> Streets</div>
-    <div class="fchip"     id="chip-esri-natgeo"   onclick="chipToggle('esri-natgeo',this)"   title="National Geographic style"><i class="fas fa-compass"></i> NatGeo</div>
-    <div class="fchip"     id="chip-esri-ocean"    onclick="chipToggle('esri-ocean',this)"    title="Esri Ocean Basemap"><i class="fas fa-water"></i> Ocean</div>
-    <div class="fchip"     id="chip-esri-boundaries" onclick="chipToggle('esri-boundaries',this)" title="World Boundaries and Places"><i class="fas fa-flag"></i> Boundaries</div>
-    <div class="fchip"     id="chip-esri-transport" onclick="chipToggle('esri-transport',this)" title="World Transportation"><i class="fas fa-route"></i> Highways</div>
-    <div class="fchip"     id="chip-carto-light"   onclick="chipToggle('carto-light',this)"   title="CARTO Light basemap"><i class="fas fa-sun"></i> Light</div>
-    <div class="fchip"     id="chip-carto-dark"    onclick="chipToggle('carto-dark',this)"    title="CARTO Dark basemap"><i class="fas fa-moon"></i> Dark</div>
-    <div class="fchip"     id="chip-nexrad-radar"  onclick="chipToggle('nexrad-radar',this)"  title="NEXRAD live weather radar"><i class="fas fa-cloud-bolt"></i> Radar</div>
-    <div class="fchip"     id="chip-noaa-warnings" onclick="chipToggle('noaa-warnings',this)" title="NWS active weather warnings"><i class="fas fa-triangle-exclamation"></i> Warnings</div>
-    <div class="fchip"     id="chip-earthquakes"   onclick="chipToggle('earthquakes',this)"   title="USGS earthquakes 30 days M2.5+"><i class="fas fa-house-tsunami"></i> Quakes</div>
-    <div class="fchip-section">UNIVERSAL ICONS</div>
-    <div class="fchip" id="chip-poi-hospital" onclick="chipToggle('poi-hospital',this)" title="Hospitals (zoom 11+)"><i class="fas fa-hospital"></i> Hospitals</div>
-    <div class="fchip" id="chip-poi-school" onclick="chipToggle('poi-school',this)" title="Schools (zoom 13+)"><i class="fas fa-graduation-cap"></i> Schools</div>
-    <div class="fchip" id="chip-poi-police" onclick="chipToggle('poi-police',this)" title="Police (zoom 12+)"><i class="fas fa-shield-halved"></i> Police</div>
-    <div class="fchip" id="chip-poi-fire" onclick="chipToggle('poi-fire',this)" title="Fire Stations (zoom 12+)"><i class="fas fa-fire"></i> Fire</div>
-    <div class="fchip" id="chip-poi-airport" onclick="chipToggle('poi-airport',this)" title="Airports (zoom 9+)"><i class="fas fa-plane"></i> Airports</div>
-    <div class="fchip" id="chip-poi-fuel" onclick="chipToggle('poi-fuel',this)" title="Gas Stations (zoom 13+)"><i class="fas fa-gas-pump"></i> Gas</div>
-    <div class="fchip" id="chip-poi-bank" onclick="chipToggle('poi-bank',this)" title="Banks (zoom 14+)"><i class="fas fa-building-columns"></i> Banks</div>
-    <div class="fchip" id="chip-poi-restaurant" onclick="chipToggle('poi-restaurant',this)" title="Restaurants (zoom 15+)"><i class="fas fa-utensils"></i> Food</div>
-    <div class="fchip" id="chip-poi-lodging" onclick="chipToggle('poi-lodging',this)" title="Hotels (zoom 13+)"><i class="fas fa-bed"></i> Lodging</div>
-    <div class="fchip" id="chip-poi-park" onclick="chipToggle('poi-park',this)" title="Parks (zoom 11+)"><i class="fas fa-tree-city"></i> Parks</div>
-    <div class="fchip" id="chip-poi-railway" onclick="chipToggle('poi-railway',this)" title="Railway (zoom 11+)"><i class="fas fa-train"></i> Rail</div>
-    <div class="fchip" id="chip-poi-grocery" onclick="chipToggle('poi-grocery',this)" title="Grocery (zoom 14+)"><i class="fas fa-cart-shopping"></i> Grocery</div>
-    <div class="fchip" id="chip-poi-pharmacy" onclick="chipToggle('poi-pharmacy',this)" title="Pharmacy (zoom 14+)"><i class="fas fa-prescription-bottle-medical"></i> Pharmacy</div>
-    <div class="fchip" id="chip-poi-charging" onclick="chipToggle('poi-charging',this)" title="EV Charging (zoom 13+)"><i class="fas fa-charging-station"></i> EV</div>
-    <div class="fchip" id="chip-poi-postoffice" onclick="chipToggle('poi-postoffice',this)" title="Post Offices (zoom 13+)"><i class="fas fa-envelope"></i> Post</div>
-    <div class="fchip" id="chip-poi-library" onclick="chipToggle('poi-library',this)" title="Libraries (zoom 13+)"><i class="fas fa-book"></i> Library</div>
-    <div class="fchip" id="chip-poi-worship" onclick="chipToggle('poi-worship',this)" title="Worship (zoom 14+)"><i class="fas fa-place-of-worship"></i> Worship</div>
-    <div class="fchip" id="chip-poi-cemetery" onclick="chipToggle('poi-cemetery',this)" title="Cemeteries (zoom 13+)"><i class="fas fa-cross"></i> Cemetery</div>
+    <div id="mn-natfilter-wrap" style="position:relative;flex-shrink:0;">
+      <button class="fchip mn-natfilter-btn" id="mn-natfilter-btn" type="button" onclick="window.MNNatFilter.toggle()" title="National Filters - basemaps, POIs, weather, hazards">
+        <i class="fas fa-globe-americas"></i> NATIONAL FILTERS <i class="fas fa-chevron-down" style="font-size:9px;margin-left:4px;opacity:0.7;"></i>
+      </button>
+      <div id="mn-natfilter-menu" class="mn-natfilter-menu" style="display:none;">
+        <div class="mn-natfilter-search">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="text" id="mn-natfilter-search-input" placeholder="Search filters..." oninput="window.MNNatFilter.filter(this.value)" />
+          <button type="button" onclick="window.MNNatFilter.clearAll()" class="mn-natfilter-clear" title="Clear all"><i class="fas fa-eraser"></i></button>
+        </div>
+        <div class="mn-natfilter-section-title"><i class="fas fa-layer-group"></i> Basemaps & Imagery</div>
+        <div class="mn-natfilter-grid" data-section="basemaps">
+          <button class="mn-natfilter-item" data-key="usgs-topo" onclick="window.MNNatFilter.toggleLayer('usgs-topo',this)"><i class="fas fa-mountain"></i> USGS Topo</button>
+          <button class="mn-natfilter-item" data-key="opentopomap" onclick="window.MNNatFilter.toggleLayer('opentopomap',this)"><i class="fas fa-mountain-sun"></i> Topo Global</button>
+          <button class="mn-natfilter-item" data-key="usgs-shaded" onclick="window.MNNatFilter.toggleLayer('usgs-shaded',this)"><i class="fas fa-image"></i> Hillshade</button>
+          <button class="mn-natfilter-item" data-key="esri-streets" onclick="window.MNNatFilter.toggleLayer('esri-streets',this)"><i class="fas fa-road"></i> Streets</button>
+          <button class="mn-natfilter-item" data-key="esri-natgeo" onclick="window.MNNatFilter.toggleLayer('esri-natgeo',this)"><i class="fas fa-compass"></i> NatGeo</button>
+          <button class="mn-natfilter-item" data-key="esri-ocean" onclick="window.MNNatFilter.toggleLayer('esri-ocean',this)"><i class="fas fa-water"></i> Ocean</button>
+          <button class="mn-natfilter-item" data-key="osm-base" onclick="window.MNNatFilter.toggleLayer('osm-base',this)"><i class="fas fa-globe"></i> OpenStreetMap</button>
+          <button class="mn-natfilter-item" data-key="osm-humanitarian" onclick="window.MNNatFilter.toggleLayer('osm-humanitarian',this)"><i class="fas fa-hand-holding-heart"></i> OSM HOT</button>
+          <button class="mn-natfilter-item" data-key="carto-light" onclick="window.MNNatFilter.toggleLayer('carto-light',this)"><i class="fas fa-sun"></i> Light</button>
+          <button class="mn-natfilter-item" data-key="carto-dark" onclick="window.MNNatFilter.toggleLayer('carto-dark',this)"><i class="fas fa-moon"></i> Dark</button>
+          <button class="mn-natfilter-item" data-key="esri-boundaries" onclick="window.MNNatFilter.toggleLayer('esri-boundaries',this)"><i class="fas fa-flag"></i> Boundaries</button>
+          <button class="mn-natfilter-item" data-key="esri-transport" onclick="window.MNNatFilter.toggleLayer('esri-transport',this)"><i class="fas fa-route"></i> Highways</button>
+        </div>
+        <div class="mn-natfilter-section-title"><i class="fas fa-tree"></i> Environmental & Land Use</div>
+        <div class="mn-natfilter-grid" data-section="environment">
+          <button class="mn-natfilter-item" data-key="usgs-hydro" onclick="window.MNNatFilter.toggleLayer('usgs-hydro',this)"><i class="fas fa-droplet"></i> Hydrography</button>
+          <button class="mn-natfilter-item" data-key="usgs-nlcd" onclick="window.MNNatFilter.toggleLayer('usgs-nlcd',this)"><i class="fas fa-tree"></i> Land Cover</button>
+          <button class="mn-natfilter-item" data-key="usda-cropland" onclick="window.MNNatFilter.toggleLayer('usda-cropland',this)"><i class="fas fa-wheat-awn"></i> Cropland</button>
+        </div>
+        <div class="mn-natfilter-section-title"><i class="fas fa-triangle-exclamation"></i> Hazards & Weather</div>
+        <div class="mn-natfilter-grid" data-section="hazards">
+          <button class="mn-natfilter-item" data-key="nexrad-radar" onclick="window.MNNatFilter.toggleLayer('nexrad-radar',this)"><i class="fas fa-cloud-bolt"></i> Weather Radar</button>
+          <button class="mn-natfilter-item" data-key="noaa-warnings" onclick="window.MNNatFilter.toggleLayer('noaa-warnings',this)"><i class="fas fa-triangle-exclamation"></i> NWS Warnings</button>
+          <button class="mn-natfilter-item" data-key="earthquakes" onclick="window.MNNatFilter.toggleLayer('earthquakes',this)"><i class="fas fa-house-tsunami"></i> Earthquakes</button>
+        </div>
+        <div class="mn-natfilter-section-title"><i class="fas fa-location-dot"></i> Points of Interest</div>
+        <div class="mn-natfilter-grid" data-section="poi">
+          <button class="mn-natfilter-item" data-key="poi-hospital" onclick="window.MNNatFilter.toggleLayer('poi-hospital',this)"><i class="fas fa-hospital"></i> Hospitals</button>
+          <button class="mn-natfilter-item" data-key="poi-school" onclick="window.MNNatFilter.toggleLayer('poi-school',this)"><i class="fas fa-graduation-cap"></i> Schools</button>
+          <button class="mn-natfilter-item" data-key="poi-police" onclick="window.MNNatFilter.toggleLayer('poi-police',this)"><i class="fas fa-shield-halved"></i> Police</button>
+          <button class="mn-natfilter-item" data-key="poi-fire" onclick="window.MNNatFilter.toggleLayer('poi-fire',this)"><i class="fas fa-fire"></i> Fire Stations</button>
+          <button class="mn-natfilter-item" data-key="poi-airport" onclick="window.MNNatFilter.toggleLayer('poi-airport',this)"><i class="fas fa-plane"></i> Airports</button>
+          <button class="mn-natfilter-item" data-key="poi-railway" onclick="window.MNNatFilter.toggleLayer('poi-railway',this)"><i class="fas fa-train"></i> Rail Stations</button>
+          <button class="mn-natfilter-item" data-key="poi-park" onclick="window.MNNatFilter.toggleLayer('poi-park',this)"><i class="fas fa-tree-city"></i> Parks</button>
+          <button class="mn-natfilter-item" data-key="poi-fuel" onclick="window.MNNatFilter.toggleLayer('poi-fuel',this)"><i class="fas fa-gas-pump"></i> Gas Stations</button>
+          <button class="mn-natfilter-item" data-key="poi-charging" onclick="window.MNNatFilter.toggleLayer('poi-charging',this)"><i class="fas fa-charging-station"></i> EV Charging</button>
+          <button class="mn-natfilter-item" data-key="poi-bank" onclick="window.MNNatFilter.toggleLayer('poi-bank',this)"><i class="fas fa-building-columns"></i> Banks</button>
+          <button class="mn-natfilter-item" data-key="poi-grocery" onclick="window.MNNatFilter.toggleLayer('poi-grocery',this)"><i class="fas fa-cart-shopping"></i> Grocery</button>
+          <button class="mn-natfilter-item" data-key="poi-pharmacy" onclick="window.MNNatFilter.toggleLayer('poi-pharmacy',this)"><i class="fas fa-prescription-bottle-medical"></i> Pharmacy</button>
+          <button class="mn-natfilter-item" data-key="poi-restaurant" onclick="window.MNNatFilter.toggleLayer('poi-restaurant',this)"><i class="fas fa-utensils"></i> Restaurants</button>
+          <button class="mn-natfilter-item" data-key="poi-lodging" onclick="window.MNNatFilter.toggleLayer('poi-lodging',this)"><i class="fas fa-bed"></i> Lodging</button>
+          <button class="mn-natfilter-item" data-key="poi-postoffice" onclick="window.MNNatFilter.toggleLayer('poi-postoffice',this)"><i class="fas fa-envelope"></i> Post Office</button>
+          <button class="mn-natfilter-item" data-key="poi-library" onclick="window.MNNatFilter.toggleLayer('poi-library',this)"><i class="fas fa-book"></i> Library</button>
+          <button class="mn-natfilter-item" data-key="poi-worship" onclick="window.MNNatFilter.toggleLayer('poi-worship',this)"><i class="fas fa-place-of-worship"></i> Worship</button>
+          <button class="mn-natfilter-item" data-key="poi-cemetery" onclick="window.MNNatFilter.toggleLayer('poi-cemetery',this)"><i class="fas fa-cross"></i> Cemetery</button>
+        </div>
+        <div class="mn-natfilter-footer">
+          <span id="mn-natfilter-active-count">0 active</span>
+          <button type="button" onclick="window.MNNatFilter.close()" class="mn-natfilter-done">Done</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="sbody">
 
@@ -7111,6 +7162,62 @@ window.selectParcel = function(p, layer) {
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', function(e){ if(e.target === el) el.classList.remove('open'); });
   });
+})();
+</script>
+<script>
+(function(){
+  const M = { open:false, active:new Set() };
+  function open(){ M.open = true; const menu = document.getElementById("mn-natfilter-menu"); if(menu) menu.style.display = "block"; const inp = document.getElementById("mn-natfilter-search-input"); if(inp){ setTimeout(()=>inp.focus(), 50); } }
+  function close(){ M.open = false; const menu = document.getElementById("mn-natfilter-menu"); if(menu) menu.style.display = "none"; }
+  function toggle(){ if(M.open) close(); else open(); }
+  function toggleLayer(key, btn){
+    if(typeof window.chipToggle !== "function") return;
+    const wasActive = btn.classList.contains("active");
+    const fakeChip = document.createElement("div");
+    fakeChip.className = wasActive ? "fchip on" : "fchip";
+    fakeChip.id = "chip-" + key;
+    window.chipToggle(key, fakeChip);
+    if(fakeChip.classList.contains("on")){ btn.classList.add("active"); M.active.add(key); }
+    else { btn.classList.remove("active"); M.active.delete(key); }
+    updateCount();
+  }
+  function updateCount(){
+    const n = M.active.size;
+    const el = document.getElementById("mn-natfilter-active-count");
+    if(el) el.textContent = n + " active";
+    const btn = document.getElementById("mn-natfilter-btn");
+    if(btn){ if(n>0){ btn.classList.add("has-active"); } else { btn.classList.remove("has-active"); } }
+  }
+  function filter(q){
+    q = (q||"").toLowerCase().trim();
+    document.querySelectorAll(".mn-natfilter-item").forEach(item => {
+      const txt = item.textContent.toLowerCase();
+      const key = (item.getAttribute("data-key")||"").toLowerCase();
+      if(!q || txt.indexOf(q)>=0 || key.indexOf(q)>=0) item.classList.remove("hidden"); else item.classList.add("hidden");
+    });
+    document.querySelectorAll(".mn-natfilter-section-title").forEach(t => {
+      const grid = t.nextElementSibling;
+      if(!grid) return;
+      const visible = grid.querySelectorAll(".mn-natfilter-item:not(.hidden)").length;
+      t.style.display = visible > 0 ? "" : "none";
+      grid.style.display = visible > 0 ? "" : "none";
+    });
+  }
+  function clearAll(){
+    Array.from(M.active).forEach(key => {
+      const btn = document.querySelector(".mn-natfilter-item[data-key=\""+key+"\"]");
+      if(btn && btn.classList.contains("active")){ toggleLayer(key, btn); }
+    });
+    const inp = document.getElementById("mn-natfilter-search-input");
+    if(inp){ inp.value = ""; filter(""); }
+  }
+  document.addEventListener("click", function(e){
+    if(!M.open) return;
+    const wrap = document.getElementById("mn-natfilter-wrap");
+    if(wrap && !wrap.contains(e.target)) close();
+  });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && M.open) close(); });
+  window.MNNatFilter = { open:open, close:close, toggle:toggle, toggleLayer:toggleLayer, filter:filter, clearAll:clearAll, state:M };
 })();
 </script>
 
