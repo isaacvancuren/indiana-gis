@@ -6113,7 +6113,9 @@ window.selectParcel = function(p, layer) {
     const { data } = await sb.from('bookmarks').select('*').order('created_at',{ascending:false});
     alert('Bookmarks (' + (data||[]).length + '):\n\n' + (data||[]).map(b => b.label + (b.county?' — '+b.county:'')).join('\n'));
   };
-    MapNovaAuth.openAccount = async function(){
+    // Dedicated supabase client for account overlay
+  const __mnAccClient = window.supabase.createClient("https://pcalrousicyuyiyoppqt.supabase.co", "sb_publishable_mFKL1y755kJphEu231y8AA_KgV3W6xe");
+  MapNovaAuth.openAccount = async function(){
     if (!MapNovaAuth.user) return;
     document.getElementById("mn-account-backdrop").classList.add("show");
     await renderMnAccountBody();
@@ -6125,10 +6127,10 @@ window.selectParcel = function(p, layer) {
   async function renderMnAccountBody(){
     const u = MapNovaAuth.user;
     let p = MapNovaAuth.profile || {};
-    const fresh = await MapNovaAuth.client.from("profiles").select("*").eq("id", u.id).maybeSingle();
+    const fresh = await __mnAccClient.from("profiles").select("*").eq("id", u.id).maybeSingle();
     if (fresh.data) { p = fresh.data; MapNovaAuth.profile = p; }
-    const hc = await MapNovaAuth.client.from("user_history").select("*", { count:"exact", head:true }).eq("user_id", u.id);
-    const bc = await MapNovaAuth.client.from("bookmarks").select("*", { count:"exact", head:true }).eq("user_id", u.id);
+    const hc = await __mnAccClient.from("user_history").select("*", { count:"exact", head:true }).eq("user_id", u.id);
+    const bc = await __mnAccClient.from("bookmarks").select("*", { count:"exact", head:true }).eq("user_id", u.id);
     const tier = (p.subscription_tier||"free").toLowerCase();
     const avatarHtml = p.avatar_url ? '<img src="'+escHtml(p.avatar_url)+'?t='+Date.now()+'" alt="avatar" />' : escHtml(getMnInitials(p,u));
     const removeBtn = p.avatar_url ? '<button class="mn-acc-btn mn-acc-btn-ghost" id="mn-acc-remove">Remove</button>' : "";
@@ -6182,7 +6184,7 @@ window.selectParcel = function(p, layer) {
     btn.disabled = true; btn.textContent = "Saving...";
     const v = id => (document.getElementById(id).value || "").trim() || null;
     const updates = { id:u.id, email:u.email, display_name:v("mn-acc-display_name"), full_name:v("mn-acc-full_name"), bio:v("mn-acc-bio"), organization:v("mn-acc-organization"), location:v("mn-acc-location"), phone:v("mn-acc-phone"), website:v("mn-acc-website"), updated_at: new Date().toISOString() };
-    const r = await MapNovaAuth.client.from("profiles").upsert(updates);
+    const r = await __mnAccClient.from("profiles").upsert(updates);
     btn.disabled = false; btn.textContent = "Save changes";
     if (r.error) { mnAccToast("Save failed: "+r.error.message,"error"); return; }
     Object.assign(MapNovaAuth.profile||{}, updates);
@@ -6210,14 +6212,14 @@ window.selectParcel = function(p, layer) {
     mnAccToast("Uploading...");
     const ext = file.name.split(".").pop().toLowerCase();
     const path = u.id + "/avatar-" + Date.now() + "." + ext;
-    const up = await MapNovaAuth.client.storage.from("avatars").upload(path, file, { upsert:true, contentType:file.type });
+    const up = await __mnAccClient.storage.from("avatars").upload(path, file, { upsert:true, contentType:file.type });
     if (up.error) { mnAccToast("Upload failed: "+up.error.message,"error"); return; }
-    const pub = MapNovaAuth.client.storage.from("avatars").getPublicUrl(path);
+    const pub = __mnAccClient.storage.from("avatars").getPublicUrl(path);
     const url = pub.data.publicUrl;
     if (MapNovaAuth.profile && MapNovaAuth.profile.avatar_url) {
-      try { const old = MapNovaAuth.profile.avatar_url.split("/avatars/")[1]; if (old && old !== path) await MapNovaAuth.client.storage.from("avatars").remove([old]); } catch(_) {}
+      try { const old = MapNovaAuth.profile.avatar_url.split("/avatars/")[1]; if (old && old !== path) await __mnAccClient.storage.from("avatars").remove([old]); } catch(_) {}
     }
-    const r = await MapNovaAuth.client.from("profiles").upsert({ id:u.id, email:u.email, avatar_url:url, updated_at:new Date().toISOString() });
+    const r = await __mnAccClient.from("profiles").upsert({ id:u.id, email:u.email, avatar_url:url, updated_at:new Date().toISOString() });
     if (r.error) { mnAccToast("Save failed: "+r.error.message,"error"); return; }
     if (!MapNovaAuth.profile) MapNovaAuth.profile = {};
     MapNovaAuth.profile.avatar_url = url;
@@ -6229,9 +6231,9 @@ window.selectParcel = function(p, layer) {
     if (!confirm("Remove your profile picture?")) return;
     const u = MapNovaAuth.user;
     if (MapNovaAuth.profile && MapNovaAuth.profile.avatar_url) {
-      try { const old = MapNovaAuth.profile.avatar_url.split("/avatars/")[1]; if (old) await MapNovaAuth.client.storage.from("avatars").remove([old]); } catch(_) {}
+      try { const old = MapNovaAuth.profile.avatar_url.split("/avatars/")[1]; if (old) await __mnAccClient.storage.from("avatars").remove([old]); } catch(_) {}
     }
-    const r = await MapNovaAuth.client.from("profiles").upsert({ id:u.id, email:u.email, avatar_url:null, updated_at:new Date().toISOString() });
+    const r = await __mnAccClient.from("profiles").upsert({ id:u.id, email:u.email, avatar_url:null, updated_at:new Date().toISOString() });
     if (r.error) { mnAccToast("Remove failed: "+r.error.message,"error"); return; }
     if (MapNovaAuth.profile) MapNovaAuth.profile.avatar_url = null;
     mnAccToast("Picture removed","success");
@@ -6239,7 +6241,7 @@ window.selectParcel = function(p, layer) {
   }
   async function sendMnReset(){
     const u = MapNovaAuth.user;
-    const r = await MapNovaAuth.client.auth.resetPasswordForEmail(u.email, { redirectTo: window.location.origin + "/" });
+    const r = await __mnAccClient.auth.resetPasswordForEmail(u.email, { redirectTo: window.location.origin + "/" });
     if (r.error) { mnAccToast(r.error.message,"error"); return; }
     mnAccToast("Reset email sent to "+u.email,"success");
   }
@@ -6248,7 +6250,7 @@ window.selectParcel = function(p, layer) {
     const ne = document.getElementById("mn-acc-newemail").value.trim();
     if (!ne) { mnAccToast("Enter a new email","error"); return; }
     if (ne === u.email) { mnAccToast("Already your email","error"); return; }
-    const r = await MapNovaAuth.client.auth.updateUser({ email: ne });
+    const r = await __mnAccClient.auth.updateUser({ email: ne });
     if (r.error) { mnAccToast(r.error.message,"error"); return; }
     mnAccToast("Confirmation sent to "+ne,"success");
   }
@@ -6262,19 +6264,19 @@ window.selectParcel = function(p, layer) {
     const btn = document.getElementById("mn-del-confirm");
     btn.disabled = true; btn.textContent = "Deleting...";
     try {
-      const list = await MapNovaAuth.client.storage.from("avatars").list(u.id);
+      const list = await __mnAccClient.storage.from("avatars").list(u.id);
       if (list.data && list.data.length) {
         const paths = list.data.map(f => u.id + "/" + f.name);
-        await MapNovaAuth.client.storage.from("avatars").remove(paths);
+        await __mnAccClient.storage.from("avatars").remove(paths);
       }
     } catch(_) {}
-    await MapNovaAuth.client.from("user_history").delete().eq("user_id", u.id);
-    await MapNovaAuth.client.from("bookmarks").delete().eq("user_id", u.id);
-    await MapNovaAuth.client.from("layer_preferences").delete().eq("user_id", u.id);
-    const r = await MapNovaAuth.client.from("profiles").delete().eq("id", u.id);
+    await __mnAccClient.from("user_history").delete().eq("user_id", u.id);
+    await __mnAccClient.from("bookmarks").delete().eq("user_id", u.id);
+    await __mnAccClient.from("layer_preferences").delete().eq("user_id", u.id);
+    const r = await __mnAccClient.from("profiles").delete().eq("id", u.id);
     if (r.error) { mnAccToast("Delete failed: "+r.error.message,"error"); btn.disabled = false; btn.textContent = "Delete"; return; }
-    try { await MapNovaAuth.client.rpc("delete_user"); } catch(_) {}
-    await MapNovaAuth.client.auth.signOut();
+    try { await __mnAccClient.rpc("delete_user"); } catch(_) {}
+    await __mnAccClient.auth.signOut();
     alert("Your account data has been deleted. You will be signed out.");
     window.location.reload();
   }
