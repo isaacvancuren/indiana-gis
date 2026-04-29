@@ -6041,10 +6041,7 @@ window.selectParcel = function(p, layer) {
     const { data } = await sb.from('bookmarks').select('*').order('created_at',{ascending:false});
     alert('Bookmarks (' + (data||[]).length + '):\n\n' + (data||[]).map(b => b.label + (b.county?' — '+b.county:'')).join('\n'));
   };
-  MapNovaAuth.openAccount = function(){
-    const p = MapNovaAuth.profile||{};
-    alert('Account\n\nEmail: ' + (MapNovaAuth.user.email||'') + '\nDisplay name: ' + (p.display_name||'') + '\nPlan: ' + (p.subscription_tier||'free') + '\nMember since: ' + (p.created_at?new Date(p.created_at).toLocaleDateString():''));
-  };
+  MapNovaAuth.openAccount = function(){ window.location.href = '/account.html'; };
 
   async function loadProfile(user){
     const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
