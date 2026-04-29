@@ -89,7 +89,14 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .sdr-text .t2{color:var(--text3);font-size:11px;margin-top:1px;}
 
 /* header buttons */
-#hbtns{display:flex;align-items:center;gap:6px;margin-left:auto;}
+#hbtns{display:flex;align-items:center;gap:4px;margin-left:auto;}
+@media (max-width:1500px){
+  #hbtns .hl{display:none}
+  #hbtns .hbtn{padding:6px 10px}
+}
+@media (max-width:1300px){
+  header{padding:0 200px 0 12px !important}
+}
 .hbtn{
   background:none;border:1px solid transparent;color:var(--text2);cursor:pointer;
   padding:6px 12px;border-radius:var(--radius);
@@ -594,8 +601,13 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 #filter-strip{
   display:flex;align-items:center;gap:6px;padding:8px 12px;
   border-bottom:1px solid var(--border);background:var(--panel2);flex-shrink:0;
-  overflow-x:auto;
+  overflow-x:auto;scrollbar-width:thin;
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
+          mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
 }
+#filter-strip::-webkit-scrollbar{height:4px}
+#filter-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+#filter-strip .fchip{flex-shrink:0}
 #filter-strip::-webkit-scrollbar{height:0;}
 .fchip{
   display:flex;align-items:center;gap:5px;padding:4px 9px;
@@ -715,7 +727,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     .mn-auth-link{color:#5fb1ff;cursor:pointer;font-size:12px;text-align:center;margin-top:14px;}
     .mn-auth-link:hover{text-decoration:underline;}
     .mn-auth-footer{text-align:center;font-size:11px;color:#5e7491;margin-top:18px;line-height:1.5;}
-    #mn-user-badge{position:fixed;top:10px;right:16px;z-index:9000;background:rgba(15,23,34,.92);border:1px solid #2b3a52;border-radius:24px;padding:4px 14px 4px 4px;display:flex;align-items:center;gap:10px;font-size:12px;color:#e8eef7;font-family:-apple-system,sans-serif;cursor:pointer;transition:border-color .15s,background .15s;}
+    #mn-user-badge{position:fixed;top:10px;right:12px;z-index:9000;background:rgba(15,23,34,.92);border:1px solid #2b3a52;border-radius:24px;padding:4px 12px 4px 4px;display:flex;align-items:center;gap:8px;font-size:12px;color:#e8eef7;font-family:-apple-system,sans-serif;cursor:pointer;transition:border-color .15s,background .15s;}
     #mn-user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.15);}
     #mn-user-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
     #mn-user-badge:hover{border-color:#5fb1ff;}
@@ -752,7 +764,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 
   <div class="hsep"></div>
   <select id="county-sel" title="Select County">
-    <option value="all">🗺 All Indiana</option>
+    <option value="all">🌎 All Indiana</option>
     <optgroup label="── Central ──">
     <option value="bartholomew" selected>Bartholomew</option>
     <option value="boone">Boone</option>
@@ -1220,7 +1232,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
             <option value="owner">👤 Owner Name</option>
             <option value="coords">🌐 Lat / Lon Coordinates</option>
             <option value="section">📐 Section-Township-Range</option>
-            <option value="subdivision">🏘 Subdivision Name</option>
+            <option value="subdivision">🏙 Subdivision Name</option>
           </select>
         </div>
         <div>
