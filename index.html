@@ -3844,6 +3844,28 @@ const COUNTY_GIS_SERVERS = {
   ],
 
 };
+// IndianaMap statewide fallback layers - applies to any county not in COUNTY_GIS_SERVERS / countyLayerCache
+// All layers verified live from gisdata.in.gov
+const STATEWIDE_FALLBACK_LAYERS = [
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Address_Points_of_Indiana_Current/FeatureServer', ids:[0], name:'Address Points (IndianaMap)', cat:'parcels'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/County_Boundaries_of_Indiana_2022/FeatureServer', ids:[0], name:'County Boundaries (IndianaMap 2022)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Township_Boundaries_of_Indiana/FeatureServer', ids:[0], name:'Civil Townships (IndianaMap 2021)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/IN_ZIP_Codes/FeatureServer', ids:[13], name:'ZIP Codes (2021)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/House_Districts_of_Indiana_Current/FeatureServer', ids:[57], name:'IN House Districts (Current)', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Senate_Districts_of_Indiana_Current/FeatureServer', ids:[0], name:'IN Senate Districts (Current)', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Congressional_Districts_of_Indiana_Current/FeatureServer', ids:[0], name:'US Congressional Districts (Current)', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Census_TIGER_Unified_School_Districts_of_Indiana/FeatureServer', ids:[0], name:'Unified School Districts (TIGER 2025)', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Census_Tracts_of_Indiana_USCB_2020/FeatureServer', ids:[0], name:'Census Tracts (2020)', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Census_Blocks_of_Indiana_USCB_2020/FeatureServer', ids:[0], name:'Census Blocks (2020)', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/FIRM_Flood_Hazard_Zones_2023/FeatureServer', ids:[1], name:'FIRM Flood Hazard Zones (2023)', cat:'hydrology'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Road_Centerlines_of_Indiana_2023/FeatureServer', ids:[8], name:'Road Centerlines (IndianaMap 2023)', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Active_and_Abandoned_Rail_Systems_2005/FeatureServer', ids:[0], name:'Rail Systems (Active & Abandoned)', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/IDNR_Historic_Bridges/FeatureServer', ids:[0], name:'Historic Bridges (IDNR)', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/City_and_Town_Hall_Locations_2023/FeatureServer', ids:[0], name:'City & Town Halls (2023)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Fire_Stations_2023/FeatureServer', ids:[0], name:'Fire Stations (2023)', cat:'poi'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/EMS_Stations_2022/FeatureServer', ids:[43], name:'EMS Stations (2022)', cat:'poi'},
+];
+
 // ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
@@ -3885,8 +3907,8 @@ async function fetchCountyLayers(cKey) {
   }
 
   // 3. No server found â return empty (statewide IGIO parcel still available)
-  countyLayerCache[cKey] = [];
-  return [];
+  countyLayerCache[cKey] = STATEWIDE_FALLBACK_LAYERS;
+  return STATEWIDE_FALLBACK_LAYERS;
 }
 
 function categorizeLayer(name) {
