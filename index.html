@@ -5927,6 +5927,78 @@ window.selectParcel = function(p, layer) {
   <div class="mn-menu-item" id="mn-menu-account">Account</div>
   <div class="mn-menu-item" id="mn-menu-signout">Sign Out</div>
 </div>
+<style>
+.mn-account-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:flex-start; justify-content:center; z-index:9000; padding:30px 16px; overflow-y:auto; }
+.mn-account-backdrop.show { display:flex; }
+.mn-account-panel { background:#151823; border:1px solid #262a3a; border-radius:12px; max-width:760px; width:100%; color:#e6e8ef; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+.mn-account-header { display:flex; align-items:center; justify-content:space-between; padding:18px 24px; border-bottom:1px solid #262a3a; }
+.mn-account-header h2 { margin:0; font-size:18px; }
+.mn-account-close { background:transparent; border:none; color:#8b91a5; font-size:24px; cursor:pointer; padding:0 4px; }
+.mn-account-close:hover { color:#e6e8ef; }
+.mn-account-body { padding:24px; max-height:calc(100vh - 160px); overflow-y:auto; }
+.mn-acc-section { margin-bottom:24px; }
+.mn-acc-section h3 { font-size:14px; margin:0 0 12px; color:#e6e8ef; text-transform:uppercase; letter-spacing:.04em; }
+.mn-acc-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:560px){ .mn-acc-row { grid-template-columns:1fr; } }
+.mn-acc-field { display:flex; flex-direction:column; gap:4px; margin-bottom:10px; }
+.mn-acc-field label { font-size:11px; font-weight:600; color:#8b91a5; text-transform:uppercase; letter-spacing:.04em; }
+.mn-acc-field input, .mn-acc-field textarea { background:#0f1117; border:1px solid #262a3a; border-radius:8px; padding:9px 11px; color:#e6e8ef; font-size:13px; font-family:inherit; }
+.mn-acc-field input:focus, .mn-acc-field textarea:focus { outline:none; border-color:#4f8cff; }
+.mn-acc-field textarea { resize:vertical; min-height:60px; }
+.mn-acc-avatar-row { display:flex; align-items:center; gap:16px; }
+.mn-acc-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#4f8cff,#7c5cff); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff; overflow:hidden; flex-shrink:0; border:2px solid #262a3a; }
+.mn-acc-avatar img { width:100%; height:100%; object-fit:cover; }
+.mn-acc-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; border:1px solid #262a3a; background:#1c2030; color:#e6e8ef; cursor:pointer; font-size:13px; font-weight:500; }
+.mn-acc-btn:hover { background:#232838; }
+.mn-acc-btn-primary { background:linear-gradient(135deg,#4f8cff,#7c5cff); border-color:transparent; color:#fff; }
+.mn-acc-btn-danger { background:transparent; border-color:#ff4f6b; color:#ff4f6b; }
+.mn-acc-btn-danger:hover { background:rgba(255,79,107,.1); }
+.mn-acc-btn-ghost { background:transparent; border-color:transparent; color:#8b91a5; }
+.mn-acc-stats { display:flex; gap:18px; flex-wrap:wrap; padding:12px 14px; background:#0f1117; border-radius:8px; }
+.mn-acc-stat { flex:1; min-width:110px; }
+.mn-acc-stat-label { font-size:10px; color:#8b91a5; text-transform:uppercase; letter-spacing:.05em; }
+.mn-acc-stat-value { font-size:14px; font-weight:600; margin-top:2px; }
+.mn-acc-actions { display:flex; justify-content:flex-end; gap:8px; padding-top:8px; }
+.mn-acc-danger { padding:14px; border:1px solid rgba(255,79,107,.3); background:rgba(255,79,107,.04); border-radius:8px; }
+.mn-acc-danger h3 { color:#ff4f6b; }
+.mn-acc-toast { position:fixed; bottom:24px; right:24px; background:#1c2030; border:1px solid #262a3a; padding:10px 16px; border-radius:8px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.4); transform:translateY(20px); opacity:0; transition:all .25s; z-index:9100; }
+.mn-acc-toast.show { transform:translateY(0); opacity:1; }
+.mn-acc-toast.success { border-color:#2ecc71; }
+.mn-acc-toast.error { border-color:#ff4f6b; }
+.mn-del-modal { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:9200; padding:16px; }
+.mn-del-modal.show { display:flex; }
+.mn-del-content { background:#151823; border:1px solid #262a3a; border-radius:12px; padding:22px; max-width:420px; width:100%; }
+.mn-del-content h3 { margin:0 0 8px; color:#ff4f6b; font-size:16px; }
+.mn-del-content p { color:#8b91a5; font-size:13px; line-height:1.5; margin:0 0 8px; }
+.mn-del-content input { width:100%; background:#0f1117; border:1px solid #262a3a; border-radius:8px; padding:9px 11px; color:#e6e8ef; font-size:13px; margin-top:8px; box-sizing:border-box; }
+</style>
+
+<div class="mn-account-backdrop" id="mn-account-backdrop">
+  <div class="mn-account-panel" role="dialog" aria-modal="true">
+    <div class="mn-account-header">
+      <h2>Account</h2>
+      <button class="mn-account-close" id="mn-account-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="mn-account-body" id="mn-account-body">
+      <div style="padding:40px;text-align:center;color:#8b91a5;">Loading&hellip;</div>
+    </div>
+  </div>
+</div>
+<input type="file" id="mn-acc-file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;" />
+<div class="mn-del-modal" id="mn-del-modal">
+  <div class="mn-del-content">
+    <h3>Delete account permanently</h3>
+    <p>This will permanently delete your profile, history, bookmarks, and avatar files. This cannot be undone.</p>
+    <p>Type <strong>DELETE</strong> to confirm:</p>
+    <input type="text" id="mn-del-input" placeholder="DELETE" autocomplete="off" />
+    <div class="mn-acc-actions">
+      <button class="mn-acc-btn" id="mn-del-cancel">Cancel</button>
+      <button class="mn-acc-btn mn-acc-btn-danger" id="mn-del-confirm" disabled>Delete</button>
+    </div>
+  </div>
+</div>
+<div class="mn-acc-toast" id="mn-acc-toast"></div>
+
 
 <script>
 (function(){
@@ -6041,7 +6113,171 @@ window.selectParcel = function(p, layer) {
     const { data } = await sb.from('bookmarks').select('*').order('created_at',{ascending:false});
     alert('Bookmarks (' + (data||[]).length + '):\n\n' + (data||[]).map(b => b.label + (b.county?' — '+b.county:'')).join('\n'));
   };
-  MapNovaAuth.openAccount = function(){ window.location.href = '/account.html'; };
+    MapNovaAuth.openAccount = async function(){
+    if (!MapNovaAuth.user) return;
+    document.getElementById("mn-account-backdrop").classList.add("show");
+    await renderMnAccountBody();
+  };
+  function escHtml(s){ if(s===null||s===undefined)return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\x22/g,"&quot;").replace(/\x27/g,"&#39;"); }
+  function fmtDateMn(ts){ if(!ts) return "—"; return new Date(ts).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+  function getMnInitials(p,u){ const n=(p&&(p.display_name||p.full_name))||(u&&u.email)||"?"; const parts=n.trim().split(/\s+/); if(parts.length>=2)return (parts[0][0]+parts[1][0]).toUpperCase(); return n.substring(0,2).toUpperCase(); }
+  function mnAccToast(msg,type){ const el=document.getElementById("mn-acc-toast"); if(!el)return; el.textContent=msg; el.className="mn-acc-toast show "+(type||""); setTimeout(()=>el.classList.remove("show"),3000); }
+  async function renderMnAccountBody(){
+    const u = MapNovaAuth.user;
+    let p = MapNovaAuth.profile || {};
+    const fresh = await sb.from("profiles").select("*").eq("id", u.id).maybeSingle();
+    if (fresh.data) { p = fresh.data; MapNovaAuth.profile = p; }
+    const hc = await sb.from("user_history").select("*", { count:"exact", head:true }).eq("user_id", u.id);
+    const bc = await sb.from("bookmarks").select("*", { count:"exact", head:true }).eq("user_id", u.id);
+    const tier = (p.subscription_tier||"free").toLowerCase();
+    const avatarHtml = p.avatar_url ? '<img src="'+escHtml(p.avatar_url)+'?t='+Date.now()+'" alt="avatar" />' : escHtml(getMnInitials(p,u));
+    const removeBtn = p.avatar_url ? '<button class="mn-acc-btn mn-acc-btn-ghost" id="mn-acc-remove">Remove</button>' : "";
+    let h = "";
+    h += '<div class="mn-acc-section"><div class="mn-acc-avatar-row">';
+    h += '<div class="mn-acc-avatar" id="mn-acc-avatar">'+avatarHtml+'</div>';
+    h += '<div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-upload">Upload picture</button>'+removeBtn+'</div>';
+    h += '<div style="font-size:11px;color:#8b91a5;">PNG, JPG, WebP, or GIF · max 5MB</div></div></div></div>';
+    h += '<div class="mn-acc-section"><h3>Profile details</h3>';
+    h += '<div class="mn-acc-row">';
+    h += '<div class="mn-acc-field"><label>Display name</label><input type="text" id="mn-acc-display_name" value="'+escHtml(p.display_name)+'" /></div>';
+    h += '<div class="mn-acc-field"><label>Full name</label><input type="text" id="mn-acc-full_name" value="'+escHtml(p.full_name)+'" /></div>';
+    h += '</div>';
+    h += '<div class="mn-acc-field"><label>Bio</label><textarea id="mn-acc-bio">'+escHtml(p.bio)+'</textarea></div>';
+    h += '<div class="mn-acc-row">';
+    h += '<div class="mn-acc-field"><label>Organization</label><input type="text" id="mn-acc-organization" value="'+escHtml(p.organization)+'" /></div>';
+    h += '<div class="mn-acc-field"><label>Location</label><input type="text" id="mn-acc-location" value="'+escHtml(p.location)+'" /></div>';
+    h += '</div>';
+    h += '<div class="mn-acc-row">';
+    h += '<div class="mn-acc-field"><label>Phone</label><input type="tel" id="mn-acc-phone" value="'+escHtml(p.phone)+'" /></div>';
+    h += '<div class="mn-acc-field"><label>Website</label><input type="url" id="mn-acc-website" value="'+escHtml(p.website)+'" placeholder="https://" /></div>';
+    h += '</div>';
+    h += '<div class="mn-acc-actions"><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-save">Save changes</button></div></div>';
+    h += '<div class="mn-acc-section"><h3>Account info</h3><div class="mn-acc-stats">';
+    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Email</div><div class="mn-acc-stat-value">'+escHtml(u.email)+'</div></div>';
+    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Plan</div><div class="mn-acc-stat-value">'+escHtml(tier.toUpperCase())+'</div></div>';
+    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Member since</div><div class="mn-acc-stat-value">'+fmtDateMn(u.created_at)+'</div></div>';
+    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Activity</div><div class="mn-acc-stat-value">'+(hc.count||0)+'</div></div>';
+    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Bookmarks</div><div class="mn-acc-stat-value">'+(bc.count||0)+'</div></div>';
+    h += '</div></div>';
+    h += '<div class="mn-acc-section"><h3>Email &amp; password</h3>';
+    h += '<div class="mn-acc-row"><div class="mn-acc-field"><label>Change email</label><input type="email" id="mn-acc-newemail" placeholder="'+escHtml(u.email)+'" /></div></div>';
+    h += '<div class="mn-acc-actions"><button class="mn-acc-btn" id="mn-acc-reset">Send password reset</button><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-changeemail">Update email</button></div></div>';
+    h += '<div class="mn-acc-section"><div class="mn-acc-danger"><h3>Danger zone</h3><p style="color:#8b91a5;font-size:13px;margin:0 0 10px;">Permanently delete your account and all associated data.</p>';
+    h += '<button class="mn-acc-btn mn-acc-btn-danger" id="mn-acc-delete">Delete my account</button></div></div>';
+    document.getElementById("mn-account-body").innerHTML = h;
+    bindMnAccountEvents();
+  }
+  function bindMnAccountEvents(){
+    document.getElementById("mn-acc-save").onclick = saveMnProfile;
+    document.getElementById("mn-acc-upload").onclick = ()=>document.getElementById("mn-acc-file").click();
+    const rm = document.getElementById("mn-acc-remove");
+    if (rm) rm.onclick = removeMnAvatar;
+    document.getElementById("mn-acc-reset").onclick = sendMnReset;
+    document.getElementById("mn-acc-changeemail").onclick = changeMnEmail;
+    document.getElementById("mn-acc-delete").onclick = openMnDeleteModal;
+  }
+  async function saveMnProfile(){
+    const u = MapNovaAuth.user;
+    const btn = document.getElementById("mn-acc-save");
+    btn.disabled = true; btn.textContent = "Saving...";
+    const v = id => (document.getElementById(id).value || "").trim() || null;
+    const updates = { id:u.id, email:u.email, display_name:v("mn-acc-display_name"), full_name:v("mn-acc-full_name"), bio:v("mn-acc-bio"), organization:v("mn-acc-organization"), location:v("mn-acc-location"), phone:v("mn-acc-phone"), website:v("mn-acc-website"), updated_at: new Date().toISOString() };
+    const r = await sb.from("profiles").upsert(updates);
+    btn.disabled = false; btn.textContent = "Save changes";
+    if (r.error) { mnAccToast("Save failed: "+r.error.message,"error"); return; }
+    Object.assign(MapNovaAuth.profile||{}, updates);
+    mnAccToast("Profile saved","success");
+  }
+  document.addEventListener("DOMContentLoaded", function(){
+    const close = document.getElementById("mn-account-close");
+    if (close) close.onclick = ()=> document.getElementById("mn-account-backdrop").classList.remove("show");
+    const bd = document.getElementById("mn-account-backdrop");
+    if (bd) bd.addEventListener("click", e=>{ if(e.target===bd) bd.classList.remove("show"); });
+    const fi = document.getElementById("mn-acc-file");
+    if (fi) fi.addEventListener("change", handleMnFile);
+    const dc = document.getElementById("mn-del-cancel");
+    if (dc) dc.onclick = ()=> document.getElementById("mn-del-modal").classList.remove("show");
+    const di = document.getElementById("mn-del-input");
+    if (di) di.addEventListener("input", e=>{ document.getElementById("mn-del-confirm").disabled = e.target.value !== "DELETE"; });
+    const dconf = document.getElementById("mn-del-confirm");
+    if (dconf) dconf.onclick = confirmMnDelete;
+  });
+  async function handleMnFile(e){
+    const u = MapNovaAuth.user;
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5*1024*1024) { mnAccToast("File too large (max 5MB)","error"); return; }
+    mnAccToast("Uploading...");
+    const ext = file.name.split(".").pop().toLowerCase();
+    const path = u.id + "/avatar-" + Date.now() + "." + ext;
+    const up = await sb.storage.from("avatars").upload(path, file, { upsert:true, contentType:file.type });
+    if (up.error) { mnAccToast("Upload failed: "+up.error.message,"error"); return; }
+    const pub = sb.storage.from("avatars").getPublicUrl(path);
+    const url = pub.data.publicUrl;
+    if (MapNovaAuth.profile && MapNovaAuth.profile.avatar_url) {
+      try { const old = MapNovaAuth.profile.avatar_url.split("/avatars/")[1]; if (old && old !== path) await sb.storage.from("avatars").remove([old]); } catch(_) {}
+    }
+    const r = await sb.from("profiles").upsert({ id:u.id, email:u.email, avatar_url:url, updated_at:new Date().toISOString() });
+    if (r.error) { mnAccToast("Save failed: "+r.error.message,"error"); return; }
+    if (!MapNovaAuth.profile) MapNovaAuth.profile = {};
+    MapNovaAuth.profile.avatar_url = url;
+    mnAccToast("Picture updated","success");
+    e.target.value = "";
+    renderMnAccountBody();
+  }
+  async function removeMnAvatar(){
+    if (!confirm("Remove your profile picture?")) return;
+    const u = MapNovaAuth.user;
+    if (MapNovaAuth.profile && MapNovaAuth.profile.avatar_url) {
+      try { const old = MapNovaAuth.profile.avatar_url.split("/avatars/")[1]; if (old) await sb.storage.from("avatars").remove([old]); } catch(_) {}
+    }
+    const r = await sb.from("profiles").upsert({ id:u.id, email:u.email, avatar_url:null, updated_at:new Date().toISOString() });
+    if (r.error) { mnAccToast("Remove failed: "+r.error.message,"error"); return; }
+    if (MapNovaAuth.profile) MapNovaAuth.profile.avatar_url = null;
+    mnAccToast("Picture removed","success");
+    renderMnAccountBody();
+  }
+  async function sendMnReset(){
+    const u = MapNovaAuth.user;
+    const r = await sb.auth.resetPasswordForEmail(u.email, { redirectTo: window.location.origin + "/" });
+    if (r.error) { mnAccToast(r.error.message,"error"); return; }
+    mnAccToast("Reset email sent to "+u.email,"success");
+  }
+  async function changeMnEmail(){
+    const u = MapNovaAuth.user;
+    const ne = document.getElementById("mn-acc-newemail").value.trim();
+    if (!ne) { mnAccToast("Enter a new email","error"); return; }
+    if (ne === u.email) { mnAccToast("Already your email","error"); return; }
+    const r = await sb.auth.updateUser({ email: ne });
+    if (r.error) { mnAccToast(r.error.message,"error"); return; }
+    mnAccToast("Confirmation sent to "+ne,"success");
+  }
+  function openMnDeleteModal(){
+    document.getElementById("mn-del-modal").classList.add("show");
+    document.getElementById("mn-del-input").value = "";
+    document.getElementById("mn-del-confirm").disabled = true;
+  }
+  async function confirmMnDelete(){
+    const u = MapNovaAuth.user;
+    const btn = document.getElementById("mn-del-confirm");
+    btn.disabled = true; btn.textContent = "Deleting...";
+    try {
+      const list = await sb.storage.from("avatars").list(u.id);
+      if (list.data && list.data.length) {
+        const paths = list.data.map(f => u.id + "/" + f.name);
+        await sb.storage.from("avatars").remove(paths);
+      }
+    } catch(_) {}
+    await sb.from("user_history").delete().eq("user_id", u.id);
+    await sb.from("bookmarks").delete().eq("user_id", u.id);
+    await sb.from("layer_preferences").delete().eq("user_id", u.id);
+    const r = await sb.from("profiles").delete().eq("id", u.id);
+    if (r.error) { mnAccToast("Delete failed: "+r.error.message,"error"); btn.disabled = false; btn.textContent = "Delete"; return; }
+    try { await sb.rpc("delete_user"); } catch(_) {}
+    await sb.auth.signOut();
+    alert("Your account data has been deleted. You will be signed out.");
+    window.location.reload();
+  }
 
   async function loadProfile(user){
     const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
