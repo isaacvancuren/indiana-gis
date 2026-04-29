@@ -6412,6 +6412,22 @@ window.selectParcel = function(p, layer) {
 
 <script id="mn-overlays-js">
 (function(){
+  let __mnLeafletMap = null;
+  function getLeafletMap(){
+    if(__mnLeafletMap) return __mnLeafletMap;
+    if(window.L && window.L.Map){
+      try {
+        const origFire = L.Map.prototype.fire;
+        let captured = null;
+        L.Map.prototype.fire = function(){ captured = this; L.Map.prototype.fire = origFire; return origFire.apply(this, arguments); };
+        const div = document.getElementById('map');
+        if(div) div.dispatchEvent(new MouseEvent('mousemove', {bubbles: true, clientX: 500, clientY: 400}));
+        if(captured){ __mnLeafletMap = captured; return captured; }
+      } catch(e){}
+    }
+    if((getLeafletMap()||window.map) && typeof (getLeafletMap()||window.map).getCenter === 'function') return (getLeafletMap()||window.map);
+    return null;
+  }
   let __sbcInstance = null;
   let __sbcPromise = null;
   async function sbcInit(){
@@ -6495,7 +6511,7 @@ window.selectParcel = function(p, layer) {
     },
     close: function(){ $('mn-bookmarks-back').classList.remove('open'); },
     fly: function(lat,lng){
-      try { if(window.map){ window.map.setView([lat,lng], 18); MNBookmarks.close(); toast('Flying to bookmark…'); } } catch(e){}
+      try { if((getLeafletMap()||window.map)){ (getLeafletMap()||window.map).setView([lat,lng], 18); MNBookmarks.close(); toast('Flying to bookmark…'); } } catch(e){}
     },
     del: async function(id){
       await sbcInit();
@@ -6560,8 +6576,8 @@ window.selectParcel = function(p, layer) {
       if(!name || !name.trim()) return;
       const desc = prompt('Description (optional):') || '';
       const u = curUser(); if(!u){ alert('Please sign in.'); return; }
-      const center = window.map ? window.map.getCenter() : null;
-      const view = window.map && center ? { lat: center.lat, lng: center.lng, zoom: window.map.getZoom() } : null;
+      const center = (getLeafletMap()||window.map) ? (getLeafletMap()||window.map).getCenter() : null;
+      const view = (getLeafletMap()||window.map) && center ? { lat: center.lat, lng: center.lng, zoom: (getLeafletMap()||window.map).getZoom() } : null;
       try {
         const { data, error } = await sbc().from('projects').insert({ user_id: u.id, name: name.trim(), description: desc, county: window.currentCounty||null, view_state: view }).select().single();
         if(error) throw error;
@@ -6651,8 +6667,8 @@ window.selectParcel = function(p, layer) {
         MNProjects.state.current = id;
         $('mn-active-project-name').textContent = p.name;
         $('mn-active-project').classList.add('open');
-        if(window.map && p.view_state && p.view_state.lat){
-          window.map.setView([p.view_state.lat, p.view_state.lng], p.view_state.zoom||12);
+        if((getLeafletMap()||window.map) && p.view_state && p.view_state.lat){
+          (getLeafletMap()||window.map).setView([p.view_state.lat, p.view_state.lng], p.view_state.zoom||12);
         }
         MNProjects._renderFeatures(feats||[]);
         toast('Project activated. Drawn shapes and measurements will save here.');
@@ -6671,10 +6687,10 @@ window.selectParcel = function(p, layer) {
     },
     
     _ensureLayer: function(){
-      if(!window.map) return null;
+      if(!(getLeafletMap()||window.map)) return null;
       if(!MNProjects.state.drawnLayer){
         MNProjects.state.drawnLayer = new L.FeatureGroup();
-        window.map.addLayer(MNProjects.state.drawnLayer);
+        (getLeafletMap()||window.map).addLayer(MNProjects.state.drawnLayer);
       }
       return MNProjects.state.drawnLayer;
     },
@@ -6704,7 +6720,7 @@ window.selectParcel = function(p, layer) {
           layer.addLayer(l);
         } catch(e){}
       });
-      try { if(layer.getLayers().length){ window.map.fitBounds(layer.getBounds(), { padding: [40,40], maxZoom: 17 }); } } catch(e){}
+      try { if(layer.getLayers().length){ (getLeafletMap()||window.map).fitBounds(layer.getBounds(), { padding: [40,40], maxZoom: 17 }); } } catch(e){}
     },
     
     flyToFeature: async function(featureId){
@@ -6716,7 +6732,7 @@ window.selectParcel = function(p, layer) {
         let bounds;
         if(geo.type === 'circle'){ bounds = L.latLng(geo.center[1], geo.center[0]).toBounds(geo.radius*2); }
         else { const tmp = L.geoJSON(geo); bounds = tmp.getBounds(); }
-        if(window.map && bounds && bounds.isValid()){ window.map.fitBounds(bounds, { padding:[40,40], maxZoom: 18 }); MNProjects.close(); toast('Centered on feature.'); }
+        if((getLeafletMap()||window.map) && bounds && bounds.isValid()){ (getLeafletMap()||window.map).fitBounds(bounds, { padding:[40,40], maxZoom: 18 }); MNProjects.close(); toast('Centered on feature.'); }
       } catch(e){ alert('Failed: '+e.message); }
     },
     
@@ -6757,9 +6773,9 @@ window.selectParcel = function(p, layer) {
   };
   
   function initDrawHandlers(){
-    if(!window.map || !window.L || !L.Draw || !L.Draw.Event) { setTimeout(initDrawHandlers, 1000); return; }
+    if(!(getLeafletMap()||window.map) || !window.L || !L.Draw || !L.Draw.Event) { setTimeout(initDrawHandlers, 1000); return; }
     if(window.__mnDrawInited) return;
-    window.map.on(L.Draw.Event.CREATED, function(e){
+    (getLeafletMap()||window.map).on(L.Draw.Event.CREATED, function(e){
       const layer = e.layer;
       const type = e.layerType;
       let geom, properties = {}, ftype;
@@ -6796,7 +6812,7 @@ window.selectParcel = function(p, layer) {
           MNProjects._ensureLayer().addLayer(layer);
         } else {
           if(!window.__mnDrawHinted){ window.__mnDrawHinted = true; toast('Tip: Activate a Project to auto-save your drawings.', 4000); }
-          window.map.addLayer(layer);
+          (getLeafletMap()||window.map).addLayer(layer);
         }
       } catch(err){}
     });
