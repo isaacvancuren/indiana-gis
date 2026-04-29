@@ -601,9 +601,6 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 #filter-strip{
   display:flex;align-items:center;gap:6px;padding:8px 12px;
   border-bottom:1px solid var(--border);background:var(--panel2);flex-shrink:0;
-  overflow-x:auto;scrollbar-width:thin;
-  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
-          mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
 }
 .mn-natfilter-btn{flex-shrink:0;background:linear-gradient(135deg,rgba(56,189,248,0.18),rgba(99,102,241,0.18))!important;border:1px solid rgba(56,189,248,0.45)!important;color:#7dd3fc!important;font-weight:700!important;letter-spacing:.4px;}
 .mn-natfilter-btn:hover{background:linear-gradient(135deg,rgba(56,189,248,0.28),rgba(99,102,241,0.28))!important;border-color:rgba(56,189,248,0.7)!important;}
@@ -935,18 +932,6 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   </div>
   <!-- Active layer filter chips -->
   <div id="filter-strip">
-
-    <span style="font-size:10px;color:var(--text3);flex-shrink:0;"><i class="fas fa-layer-group"></i></span>
-    <div class="fchip on"  id="chip-parcels"       onclick="chipToggle('parcels',this)"><i class="fas fa-house"></i> Parcels</div>
-    <div class="fchip on"  id="chip-roads"         onclick="chipToggle('roads',this)"><i class="fas fa-road"></i> Roads</div>
-    <div class="fchip on"  id="chip-county"        onclick="chipToggle('county',this)"><i class="fas fa-map"></i> County</div>
-    <div class="fchip"     id="chip-flood"         onclick="chipToggle('flood',this)"><i class="fas fa-droplet"></i> Flood</div>
-    <div class="fchip"     id="chip-zone"          onclick="chipToggle('zone',this)"><i class="fas fa-scale-balanced"></i> Zoning</div>
-    <div class="fchip"     id="chip-subdivisions"  onclick="chipToggle('subdivisions',this)"><i class="fas fa-table-cells-large"></i> Subdivisions</div>
-    <div class="fchip"     id="chip-drain"         onclick="chipToggle('drain',this)"><i class="fas fa-water"></i> Drains</div>
-    <div class="fchip"     id="chip-sections"      onclick="chipToggle('sections',this)"><i class="fas fa-th"></i> Sections</div>
-    <div class="fchip"     id="chip-imagery"       onclick="chipToggle('imagery',this)"><i class="fas fa-satellite"></i> Imagery</div>
-    <div id="mn-natfilter-wrap" style="position:relative;flex-shrink:0;">
       <button class="fchip mn-natfilter-btn" id="mn-natfilter-btn" type="button" onclick="window.MNNatFilter.toggle()" title="National Filters - basemaps, POIs, weather, hazards">
         <i class="fas fa-globe-americas"></i> NATIONAL FILTERS <i class="fas fa-chevron-down" style="font-size:9px;margin-left:4px;opacity:0.7;"></i>
       </button>
@@ -970,6 +955,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
           <button class="mn-natfilter-item" data-key="carto-dark" onclick="window.MNNatFilter.toggleLayer('carto-dark',this)"><i class="fas fa-moon"></i> Dark</button>
           <button class="mn-natfilter-item" data-key="esri-boundaries" onclick="window.MNNatFilter.toggleLayer('esri-boundaries',this)"><i class="fas fa-flag"></i> Boundaries</button>
           <button class="mn-natfilter-item" data-key="esri-transport" onclick="window.MNNatFilter.toggleLayer('esri-transport',this)"><i class="fas fa-route"></i> Highways</button>
+                  <button class="mn-natfilter-item" data-key="imagery" onclick="window.MNNatFilter.toggleLayer('imagery',this)"><i class="fas fa-satellite"></i> Satellite</button>
         </div>
         <div class="mn-natfilter-section-title"><i class="fas fa-tree"></i> Environmental & Land Use</div>
         <div class="mn-natfilter-grid" data-section="environment">
@@ -982,6 +968,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
           <button class="mn-natfilter-item" data-key="nexrad-radar" onclick="window.MNNatFilter.toggleLayer('nexrad-radar',this)"><i class="fas fa-cloud-bolt"></i> Weather Radar</button>
           <button class="mn-natfilter-item" data-key="noaa-warnings" onclick="window.MNNatFilter.toggleLayer('noaa-warnings',this)"><i class="fas fa-triangle-exclamation"></i> NWS Warnings</button>
           <button class="mn-natfilter-item" data-key="earthquakes" onclick="window.MNNatFilter.toggleLayer('earthquakes',this)"><i class="fas fa-house-tsunami"></i> Earthquakes</button>
+                  <button class="mn-natfilter-item" data-key="flood" onclick="window.MNNatFilter.toggleLayer('flood',this)"><i class="fas fa-house-flood-water"></i> FEMA Flood</button>
         </div>
         <div class="mn-natfilter-section-title"><i class="fas fa-location-dot"></i> Points of Interest</div>
         <div class="mn-natfilter-grid" data-section="poi">
@@ -1010,7 +997,6 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
         </div>
       </div>
     </div>
-  </div>
   <div id="sbody">
 
     <!-- ── LAYERS TAB — Dynamically generated per county ── -->
