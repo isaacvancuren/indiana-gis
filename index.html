@@ -691,6 +691,39 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 }
 #zoom-hint.on{opacity:1;}
 </style>
+
+  <!-- Supabase Auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style id="mn-auth-styles">
+    .mn-auth-overlay{position:fixed;inset:0;background:rgba(8,12,20,.96);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e8eef7;}
+    .mn-auth-card{background:#0f1722;border:1px solid #2b3a52;border-radius:14px;padding:34px 32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+    .mn-auth-logo{font-size:26px;font-weight:700;text-align:center;margin-bottom:6px;letter-spacing:.5px;background:linear-gradient(90deg,#5fb1ff,#8fd6ff);-webkit-background-clip:text;color:transparent;}
+    .mn-auth-tagline{text-align:center;color:#8aa0bc;font-size:13px;margin-bottom:24px;}
+    .mn-auth-tabs{display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid #243049;}
+    .mn-auth-tab{flex:1;padding:10px 0;text-align:center;cursor:pointer;color:#8aa0bc;font-size:14px;border-bottom:2px solid transparent;transition:all .15s;}
+    .mn-auth-tab.active{color:#5fb1ff;border-bottom-color:#5fb1ff;}
+    .mn-auth-field{margin-bottom:14px;}
+    .mn-auth-field label{display:block;font-size:12px;color:#8aa0bc;margin-bottom:6px;font-weight:500;}
+    .mn-auth-field input{width:100%;background:#0a1018;border:1px solid #2b3a52;border-radius:8px;padding:10px 12px;color:#e8eef7;font-size:14px;outline:none;transition:border .15s;box-sizing:border-box;}
+    .mn-auth-field input:focus{border-color:#5fb1ff;}
+    .mn-auth-btn{width:100%;background:linear-gradient(90deg,#3b82f6,#5fb1ff);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:8px;}
+    .mn-auth-btn:hover{opacity:.9;}
+    .mn-auth-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .mn-auth-msg{margin-top:12px;padding:10px;border-radius:8px;font-size:13px;display:none;}
+    .mn-auth-msg.error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;display:block;}
+    .mn-auth-msg.success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#86efac;display:block;}
+    .mn-auth-link{color:#5fb1ff;cursor:pointer;font-size:12px;text-align:center;margin-top:14px;}
+    .mn-auth-link:hover{text-decoration:underline;}
+    .mn-auth-footer{text-align:center;font-size:11px;color:#5e7491;margin-top:18px;line-height:1.5;}
+    #mn-user-badge{position:fixed;top:10px;right:14px;z-index:9000;background:rgba(15,23,34,.92);border:1px solid #2b3a52;border-radius:20px;padding:6px 14px;display:flex;align-items:center;gap:8px;font-size:12px;color:#e8eef7;font-family:-apple-system,sans-serif;cursor:pointer;}
+    #mn-user-badge:hover{border-color:#5fb1ff;}
+    #mn-user-menu{position:fixed;top:46px;right:14px;z-index:9001;background:#0f1722;border:1px solid #2b3a52;border-radius:10px;min-width:200px;box-shadow:0 10px 30px rgba(0,0,0,.4);display:none;font-family:-apple-system,sans-serif;}
+    #mn-user-menu.open{display:block;}
+    #mn-user-menu .mn-menu-item{padding:10px 14px;color:#e8eef7;font-size:13px;cursor:pointer;border-bottom:1px solid #1a2434;}
+    #mn-user-menu .mn-menu-item:hover{background:#1a2434;}
+    #mn-user-menu .mn-menu-item:last-child{border-bottom:none;}
+    #mn-user-menu .mn-menu-tier{padding:10px 14px;color:#8aa0bc;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #1a2434;}
+  </style>
 </head>
 <body>
 
@@ -5859,6 +5892,184 @@ window.selectParcel = function(p, layer) {
   if (el) el.innerHTML = `<i class="fas fa-location-dot" style="color:var(--accent);margin-right:4px;"></i>Target: <b style="color:var(--text);">${p.addr}</b>`;
 };
 
+</script>
+
+<!-- MapNova Auth UI -->
+<div id="mn-auth-overlay" class="mn-auth-overlay" style="display:none;">
+  <div class="mn-auth-card">
+    <div class="mn-auth-logo">MapNova</div>
+    <div class="mn-auth-tagline">Sign in to access your maps</div>
+    <div class="mn-auth-tabs">
+      <div class="mn-auth-tab active" data-tab="signin">Sign In</div>
+      <div class="mn-auth-tab" data-tab="signup">Create Account</div>
+    </div>
+    <div id="mn-auth-form-signin">
+      <div class="mn-auth-field"><label>Email</label><input type="email" id="mn-signin-email" autocomplete="email" /></div>
+      <div class="mn-auth-field"><label>Password</label><input type="password" id="mn-signin-password" autocomplete="current-password" /></div>
+      <button class="mn-auth-btn" id="mn-signin-btn">Sign In</button>
+      <div class="mn-auth-link" id="mn-forgot-link">Forgot password?</div>
+    </div>
+    <div id="mn-auth-form-signup" style="display:none;">
+      <div class="mn-auth-field"><label>Display Name</label><input type="text" id="mn-signup-name" autocomplete="name" /></div>
+      <div class="mn-auth-field"><label>Email</label><input type="email" id="mn-signup-email" autocomplete="email" /></div>
+      <div class="mn-auth-field"><label>Password</label><input type="password" id="mn-signup-password" autocomplete="new-password" placeholder="At least 8 characters" /></div>
+      <button class="mn-auth-btn" id="mn-signup-btn">Create Account</button>
+    </div>
+    <div id="mn-auth-msg" class="mn-auth-msg"></div>
+    <div class="mn-auth-footer">By creating an account, you agree to our terms of service.<br>Free tier available now &middot; Subscription plans coming soon.</div>
+  </div>
+</div>
+<div id="mn-user-badge" style="display:none;"><span id="mn-user-badge-name"></span><span style="font-size:10px;opacity:.6;">&#9662;</span></div>
+<div id="mn-user-menu">
+  <div class="mn-menu-tier" id="mn-menu-tier">Free Plan</div>
+  <div class="mn-menu-item" id="mn-menu-history">View History</div>
+  <div class="mn-menu-item" id="mn-menu-bookmarks">Bookmarks</div>
+  <div class="mn-menu-item" id="mn-menu-account">Account</div>
+  <div class="mn-menu-item" id="mn-menu-signout">Sign Out</div>
+</div>
+
+<script>
+(function(){
+  const SUPABASE_URL = 'https://pcalrousicyuyiyoppqt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_mFKL1y755kJphEu231y8AA_KgV3W6xe';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage }
+  });
+  window.MapNovaAuth = { client: sb, user: null, profile: null };
+
+  const $ = id => document.getElementById(id);
+  const overlay = $('mn-auth-overlay');
+  const badge = $('mn-user-badge');
+  const menu = $('mn-user-menu');
+  const msg = $('mn-auth-msg');
+
+  function showMsg(text, type){ msg.textContent = text; msg.className = 'mn-auth-msg ' + (type||'error'); }
+  function clearMsg(){ msg.textContent=''; msg.className='mn-auth-msg'; }
+
+  function showAuth(){ overlay.style.display='flex'; badge.style.display='none'; menu.classList.remove('open'); }
+  function hideAuth(){ overlay.style.display='none'; }
+  function showBadge(user, profile){
+    const name = (profile && profile.display_name) || (user.email||'').split('@')[0];
+    $('mn-user-badge-name').textContent = name;
+    badge.style.display='flex';
+    $('mn-menu-tier').textContent = ((profile && profile.subscription_tier) || 'free').toUpperCase() + ' PLAN';
+  }
+
+  // Tab switching
+  document.querySelectorAll('.mn-auth-tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.mn-auth-tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const tab=t.dataset.tab;
+      $('mn-auth-form-signin').style.display = tab==='signin'?'block':'none';
+      $('mn-auth-form-signup').style.display = tab==='signup'?'block':'none';
+      clearMsg();
+    });
+  });
+
+  // Sign in
+  $('mn-signin-btn').addEventListener('click', async ()=>{
+    clearMsg();
+    const email = $('mn-signin-email').value.trim();
+    const password = $('mn-signin-password').value;
+    if(!email||!password){ showMsg('Email and password required'); return; }
+    const btn=$('mn-signin-btn'); btn.disabled=true; btn.textContent='Signing in...';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    btn.disabled=false; btn.textContent='Sign In';
+    if(error){ showMsg(error.message); return; }
+    showMsg('Welcome back!','success');
+    setTimeout(()=>hideAuth(), 600);
+  });
+
+  // Sign up
+  $('mn-signup-btn').addEventListener('click', async ()=>{
+    clearMsg();
+    const name = $('mn-signup-name').value.trim();
+    const email = $('mn-signup-email').value.trim();
+    const password = $('mn-signup-password').value;
+    if(!email||!password){ showMsg('Email and password required'); return; }
+    if(password.length<8){ showMsg('Password must be at least 8 characters'); return; }
+    const btn=$('mn-signup-btn'); btn.disabled=true; btn.textContent='Creating...';
+    const { data, error } = await sb.auth.signUp({ email, password, options:{ data:{ display_name: name||email.split('@')[0] }, emailRedirectTo: window.location.origin } });
+    btn.disabled=false; btn.textContent='Create Account';
+    if(error){ showMsg(error.message); return; }
+    if(data.user && !data.session){
+      showMsg('Check your email to confirm your account.','success');
+    } else {
+      showMsg('Account created! Welcome.','success');
+      setTimeout(()=>hideAuth(), 600);
+    }
+  });
+
+  // Forgot password
+  $('mn-forgot-link').addEventListener('click', async ()=>{
+    const email = $('mn-signin-email').value.trim();
+    if(!email){ showMsg('Enter your email above first'); return; }
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    if(error){ showMsg(error.message); return; }
+    showMsg('Password reset email sent.','success');
+  });
+
+  // Badge menu
+  badge.addEventListener('click', ()=> menu.classList.toggle('open'));
+  document.addEventListener('click', e=>{
+    if(!badge.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
+  });
+  $('mn-menu-signout').addEventListener('click', async ()=>{
+    await sb.auth.signOut();
+    menu.classList.remove('open');
+  });
+  $('mn-menu-history').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openHistory(); });
+  $('mn-menu-bookmarks').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openBookmarks(); });
+  $('mn-menu-account').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openAccount(); });
+
+  // Activity logging helpers
+  MapNovaAuth.logEvent = async function(eventType, data){
+    if(!MapNovaAuth.user) return;
+    try { await sb.from('user_history').insert([{ user_id: MapNovaAuth.user.id, event_type: eventType, county: data.county||null, city: data.city||null, parcel_id: data.parcel_id||null, search_query: data.search_query||null, metadata: data.metadata||null }]); } catch(e){}
+  };
+  MapNovaAuth.addBookmark = async function(b){
+    if(!MapNovaAuth.user) return null;
+    const { data, error } = await sb.from('bookmarks').insert([{ user_id: MapNovaAuth.user.id, label: b.label, county: b.county||null, city: b.city||null, parcel_id: b.parcel_id||null, lat: b.lat||null, lng: b.lng||null, metadata: b.metadata||null }]).select();
+    return error?null:data;
+  };
+  MapNovaAuth.openHistory = async function(){
+    const { data } = await sb.from('user_history').select('*').order('created_at',{ascending:false}).limit(50);
+    alert('Recent History (' + (data||[]).length + ' events):\n\n' + (data||[]).map(h => new Date(h.created_at).toLocaleString() + ' — ' + h.event_type + (h.county?' ('+h.county+')':'') + (h.parcel_id?' parcel '+h.parcel_id:'')).join('\n'));
+  };
+  MapNovaAuth.openBookmarks = async function(){
+    const { data } = await sb.from('bookmarks').select('*').order('created_at',{ascending:false});
+    alert('Bookmarks (' + (data||[]).length + '):\n\n' + (data||[]).map(b => b.label + (b.county?' — '+b.county:'')).join('\n'));
+  };
+  MapNovaAuth.openAccount = function(){
+    const p = MapNovaAuth.profile||{};
+    alert('Account\n\nEmail: ' + (MapNovaAuth.user.email||'') + '\nDisplay name: ' + (p.display_name||'') + '\nPlan: ' + (p.subscription_tier||'free') + '\nMember since: ' + (p.created_at?new Date(p.created_at).toLocaleDateString():''));
+  };
+
+  async function loadProfile(user){
+    const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    return data;
+  }
+
+  async function applySession(session){
+    if(session && session.user){
+      MapNovaAuth.user = session.user;
+      MapNovaAuth.profile = await loadProfile(session.user);
+      showBadge(session.user, MapNovaAuth.profile);
+      hideAuth();
+      // Log a session_start once per page load
+      if(!window.__mnSessionLogged){ window.__mnSessionLogged=true; MapNovaAuth.logEvent('session_start',{ metadata:{ ua: navigator.userAgent.substring(0,120), path: location.pathname }}); }
+    } else {
+      MapNovaAuth.user = null;
+      MapNovaAuth.profile = null;
+      showAuth();
+    }
+  }
+
+  // Init
+  sb.auth.getSession().then(({data})=> applySession(data.session));
+  sb.auth.onAuthStateChange((evt, session)=> applySession(session));
+})();
 </script>
 </body>
 </html>
