@@ -4007,15 +4007,7 @@ async function buildCountyLayerPanel(cKey) {
   const base = getActiveDynamicBase();
   const hasCachedData = countyLayerCache[cKey] && countyLayerCache[cKey].length > 0;
 
-  if (!base && !hasCachedData) {
-    container.innerHTML = `<div style="padding:14px 12px;color:var(--text3);font-size:11px;line-height:1.6;">
-      <i class="fas fa-info-circle" style="margin-right:6px;color:#60a5fa;"></i>
-      <strong style="color:var(--text);">${(activeCounty||{name:cKey}).name}</strong><br>
-      County-specific GIS layers for this county are being added.<br>
-      Statewide layers (FEMA Flood, Imagery) are available above.
-    </div>`;
-    updateLegend(); updateLayerBadge(); return;
-  }
+  // Early-return removed - fetchCountyLayers now returns STATEWIDE_FALLBACK_LAYERS as default
 
   const layers = await fetchCountyLayers(cKey);
   if (!layers.length) {
