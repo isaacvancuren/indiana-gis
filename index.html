@@ -3863,8 +3863,152 @@ const STATEWIDE_FALLBACK_LAYERS = [
   {svc:'https://gisdata.in.gov/server/rest/services/Hosted/IDNR_Historic_Bridges/FeatureServer', ids:[0], name:'Historic Bridges (IDNR)', cat:'transportation'},
   {svc:'https://gisdata.in.gov/server/rest/services/Hosted/City_and_Town_Hall_Locations_2023/FeatureServer', ids:[0], name:'City & Town Halls (2023)', cat:'civic'},
   {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Fire_Stations_2023/FeatureServer', ids:[0], name:'Fire Stations (2023)', cat:'poi'},
-  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/EMS_Stations_2022/FeatureServer', ids:[43], name:'EMS Stations (2022)', cat:'poi'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/EMS_Stations_2022/FeatureServer', ids:[43], name:'EMS Stations (2022)', cat:'poi'},,
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/National_Wetlands_Inventory/FeatureServer', ids:[3720], name:'Wetlands (NWI)', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/HUC8_Boundaries/FeatureServer', ids:[14], name:'Watershed Subbasins (HUC8)', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/HUC12_Boundaries/FeatureServer', ids:[17], name:'Watershed Subwatersheds (HUC12)', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/GNIS_Lake_Shore_Features_2023/FeatureServer', ids:[95], name:'Lakes & Shoreline Features', cat:'hydrology'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/GNIS_Stream_Features_2023/FeatureServer', ids:[1], name:'Streams & Rivers (GNIS)', cat:'hydrology'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Hospitals_2023/FeatureServer', ids:[0], name:'Hospitals (2023)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/PAD_US_Park_Boundaries_2022/FeatureServer', ids:[39], name:'Parks (PAD-US 2022)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/ManagedLands_DNR_Open/FeatureServer', ids:[0], name:'DNR Managed Lands', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/ManagedLands_Federal/FeatureServer', ids:[0], name:'Federal Managed Lands', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Trails_AGOL_RO/FeatureServer', ids:[0], name:'Indiana Trails', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Trailheads_1/FeatureServer', ids:[0], name:'Trailheads', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Library_Locations_of_Indiana_2025/FeatureServer', ids:[0], name:'Libraries (2025)', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Sites_StateParks/FeatureServer', ids:[8], name:'State Parks', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Sites_StateForests/FeatureServer', ids:[8], name:'State Forests', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Sites_NaturePreserves/FeatureServer', ids:[8], name:'Nature Preserves', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Natural_Regions/FeatureServer', ids:[0], name:'Natural Regions', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Airport_Runways_2023/FeatureServer', ids:[0], name:'Airport Runways (2023)', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/GIO_Airports_HAZUS_IN/FeatureServer', ids:[0], name:'Airports', cat:'transportation'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/DAMS_DNR_WATER_IN_RO1/FeatureServer', ids:[0], name:'Dams (IDNR)', cat:'hydrology'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/IDNR_Cemetery_Sites/FeatureServer', ids:[0], name:'Cemeteries', cat:'civic'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Indiana_Opportunity_Zones/FeatureServer', ids:[2260], name:'Opportunity Zones', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Conservancy_Districts_of_Indiana_20250528/FeatureServer', ids:[54], name:'Conservancy Districts', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Prime_Farmland_Soils_USDA_1994/FeatureServer', ids:[0], name:'Prime Farmland Soils', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/NRCS_Easements_of_Indiana_2023/FeatureServer', ids:[0], name:'NRCS Easements', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Soil_Map_Units_SSURGO/FeatureServer', ids:[4], name:'Soil Map Units (SSURGO)', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Brownfields/FeatureServer', ids:[2020], name:'Brownfields', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Industrial_Park_Locations_2006/FeatureServer', ids:[0], name:'Industrial Parks', cat:'districts'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Hoosier_National_Forest_Ownership_2007/FeatureServer', ids:[0], name:'Hoosier National Forest', cat:'environment'},
+  {svc:'https://gisdata.in.gov/server/rest/services/Hosted/Indiana_State_Police_Post_Locations/FeatureServer', ids:[0], name:'State Police Posts', cat:'civic'}
 ];
+
+// ============================================================
+// MUNICIPAL (CITY) GIS SUB-LAYER REGISTRY
+// Each county may have one or more cities with their own GIS.
+// Toggling a city in the panel adds its layers as a sub-group.
+// ============================================================
+const MUNICIPAL_GIS_SERVERS = {
+  hamilton: {
+    carmel: {
+      name: 'Carmel',
+      layers: [
+        {svc:'https://services5.arcgis.com/nKFfYbLYNDrYHgoO/arcgis/rest/services/City_of_Carmel_Zoning/FeatureServer', ids:[0], name:'Carmel Zoning', cat:'zoning'},
+        {svc:'https://services5.arcgis.com/nKFfYbLYNDrYHgoO/arcgis/rest/services/Public_Art/FeatureServer', ids:[0], name:'Carmel Public Art', cat:'poi'},
+        {svc:'https://services5.arcgis.com/nKFfYbLYNDrYHgoO/arcgis/rest/services/TrafficCounts/FeatureServer', ids:[0], name:'Carmel Traffic Counts', cat:'transportation'},
+        {svc:'https://services5.arcgis.com/nKFfYbLYNDrYHgoO/arcgis/rest/services/Stormwater_Webapp/FeatureServer', ids:[0,1,2,3], name:'Carmel Stormwater Infrastructure', cat:'utility'},
+        {svc:'https://services5.arcgis.com/nKFfYbLYNDrYHgoO/arcgis/rest/services/Trash_and_Subdivisions/FeatureServer', ids:[0], name:'Carmel Trash Service Areas', cat:'civic'},
+        {svc:'https://services5.arcgis.com/nKFfYbLYNDrYHgoO/arcgis/rest/services/Wastewater_Map_WFL1/FeatureServer', ids:[0], name:'Carmel Wastewater Map', cat:'utility'}
+      ]
+    }
+  },
+  bartholomew: {
+    columbus: {
+      name: 'Columbus',
+      layers: [
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/City_of_Columbus___City_Limits_WFL1/FeatureServer', ids:[1,4], name:'Columbus City Limits & ETJ', cat:'districts'},
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/City_Of_Columbus__Zoning__Industrial__Parcels___Address_Map_WFL1/FeatureServer', ids:[0,1,16], name:'Columbus Address+Parcel+Zoning', cat:'parcels'},
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/Columbus_Master_Trail_Plan_WFL1/FeatureServer', ids:[0,1], name:'Columbus Trails (Existing+Proposed)', cat:'transportation'},
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/City_Floodplain_Map_2019_WFL1/FeatureServer', ids:[5,6], name:'Columbus Floodplain (2019)', cat:'hydrology'},
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/Voting_Wards_WFL1/FeatureServer', ids:[0,1,2], name:'Columbus Voting Wards & Precincts', cat:'districts'},
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/Columbus_Blighted_Area_Map_WFL1/FeatureServer', ids:[0], name:'Columbus Blighted Areas', cat:'districts'},
+        {svc:'https://services8.arcgis.com/VdGaBUXUfZ3ETyKd/arcgis/rest/services/City_of_Columbus_Properties_WFL1/FeatureServer', ids:[0], name:'Columbus City-Owned Properties', cat:'civic'}
+      ]
+    }
+  },
+  monroe: {
+    bloomington: {
+      name: 'Bloomington',
+      layers: [
+        {svc:'https://services3.arcgis.com/8EQ1HhogM827boPC/arcgis/rest/services/Parcels_Backup/FeatureServer', ids:[0], name:'Bloomington Parcels', cat:'parcels'},
+        {svc:'https://services3.arcgis.com/8EQ1HhogM827boPC/arcgis/rest/services/Address_Points_Backup/FeatureServer', ids:[1], name:'Bloomington Address Points', cat:'parcels'},
+        {svc:'https://services3.arcgis.com/8EQ1HhogM827boPC/arcgis/rest/services/City_of_Bloomington_Wards_and_Precincts/FeatureServer', ids:[1,2], name:'Bloomington Wards & Precincts', cat:'districts'},
+        {svc:'https://services3.arcgis.com/8EQ1HhogM827boPC/arcgis/rest/services/National_Register_Historic_Districts/FeatureServer', ids:[2], name:'Bloomington Historic Districts', cat:'districts'},
+        {svc:'https://services3.arcgis.com/8EQ1HhogM827boPC/arcgis/rest/services/Snow_Districts_Public_View/FeatureServer', ids:[0], name:'Bloomington Snow Districts', cat:'civic'},
+        {svc:'https://services3.arcgis.com/8EQ1HhogM827boPC/arcgis/rest/services/Precincts/FeatureServer', ids:[0], name:'Bloomington Precincts', cat:'districts'}
+      ]
+    }
+  },
+  lake: {
+    hammond: {
+      name: 'Hammond',
+      layers: [
+        {svc:'https://services3.arcgis.com/Yai1e4WSf7DPtolL/arcgis/rest/services/TaxParcels_public_77474aaaf6604957b8267f1a6734f3ac/FeatureServer', ids:[0], name:'Hammond Tax Parcels', cat:'parcels'},
+        {svc:'https://services3.arcgis.com/Yai1e4WSf7DPtolL/arcgis/rest/services/RoadCenterline_20220726_publicView/FeatureServer', ids:[0], name:'Hammond Road Centerlines', cat:'transportation'},
+        {svc:'https://services3.arcgis.com/Yai1e4WSf7DPtolL/arcgis/rest/services/City_Limits_PublicView/FeatureServer', ids:[3], name:'Hammond City Limits', cat:'districts'},
+        {svc:'https://services3.arcgis.com/Yai1e4WSf7DPtolL/arcgis/rest/services/2020_Council_Districts_PublicView/FeatureServer', ids:[2], name:'Hammond Council Districts', cat:'districts'},
+        {svc:'https://services3.arcgis.com/Yai1e4WSf7DPtolL/arcgis/rest/services/MedicalFacilities_51f13cc7c588431698c3560fb65ae500/FeatureServer', ids:[0], name:'Hammond Hospitals & Clinics', cat:'civic'},
+        {svc:'https://services3.arcgis.com/Yai1e4WSf7DPtolL/arcgis/rest/services/Active_City_Lots_view/FeatureServer', ids:[0], name:'Hammond City-Owned Lots', cat:'civic'}
+      ]
+    }
+  },
+  stjoseph: {
+    southbend: {
+      name: 'South Bend',
+      layers: [
+        {svc:'https://gis.southbendin.gov/arcgis/rest/services/LandRecords/City_of_South_Bend_Zoning_Public/FeatureServer', ids:[0], name:'South Bend Zoning', cat:'zoning'},
+        {svc:'https://services1.arcgis.com/0n2NelSAfR7gTkr1/arcgis/rest/services/Fire_Response_Districts/FeatureServer', ids:[0,1], name:'South Bend Fire Stations & Response', cat:'civic'},
+        {svc:'https://services1.arcgis.com/0n2NelSAfR7gTkr1/arcgis/rest/services/AllVacantandAbandonedProperties/FeatureServer', ids:[3], name:'South Bend Vacant Properties', cat:'parcels'},
+        {svc:'https://services1.arcgis.com/0n2NelSAfR7gTkr1/arcgis/rest/services/South_Bend_Elementary_School_District_Boundaries/FeatureServer', ids:[0], name:'South Bend Elementary School Boundaries', cat:'districts'},
+        {svc:'https://services1.arcgis.com/0n2NelSAfR7gTkr1/arcgis/rest/services/South_Bend_High_School_District_Boundaries/FeatureServer', ids:[0], name:'South Bend High School Boundaries', cat:'districts'},
+        {svc:'https://services1.arcgis.com/0n2NelSAfR7gTkr1/arcgis/rest/services/South_Bend_Middle_School_District_Boundaries/FeatureServer', ids:[0], name:'South Bend Middle School Boundaries', cat:'districts'},
+        {svc:'https://services1.arcgis.com/0n2NelSAfR7gTkr1/arcgis/rest/services/Active_Demolition_Orders/FeatureServer', ids:[0], name:'South Bend Demolition Orders', cat:'parcels'}
+      ]
+    }
+  },
+  johnson: {
+    greenwood: {
+      name: 'Greenwood',
+      layers: [
+        {svc:'https://services6.arcgis.com/YnX35jfIPKMwG4ma/arcgis/rest/services/Greenwood_Zoning_Map_WFL1/FeatureServer', ids:[5], name:'Greenwood City Limits', cat:'districts'},
+        {svc:'https://services6.arcgis.com/YnX35jfIPKMwG4ma/arcgis/rest/services/Greenwood_Zoning_Map_WFL1/FeatureServer', ids:[6], name:'Greenwood Parcels', cat:'parcels'},
+        {svc:'https://services6.arcgis.com/YnX35jfIPKMwG4ma/arcgis/rest/services/Greenwood_Zoning_Map_WFL1/FeatureServer', ids:[3], name:'Greenwood Zoning', cat:'zoning'},
+        {svc:'https://services6.arcgis.com/YnX35jfIPKMwG4ma/arcgis/rest/services/Greenwood_Zoning_Map_WFL1/FeatureServer', ids:[1], name:'Greenwood Building Footprints', cat:'parcels'}
+      ]
+    }
+  },
+  marion: {
+    indianapolis: {
+      name: 'Indianapolis',
+      layers: [
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer', ids:[3], name:'Indianapolis Parcels', cat:'parcels'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer', ids:[5], name:'Indianapolis Building Addresses', cat:'parcels'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer', ids:[10], name:'Indy Neighborhoods', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer', ids:[1], name:'Indy Subdivision Boundaries', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer', ids:[12], name:'Indy Building Footprints', cat:'parcels'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[9], name:'Indy Zoning', cat:'zoning'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[3], name:'Indy Current Land Use', cat:'zoning'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[5], name:'Indy Flood Plain', cat:'hydrology'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[6], name:'Indy Historic Register', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[15], name:'Indy TIF Districts', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[13], name:'Indy Street Centerlines', cat:'transportation'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[10], name:'Indy Bike Lanes', cat:'transportation'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[9], name:'Indy Trails', cat:'transportation'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[11], name:'IndyGo Bus Routes', cat:'transportation'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[4], name:'IndyGo Bus Stops', cat:'transportation'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[17], name:'Indy Bridges', cat:'transportation'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer', ids:[1], name:'Indy City-County Council Districts', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer', ids:[2], name:'Indy Precincts', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer', ids:[9], name:'Indy School Board Districts', cat:'districts'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Infrastructure/MapServer', ids:[2], name:'Indy Vacant & Abandoned Houses', cat:'parcels'},
+        {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Infrastructure/MapServer', ids:[5], name:'Indy Storm Sewers', cat:'utility'}
+      ]
+    }
+  }
+};
+
 
 // ââ County layer registry âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const countyLayerCache = {
@@ -3993,76 +4137,135 @@ const StatewideLayer = L.TileLayer.extend({
 async function buildCountyLayerPanel(cKey) {
   const container = document.getElementById('county-layers-container');
   if (!container) return;
-  container.innerHTML = `<div style="padding:14px;color:var(--text3);font-size:11px;text-align:center;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;color:var(--accent);"></i>Loading ${(activeCounty||{name:cKey}).name} layersâ¦</div>`;
+  container.innerHTML = `<div style="padding:14px;color:var(--text3);font-size:11px;text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading layers...</div>`;
 
-  // Remove all old county layers
-  const KEEP = new Set(['parcels','flood','imagery','imagery-labels']);
-  Object.keys(gisLayers).forEach(k => {
-    if (KEEP.has(k)) return;
-    if (map.hasLayer(gisLayers[k])) map.removeLayer(gisLayers[k]);
-    delete gisLayers[k];
-  });
-  [...activeLyrs].forEach(k => { if (!KEEP.has(k)) activeLyrs.delete(k); });
+  // Initialize per-county active city set
+  if (!window.__activeCities) window.__activeCities = {};
+  if (!window.__activeCities[cKey]) window.__activeCities[cKey] = new Set();
+  const activeCities = window.__activeCities[cKey];
 
-  const base = getActiveDynamicBase();
-  const hasCachedData = countyLayerCache[cKey] && countyLayerCache[cKey].length > 0;
+  // Fetch base county layers
+  const countyLayers = await fetchCountyLayers(cKey);
+  const cityRegistry = (typeof MUNICIPAL_GIS_SERVERS !== 'undefined' && MUNICIPAL_GIS_SERVERS[cKey]) || null;
 
-  // Early-return removed - fetchCountyLayers now returns STATEWIDE_FALLBACK_LAYERS as default
-
-  const layers = await fetchCountyLayers(cKey);
-  if (!layers.length) {
+  if (!countyLayers.length && !cityRegistry) {
     container.innerHTML = `<div style="padding:14px;color:var(--text3);font-size:11px;">No layers found.</div>`;
     return;
   }
 
-  const groups = {};
-  layers.forEach(lyr => {
-    if (!groups[lyr.cat]) groups[lyr.cat] = [];
-    groups[lyr.cat].push(lyr);
-  });
-
-  const ts = Date.now();
-  const swatchColors = {
-    parcels:      {icon:'fa-draw-polygon',  color:'#f59e0b'},
-    annotations:  {icon:'fa-pen-ruler',     color:'#94a3b8'},
-    zoning:       {icon:'fa-map',           color:'#eab308'},
-    hydrology:    {icon:'fa-water',         color:'#38bdf8'},
-    transportation:{icon:'fa-road',         color:'#94a3b8'},
-    districts:    {icon:'fa-flag',          color:'#60a5fa'},
-    civic:        {icon:'fa-landmark',      color:'#fbbf24'},
-    poi:          {icon:'fa-location-dot',  color:'#f472b6'},
-    utility:      {icon:'fa-bolt',          color:'#facc15'},
-    environment:  {icon:'fa-leaf',          color:'#4ade80'},
-    other:        {icon:'fa-layer-group',   color:'#a78bfa'},
+  const groupsMeta = {
+    parcels:        {icon:'fa-map',           color:'#7ad3ff'},
+    annotations:    {icon:'fa-pencil-alt',    color:'#ff9f4a'},
+    zoning:         {icon:'fa-th-large',      color:'#c084fc'},
+    hydrology:      {icon:'fa-water',         color:'#3eb6ff'},
+    transportation: {icon:'fa-road',          color:'#ffa84a'},
+    civic:          {icon:'fa-landmark',      color:'#4cd1ff'},
+    districts:      {icon:'fa-vote-yea',      color:'#ff7eb6'},
+    poi:            {icon:'fa-location-dot',  color:'#f472b6'},
+    utility:        {icon:'fa-bolt',          color:'#facc15'},
+    environment:    {icon:'fa-leaf',          color:'#4ade80'},
+    other:          {icon:'fa-layer-group',   color:'#a78bfa'}
   };
 
+  // Build active layer set: county layers (always), plus toggled-on city layers
+  const activeLayers = countyLayers.slice();
+  const cityLayerSets = {};
+  if (cityRegistry) {
+    for (const cityKey of activeCities) {
+      const c = cityRegistry[cityKey];
+      if (c && c.layers) cityLayerSets[cityKey] = c;
+    }
+  }
+
+  // Build panel HTML
   let panelHtml = '';
-  CAT_ORDER.forEach(cat => {
-    if (!groups[cat] || !groups[cat].length) return;
-    const meta = CATEGORY_META[cat];
-    panelHtml += `<div class="lgrp"><div class="lgh" onclick="toggleGrp(this)"><i class="fas ${meta.icon} gi" style="color:${meta.color};"></i> ${meta.label} <span style="font-size:9px;opacity:.4;margin-left:3px;">${groups[cat].length}</span><i class="fas fa-chevron-right arr"></i></div><div class="lgitems">`;
-    groups[cat].forEach((lyr, idx) => {
-      // Unique key per layer â use index within category to handle duplicate IDs across services
-      const key = 'lyr-' + cKey + '-' + cat + '-' + idx;
-      const ids  = lyr.ids || [lyr.id];
-      const svc  = lyr.svc || null;
-      const tl   = new ArcGISCountyLayer(ids, 0.75, svc);
-      tl._ts = ts;
-      gisLayers[key] = tl;
-      const sw   = swatchColors[lyr.cat] || swatchColors.other;
-      const safe = lyr.name.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
-      panelHtml += `<div class="li"><input type="checkbox" id="cb-${key}" onchange="toggleLyr('${key}',this)"><i class="fas ${sw.icon} li-icon" style="color:${sw.color};"></i><span class="ln">${safe}</span></div>`;
+
+  // -- City sub-toggle bar (if county has municipal data) --
+  if (cityRegistry) {
+    const cityKeys = Object.keys(cityRegistry);
+    panelHtml += `<div class="city-toggle-bar" style="padding:10px 12px 8px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);">`;
+    panelHtml += `<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;font-weight:600;"><i class="fas fa-city" style="margin-right:6px;color:#7ad3ff;"></i>Municipal GIS Layers</div>`;
+    panelHtml += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+    cityKeys.forEach(ck => {
+      const c = cityRegistry[ck];
+      const on = activeCities.has(ck);
+      panelHtml += `<button class="city-tog-btn" data-city="${ck}" style="padding:5px 11px;border-radius:14px;border:1px solid ${on?'#7ad3ff':'var(--border)'};background:${on?'rgba(122,211,255,0.18)':'transparent'};color:${on?'#7ad3ff':'var(--text2)'};font-size:11px;cursor:pointer;font-weight:${on?600:500};display:inline-flex;align-items:center;gap:5px;"><i class="fas ${on?'fa-check':'fa-plus'}" style="font-size:9px;"></i>${c.name}</button>`;
     });
-    panelHtml += '</div></div>';
-  });
+    panelHtml += `</div></div>`;
+  }
+
+  // Helper: render a section of layers (county or city) into HTML grouped by category
+  function renderLayerSection(sectionLayers, sectionLabel, sectionKeyPrefix) {
+    let html = '';
+    if (sectionLabel) {
+      html += `<div style="padding:8px 12px 4px;font-size:10px;color:#7ad3ff;text-transform:uppercase;letter-spacing:0.6px;font-weight:700;background:rgba(122,211,255,0.06);border-top:1px solid var(--border);"><i class="fas fa-city" style="margin-right:6px;"></i>${sectionLabel}</div>`;
+    }
+    CAT_ORDER.forEach(cat => {
+      const items = sectionLayers.filter(l => (l.cat||'other') === cat);
+      if (!items.length) return;
+      const meta = groupsMeta[cat] || groupsMeta.other;
+      html += `<div class="lgrp"><div class="lgh open" style="padding:6px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text2);"><i class="fas ${meta.icon}" style="color:${meta.color};width:14px;"></i><span>${cat.charAt(0).toUpperCase()+cat.slice(1)}</span><span style="margin-left:auto;color:var(--text3);font-weight:400;">${items.length}</span><i class="fas fa-chevron-down" style="font-size:9px;color:var(--text3);transition:transform .2s;"></i></div><div class="lgb" style="padding:4px 0;">`;
+      items.forEach((lyr, i) => {
+        const key = sectionKeyPrefix + '_' + cat + '_' + i;
+        const ts = 't' + Date.now() + Math.random().toString(36).slice(2,6);
+        const ids = lyr.ids || [lyr.id];
+        const svc = lyr.svc || null;
+        try {
+          const tl = new ArcGISCountyLayer(ids, 0.75, svc);
+          tl._ts = ts;
+          gisLayers[key] = tl;
+        } catch(e) { console.warn('layer ctor failed', e); }
+        const sw = swatchColors[lyr.cat] || swatchColors.other;
+        const safe = lyr.name.replace(/[<>"\'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"\'":"&#39;",'&':'&amp;'})[c]);
+        html += `<label class="lit" style="display:flex;align-items:center;gap:8px;padding:4px 12px 4px 28px;cursor:pointer;font-size:11px;color:var(--text2);"><input type="checkbox" data-key="${key}" style="cursor:pointer;"><span class="lit-sw" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${sw};flex-shrink:0;"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safe}</span></label>`;
+      });
+      html += `</div></div>`;
+    });
+    return html;
+  }
+
+  panelHtml += renderLayerSection(activeLayers, null, 'co');
+  for (const cityKey of Object.keys(cityLayerSets)) {
+    const c = cityLayerSets[cityKey];
+    panelHtml += renderLayerSection(c.layers, c.name, 'city_' + cityKey);
+  }
 
   container.innerHTML = panelHtml;
-  // Open first group by default
-  const firstHdr = container.querySelector('.lgh');
-  if (firstHdr) { firstHdr.classList.add('open'); firstHdr.nextElementSibling.classList.add('open'); }
 
-  updateLegend(); updateLayerBadge();
-  notify('Loaded ' + layers.length + ' layers for ' + (activeCounty||{name:cKey}).name, 'fa-layer-group');
+  // Wire city toggle buttons
+  container.querySelectorAll('.city-tog-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const ck = btn.getAttribute('data-city');
+      if (activeCities.has(ck)) activeCities.delete(ck);
+      else activeCities.add(ck);
+      buildCountyLayerPanel(cKey);
+    });
+  });
+
+  // Wire layer checkboxes (county + city)
+  container.querySelectorAll('input[type=checkbox][data-key]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const key = cb.getAttribute('data-key');
+      const tl = gisLayers[key];
+      if (!tl) return;
+      if (cb.checked) { try { map.addLayer(tl); } catch(e){} }
+      else { try { map.removeLayer(tl); } catch(e){} }
+    });
+  });
+
+  // Wire group header collapse
+  container.querySelectorAll('.lgh').forEach(h => {
+    h.addEventListener('click', () => {
+      const grp = h.parentElement;
+      grp.classList.toggle('open');
+      const body = grp.querySelector('.lgb');
+      const chev = h.querySelector('.fa-chevron-down');
+      if (body) body.style.display = grp.classList.contains('open') ? 'block' : 'none';
+      if (chev) chev.style.transform = grp.classList.contains('open') ? 'rotate(0deg)' : 'rotate(-90deg)';
+    });
+  });
+
+  console.log('[county-panel] rendered ' + activeLayers.length + ' county layers + ' + Object.keys(cityLayerSets).length + ' city layer sets for ' + cKey);
 }
 
 async function refreshCountyLayers() {
