@@ -109,7 +109,24 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .hbtn-accent{color:var(--accent)!important;}
 .hbtn-accent:hover{border-color:var(--accent)!important;background:var(--accent-dim)!important;}
 
-/* county selector */
+/* country/state/county location selectors */
+.loc-sel-wrap{display:flex;align-items:center;gap:4px;}
+.loc-sel{
+  background:var(--panel2);border:1px solid rgba(6,182,212,.3);
+  color:#67e8f9;padding:6px 8px;border-radius:var(--radius);
+  font-size:11px;font-family:'Barlow',sans-serif;cursor:pointer;outline:none;
+  transition:border-color .15s,background .15s;
+  -webkit-appearance:none;appearance:none;max-width:140px;
+}
+.loc-sel:hover{border-color:rgba(6,182,212,.6);background:var(--panel3);}
+.loc-sel:focus{border-color:var(--accent);background:var(--panel3);}
+.loc-sel option{background:#0e1420;color:#dde4f0;}
+.loc-sel option:disabled{color:#4a5568;}
+.loc-sel optgroup{background:#0a0e18;color:rgba(6,182,212,.5);font-size:10px;}
+#country-sel{max-width:100px;}
+#state-sel{max-width:120px;}
+#county-sel{max-width:160px;}
+/* legacy county selector */
 #county-sel{
   background:var(--panel2);border:1px solid rgba(6,182,212,.3);
   color:#67e8f9;padding:6px 10px;border-radius:var(--radius);
@@ -584,7 +601,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   #mobile-nav{display:flex;}
   #app{bottom:56px;}
   #sbar{display:none;}
-  #header #county-sel{display:none;}
+  #header #loc-sel-wrap{display:none;}
 }
 .li-ctrl{display:flex;align-items:center;gap:4px;margin-left:auto;}
 .li-opac{width:52px;accent-color:var(--accent);cursor:pointer;height:3px;}
@@ -784,10 +801,69 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   </div>
 
   <div class="hsep"></div>
-  <select id="county-sel" title="Select County">
-    <option value="all">🌎 All Indiana</option>
+  <div id="loc-sel-wrap" class="loc-sel-wrap">
+    <select id="country-sel" class="loc-sel" title="Select Country">
+      <option value="usa" selected>🇺🇸 United States</option>
+      <option value="canada" disabled>🇨🇦 Canada (coming soon)</option>
+      <option value="mexico" disabled>🇲🇽 Mexico (coming soon)</option>
+      <option value="intl" disabled>🌐 International (coming soon)</option>
+    </select>
+    <select id="state-sel" class="loc-sel" title="Select State">
+      <option value="indiana" selected>Indiana</option>
+      <option value="alabama" disabled>Alabama (coming soon)</option>
+      <option value="alaska" disabled>Alaska (coming soon)</option>
+      <option value="arizona" disabled>Arizona (coming soon)</option>
+      <option value="arkansas" disabled>Arkansas (coming soon)</option>
+      <option value="california" disabled>California (coming soon)</option>
+      <option value="colorado" disabled>Colorado (coming soon)</option>
+      <option value="connecticut" disabled>Connecticut (coming soon)</option>
+      <option value="delaware" disabled>Delaware (coming soon)</option>
+      <option value="florida" disabled>Florida (coming soon)</option>
+      <option value="georgia" disabled>Georgia (coming soon)</option>
+      <option value="hawaii" disabled>Hawaii (coming soon)</option>
+      <option value="idaho" disabled>Idaho (coming soon)</option>
+      <option value="illinois" disabled>Illinois (coming soon)</option>
+      <option value="iowa" disabled>Iowa (coming soon)</option>
+      <option value="kansas" disabled>Kansas (coming soon)</option>
+      <option value="kentucky" disabled>Kentucky (coming soon)</option>
+      <option value="louisiana" disabled>Louisiana (coming soon)</option>
+      <option value="maine" disabled>Maine (coming soon)</option>
+      <option value="maryland" disabled>Maryland (coming soon)</option>
+      <option value="massachusetts" disabled>Massachusetts (coming soon)</option>
+      <option value="michigan" disabled>Michigan (coming soon)</option>
+      <option value="minnesota" disabled>Minnesota (coming soon)</option>
+      <option value="mississippi" disabled>Mississippi (coming soon)</option>
+      <option value="missouri" disabled>Missouri (coming soon)</option>
+      <option value="montana" disabled>Montana (coming soon)</option>
+      <option value="nebraska" disabled>Nebraska (coming soon)</option>
+      <option value="nevada" disabled>Nevada (coming soon)</option>
+      <option value="newhampshire" disabled>New Hampshire (coming soon)</option>
+      <option value="newjersey" disabled>New Jersey (coming soon)</option>
+      <option value="newmexico" disabled>New Mexico (coming soon)</option>
+      <option value="newyork" disabled>New York (coming soon)</option>
+      <option value="northcarolina" disabled>North Carolina (coming soon)</option>
+      <option value="northdakota" disabled>North Dakota (coming soon)</option>
+      <option value="ohio" disabled>Ohio (coming soon)</option>
+      <option value="oklahoma" disabled>Oklahoma (coming soon)</option>
+      <option value="oregon" disabled>Oregon (coming soon)</option>
+      <option value="pennsylvania" disabled>Pennsylvania (coming soon)</option>
+      <option value="rhodeisland" disabled>Rhode Island (coming soon)</option>
+      <option value="southcarolina" disabled>South Carolina (coming soon)</option>
+      <option value="southdakota" disabled>South Dakota (coming soon)</option>
+      <option value="tennessee" disabled>Tennessee (coming soon)</option>
+      <option value="texas" disabled>Texas (coming soon)</option>
+      <option value="utah" disabled>Utah (coming soon)</option>
+      <option value="vermont" disabled>Vermont (coming soon)</option>
+      <option value="virginia" disabled>Virginia (coming soon)</option>
+      <option value="washington" disabled>Washington (coming soon)</option>
+      <option value="westvirginia" disabled>West Virginia (coming soon)</option>
+      <option value="wisconsin" disabled>Wisconsin (coming soon)</option>
+      <option value="wyoming" disabled>Wyoming (coming soon)</option>
+    </select>
+    <select id="county-sel" class="loc-sel" title="Select County">
+      <option value="all" selected>🌎 All Indiana</option>
     <optgroup label="── Central ──">
-    <option value="bartholomew" selected>Bartholomew</option>
+    <option value="bartholomew">Bartholomew</option>
     <option value="boone">Boone</option>
     <option value="hamilton">Hamilton</option>
     <option value="hancock">Hancock</option>
@@ -890,7 +966,8 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <option value="vigo">Vigo</option>
     <option value="warren">Warren</option>
     </optgroup>
-  </select>
+    </select>
+  </div>
 
   <div id="hbtns">
     <button class="hbtn" onclick="openModal('print-modal')" title="Print Map">
@@ -1408,7 +1485,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     <span class="sbar-sep"></span>
     <span id="zoom-disp"><i class="fas fa-search-plus" style="margin-right:4px;"></i>Zoom: 12</span>
     <span class="sbar-sep"></span>
-    <span id="county-disp"><i class="fas fa-map" style="margin-right:4px;"></i>Bartholomew County</span>
+    <span id="county-disp"><i class="fas fa-map" style="margin-right:4px;"></i>All Indiana</span>
     <span id="sel-info"></span>
     <span style="margin-left:auto;font-size:10px;color:var(--text3);">Mapnova v10.0 · 57 counties with owner data · All 92 Indiana Counties</span>
   </div>
@@ -1850,8 +1927,8 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 //  MAP INITIALIZATION
 // ══════════════════════════════════════════════
 const map = L.map('map',{
-  center: [39.2015, -85.9210],
-  zoom: 14,
+  center: [activeCounty.lat, activeCounty.lng],
+  zoom: activeCounty.z,
   zoomControl: false,
   attributionControl: true,
   scrollWheelZoom: true,   // ← enable trackpad/mouse wheel zoom
@@ -5569,7 +5646,14 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
   }
 }
 // Active county state
-let activeCounty = INDIANA_COUNTIES.bartholomew;
+// Default to "all Indiana"; profile/localStorage checked at init time
+let activeCounty = (function(){
+  try {
+    const saved = localStorage.getItem('mn_active_county');
+    if (saved && INDIANA_COUNTIES[saved]) return INDIANA_COUNTIES[saved];
+  } catch(e){}
+  return INDIANA_COUNTIES.all;
+})();
 
 // ── County selector handler ───────────────────────────────────────────────────
 document.getElementById('county-sel').addEventListener('change', function() {
@@ -5604,7 +5688,54 @@ document.getElementById('county-sel').addEventListener('change', function() {
   // Pre-warm new county's ownership after parcels load
   setTimeout(prefetchOwnershipForView, 2500);
   notify('Switched to ' + c.name + ' — loading live data…', 'fa-map');
+  // Persist last-active county to localStorage (profile sync hooks in later)
+  try { localStorage.setItem('mn_active_county', this.value); } catch(e){}
 });
+
+// State selector handler — switching state resets county to "full state" view
+const stateSelEl = document.getElementById('state-sel');
+if (stateSelEl) {
+  stateSelEl.addEventListener('change', function(){
+    const stateVal = this.value;
+    // Currently only Indiana has data. For now, force-reset to "all" Indiana view.
+    // When other states are added, dispatch by stateVal here.
+    if (stateVal === 'indiana') {
+      const cs = document.getElementById('county-sel');
+      if (cs) {
+        cs.value = 'all';
+        cs.dispatchEvent(new Event('change'));
+      }
+    }
+  });
+}
+
+// Country selector handler — switching country resets state/county
+const countrySelEl = document.getElementById('country-sel');
+if (countrySelEl) {
+  countrySelEl.addEventListener('change', function(){
+    if (this.value === 'usa') {
+      const ss = document.getElementById('state-sel');
+      if (ss) {
+        ss.value = 'indiana';
+        ss.dispatchEvent(new Event('change'));
+      }
+    }
+  });
+}
+
+// On load — if there's a saved county in localStorage, sync the dropdown selection
+(function syncCountyDropdownFromActive(){
+  const cs = document.getElementById('county-sel');
+  if (!cs) return;
+  const key = Object.keys(INDIANA_COUNTIES).find(k => INDIANA_COUNTIES[k] === activeCounty);
+  if (key) {
+    cs.value = key;
+    const cd = document.getElementById('county-disp');
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>' + activeCounty.name;
+    const cn = document.getElementById('prc-county-name');
+    if (cn) cn.textContent = activeCounty.name;
+  }
+})();
 
 
 // ══════════════════════════════════════════════
