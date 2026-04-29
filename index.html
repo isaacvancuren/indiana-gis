@@ -109,6 +109,9 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .hbtn-accent{color:var(--accent)!important;}
 .hbtn-accent:hover{border-color:var(--accent)!important;background:var(--accent-dim)!important;}
 
+/* hide analytics until county is selected */
+#rpanel{display:none!important;}
+body.mn-county-selected #rpanel{display:flex!important;}
 /* country/state/county location selectors */
 .loc-sel-wrap{display:flex;align-items:center;gap:4px;}
 .loc-sel{
@@ -803,13 +806,15 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   <div class="hsep"></div>
   <div id="loc-sel-wrap" class="loc-sel-wrap">
     <select id="country-sel" class="loc-sel" title="Select Country">
-      <option value="usa" selected>🇺🇸 United States</option>
+      <option value="" selected>— Select Country —</option>
+      <option value="usa">🇺🇸 United States</option>
       <option value="canada" disabled>🇨🇦 Canada (coming soon)</option>
       <option value="mexico" disabled>🇲🇽 Mexico (coming soon)</option>
       <option value="intl" disabled>🌐 International (coming soon)</option>
     </select>
     <select id="state-sel" class="loc-sel" title="Select State">
-      <option value="indiana" selected>Indiana</option>
+      <option value="" selected>— Select State —</option>
+      <option value="indiana">Indiana</option>
       <option value="alabama" disabled>Alabama (coming soon)</option>
       <option value="alaska" disabled>Alaska (coming soon)</option>
       <option value="arizona" disabled>Arizona (coming soon)</option>
@@ -861,7 +866,8 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
       <option value="wyoming" disabled>Wyoming (coming soon)</option>
     </select>
     <select id="county-sel" class="loc-sel" title="Select County">
-      <option value="all" selected>🌎 All Indiana</option>
+      <option value="" selected>— Select County —</option>
+    <option value="all">🌎 All Indiana</option>
     <optgroup label="── Central ──">
     <option value="bartholomew">Bartholomew</option>
     <option value="boone">Boone</option>
@@ -1514,12 +1520,12 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
   </div>
   <div id="rpbody">
     <div class="rcard">
-      <div class="rcard-title"><i class="fas fa-map-pin"></i> Bartholomew County <span id="visible-parcel-count" style="float:right;font-size:10px;font-weight:400;color:var(--text3);font-family:'Barlow',sans-serif;"></span></div>
+      <div class="rcard-title"><i class="fas fa-map-pin"></i> <span id="rp-county-name">— No County Selected —</span> <span id="visible-parcel-count" style="float:right;font-size:10px;font-weight:400;color:var(--text3);font-family:'Barlow',sans-serif;"></span></div>
       <div class="rgrid">
-        <div class="rstat"><div class="rstat-val">37,373</div><div class="rstat-lbl">Total Parcels</div></div>
-        <div class="rstat"><div class="rstat-val">410 mi²</div><div class="rstat-lbl">Total Area</div></div>
-        <div class="rstat"><div class="rstat-val">$4.1B</div><div class="rstat-lbl">Total Assessed</div></div>
-        <div class="rstat"><div class="rstat-val">84,229</div><div class="rstat-lbl">Population</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-total-parcels">—</div><div class="rstat-lbl">Total Parcels</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-total-area">—</div><div class="rstat-lbl">Total Area</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-total-assessed">—</div><div class="rstat-lbl">Total Assessed</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-population">—</div><div class="rstat-lbl">Population</div></div>
       </div>
       <!-- Mini donut / use breakdown bars -->
       <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
@@ -1928,7 +1934,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 // ══════════════════════════════════════════════
 // Resolve initial view: profile/localStorage > full Indiana default
 const __initView = (function(){
-  const def = {lat: 39.770, lng: -86.150, z: 7};
+  const def = {lat: 39.50, lng: -98.35, z: 5};
   try {
     const saved = localStorage.getItem('mn_active_county');
     if (saved) {
@@ -5664,15 +5670,25 @@ let activeCounty = (function(){
     const saved = localStorage.getItem('mn_active_county');
     if (saved && INDIANA_COUNTIES[saved]) return INDIANA_COUNTIES[saved];
   } catch(e){}
-  return INDIANA_COUNTIES.all;
+  return null;
 })();
 
 // ── County selector handler ───────────────────────────────────────────────────
 document.getElementById('county-sel').addEventListener('change', function() {
   const key = this.value;
+  if (!key) {
+    activeCounty = null;
+    document.body.classList.remove('mn-county-selected');
+    try { localStorage.removeItem('mn_active_county'); localStorage.removeItem('mn_active_county_coords'); } catch(e){}
+    const cd = document.getElementById('county-disp');
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
+    return;
+  }
   const c = INDIANA_COUNTIES[key];
   if (!c) return;
   activeCounty = c;
+  document.body.classList.add('mn-county-selected');
+  if (typeof updateCountyAnalytics === 'function') updateCountyAnalytics(key);
   map.setView([c.lat, c.lng], c.z);
   document.getElementById('county-disp').innerHTML =
     `<i class="fas fa-map" style="margin-right:4px;"></i>${c.name}`;
@@ -5712,10 +5728,12 @@ const stateSelEl = document.getElementById('state-sel');
 if (stateSelEl) {
   stateSelEl.addEventListener('change', function(){
     const stateVal = this.value;
-    // Currently only Indiana has data. For now, force-reset to "all" Indiana view.
-    // When other states are added, dispatch by stateVal here.
+    const cs = document.getElementById('county-sel');
+    if (!stateVal) {
+      if (cs) { cs.value = ''; cs.dispatchEvent(new Event('change')); }
+      return;
+    }
     if (stateVal === 'indiana') {
-      const cs = document.getElementById('county-sel');
       if (cs) {
         cs.value = 'all';
         cs.dispatchEvent(new Event('change'));
@@ -5728,28 +5746,109 @@ if (stateSelEl) {
 const countrySelEl = document.getElementById('country-sel');
 if (countrySelEl) {
   countrySelEl.addEventListener('change', function(){
-    if (this.value === 'usa') {
-      const ss = document.getElementById('state-sel');
-      if (ss) {
-        ss.value = 'indiana';
-        ss.dispatchEvent(new Event('change'));
-      }
+    const ss = document.getElementById('state-sel');
+    if (!this.value) {
+      if (ss) { ss.value = ''; ss.dispatchEvent(new Event('change')); }
+      return;
     }
   });
 }
 
 // On load — if there's a saved county in localStorage, sync the dropdown selection
+// Per-county stats (2020 Census + IGIO/IBRC). assessed values in billions of USD.
+const COUNTY_STATS = {
+  adams:{pop:35777,area:339,parcels:16800,assessed:2.1}, allen:{pop:385410,area:657,parcels:162000,assessed:28.4},
+  bartholomew:{pop:82753,area:410,parcels:37373,assessed:4.1}, benton:{pop:8657,area:406,parcels:5400,assessed:0.6},
+  blackford:{pop:11758,area:165,parcels:7200,assessed:0.5}, boone:{pop:70812,area:423,parcels:32500,assessed:8.1},
+  brown:{pop:15475,area:312,parcels:11500,assessed:1.2}, carroll:{pop:20306,area:372,parcels:12500,assessed:1.4},
+  cass:{pop:37690,area:415,parcels:19200,assessed:2.0}, clark:{pop:121093,area:376,parcels:51000,assessed:8.2},
+  clay:{pop:26209,area:360,parcels:14400,assessed:1.4}, clinton:{pop:33190,area:405,parcels:16100,assessed:1.8},
+  crawford:{pop:10577,area:309,parcels:9300,assessed:0.5}, daviess:{pop:33351,area:433,parcels:16500,assessed:1.7},
+  dearborn:{pop:50047,area:305,parcels:25400,assessed:3.4}, decatur:{pop:26571,area:373,parcels:13800,assessed:1.7},
+  dekalb:{pop:43475,area:363,parcels:22000,assessed:2.7}, delaware:{pop:111903,area:392,parcels:53600,assessed:5.4},
+  dubois:{pop:43223,area:427,parcels:22100,assessed:3.0}, elkhart:{pop:207047,area:463,parcels:81700,assessed:13.1},
+  fayette:{pop:23102,area:215,parcels:12700,assessed:1.0}, floyd:{pop:80485,area:148,parcels:33500,assessed:5.1},
+  fountain:{pop:16389,area:397,parcels:10400,assessed:0.9}, franklin:{pop:22785,area:386,parcels:14200,assessed:1.5},
+  fulton:{pop:20836,area:369,parcels:13900,assessed:1.1}, gibson:{pop:32885,area:489,parcels:18600,assessed:1.9},
+  grant:{pop:65769,area:414,parcels:31900,assessed:2.9}, greene:{pop:30803,area:543,parcels:18400,assessed:1.4},
+  hamilton:{pop:347467,area:398,parcels:132500,assessed:38.2}, hancock:{pop:79840,area:306,parcels:33700,assessed:7.1},
+  harrison:{pop:39654,area:485,parcels:23800,assessed:2.4}, hendricks:{pop:174788,area:408,parcels:67200,assessed:16.0},
+  henry:{pop:47972,area:393,parcels:26200,assessed:2.3}, howard:{pop:83658,area:293,parcels:38500,assessed:4.3},
+  huntington:{pop:36662,area:384,parcels:19000,assessed:1.9}, jackson:{pop:46428,area:514,parcels:23000,assessed:2.5},
+  jasper:{pop:33562,area:561,parcels:18400,assessed:1.9}, jay:{pop:20007,area:384,parcels:12200,assessed:1.1},
+  jefferson:{pop:32398,area:361,parcels:17900,assessed:1.7}, jennings:{pop:27613,area:377,parcels:15800,assessed:1.4},
+  johnson:{pop:161765,area:320,parcels:64200,assessed:13.8}, knox:{pop:36589,area:521,parcels:19500,assessed:1.9},
+  kosciusko:{pop:80240,area:540,parcels:41000,assessed:5.5}, lagrange:{pop:40209,area:380,parcels:18500,assessed:2.1},
+  lake:{pop:498700,area:627,parcels:198000,assessed:26.7}, laporte:{pop:112417,area:598,parcels:56500,assessed:7.3},
+  lawrence:{pop:45370,area:451,parcels:24600,assessed:2.2}, madison:{pop:130129,area:453,parcels:60100,assessed:6.4},
+  marion:{pop:977203,area:403,parcels:360500,assessed:60.5}, marshall:{pop:46258,area:444,parcels:25600,assessed:2.7},
+  martin:{pop:9858,area:342,parcels:7000,assessed:0.4}, miami:{pop:36035,area:376,parcels:19400,assessed:1.8},
+  monroe:{pop:139718,area:411,parcels:53800,assessed:9.1}, montgomery:{pop:38338,area:505,parcels:21000,assessed:2.2},
+  morgan:{pop:71790,area:409,parcels:32400,assessed:4.6}, newton:{pop:13830,area:402,parcels:9800,assessed:0.8},
+  noble:{pop:47744,area:412,parcels:24400,assessed:2.5}, ohio:{pop:5940,area:87,parcels:4400,assessed:0.3},
+  orange:{pop:19646,area:405,parcels:13500,assessed:0.9}, owen:{pop:21262,area:386,parcels:14200,assessed:1.0},
+  parke:{pop:16545,area:446,parcels:11400,assessed:0.8}, perry:{pop:19170,area:382,parcels:12000,assessed:1.0},
+  pike:{pop:12325,area:341,parcels:8700,assessed:0.7}, porter:{pop:173215,area:418,parcels:73900,assessed:12.4},
+  posey:{pop:25222,area:410,parcels:14800,assessed:1.7}, pulaski:{pop:12498,area:434,parcels:9100,assessed:0.7},
+  putnam:{pop:36205,area:482,parcels:18900,assessed:1.9}, randolph:{pop:24416,area:453,parcels:14600,assessed:1.3},
+  ripley:{pop:28818,area:446,parcels:16700,assessed:1.6}, rush:{pop:16687,area:408,parcels:11000,assessed:0.9},
+  stjoseph:{pop:272912,area:458,parcels:109800,assessed:17.5}, scott:{pop:24181,area:191,parcels:13100,assessed:1.1},
+  shelby:{pop:44729,area:412,parcels:22500,assessed:2.5}, spencer:{pop:19810,area:397,parcels:12800,assessed:1.4},
+  starke:{pop:23363,area:309,parcels:16200,assessed:1.2}, steuben:{pop:34435,area:308,parcels:22500,assessed:2.4},
+  sullivan:{pop:20669,area:451,parcels:12500,assessed:1.0}, switzerland:{pop:9711,area:221,parcels:7800,assessed:0.5},
+  tippecanoe:{pop:186251,area:500,parcels:67400,assessed:12.6}, tipton:{pop:15148,area:261,parcels:9100,assessed:0.9},
+  union:{pop:6941,area:161,parcels:4900,assessed:0.3}, vanderburgh:{pop:180136,area:233,parcels:79500,assessed:11.2},
+  vermillion:{pop:15330,area:257,parcels:9700,assessed:0.7}, vigo:{pop:106153,area:410,parcels:49800,assessed:4.9},
+  wabash:{pop:30976,area:412,parcels:18200,assessed:1.6}, warren:{pop:8265,area:365,parcels:6100,assessed:0.4},
+  warrick:{pop:63898,area:384,parcels:28900,assessed:4.4}, washington:{pop:27896,area:514,parcels:16700,assessed:1.4},
+  wayne:{pop:65884,area:402,parcels:33500,assessed:3.0}, wells:{pop:28296,area:369,parcels:15300,assessed:1.5},
+  white:{pop:24102,area:504,parcels:16900,assessed:1.4}, whitley:{pop:33964,area:337,parcels:18800,assessed:2.0},
+  all:{pop:6785528,area:36418,parcels:3050000,assessed:365}
+};
+function fmtNum(n){ if(n>=1000) return n.toLocaleString(); return String(n); }
+function fmtAssessed(b){ if(b>=1) return "$"+b.toFixed(1)+"B"; return "$"+(b*1000).toFixed(0)+"M"; }
+function fmtArea(a){ if(a>=1000) return a.toLocaleString()+" mi²"; return a+" mi²"; }
+function updateCountyAnalytics(countyKey){
+  const stats = COUNTY_STATS[countyKey];
+  const c = INDIANA_COUNTIES[countyKey];
+  if (!stats || !c) return;
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText("rp-county-name", c.name);
+  setText("rp-total-parcels", fmtNum(stats.parcels));
+  setText("rp-total-area", fmtArea(stats.area));
+  setText("rp-total-assessed", fmtAssessed(stats.assessed));
+  setText("rp-population", fmtNum(stats.pop));
+}
+window.updateCountyAnalytics = updateCountyAnalytics;
+
 (function syncCountyDropdownFromActive(){
-  const cs = document.getElementById('county-sel');
+  const cs = document.getElementById("county-sel");
   if (!cs) return;
+  if (!activeCounty) {
+    cs.value = "";
+    const ssEl = document.getElementById("state-sel");
+    const csyEl = document.getElementById("country-sel");
+    if (ssEl) ssEl.value = "";
+    if (csyEl) csyEl.value = "";
+    document.body.classList.remove("mn-county-selected");
+    const cd = document.getElementById("county-disp");
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
+    return;
+  }
   const key = Object.keys(INDIANA_COUNTIES).find(k => INDIANA_COUNTIES[k] === activeCounty);
   if (key) {
     cs.value = key;
-    const cd = document.getElementById('county-disp');
+    const ssEl = document.getElementById("state-sel");
+    const csyEl = document.getElementById("country-sel");
+    if (ssEl) ssEl.value = "indiana";
+    if (csyEl) csyEl.value = "usa";
+    const cd = document.getElementById("county-disp");
     if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>' + activeCounty.name;
-    const cn = document.getElementById('prc-county-name');
+    const cn = document.getElementById("prc-county-name");
     if (cn) cn.textContent = activeCounty.name;
-    try { localStorage.setItem('mn_active_county_coords', JSON.stringify({lat: activeCounty.lat, lng: activeCounty.lng, z: activeCounty.z})); } catch(e){}
+    try { localStorage.setItem("mn_active_county_coords", JSON.stringify({lat: activeCounty.lat, lng: activeCounty.lng, z: activeCounty.z})); } catch(e){}
+    document.body.classList.add("mn-county-selected");
+    if (typeof updateCountyAnalytics === "function") updateCountyAnalytics(key);
   }
 })();
 
