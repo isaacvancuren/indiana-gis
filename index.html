@@ -4215,7 +4215,7 @@ async function buildCountyLayerPanel(cKey) {
           tl._ts = ts;
           gisLayers[key] = tl;
         } catch(e) { console.warn('layer ctor failed', e); }
-        const sw = swatchColors[lyr.cat] || swatchColors.other;
+        const sw = (groupsMeta[lyr.cat] || groupsMeta.other).color;
         const safe = lyr.name.replace(/[<>"\'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"\'":"&#39;",'&':'&amp;'})[c]);
         html += `<label class="lit" style="display:flex;align-items:center;gap:8px;padding:4px 12px 4px 28px;cursor:pointer;font-size:11px;color:var(--text2);"><input type="checkbox" data-key="${key}" style="cursor:pointer;"><span class="lit-sw" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${sw};flex-shrink:0;"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safe}</span></label>`;
       });
