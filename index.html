@@ -43,7 +43,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 #header{
   position:fixed;top:0;left:0;right:0;height:var(--header);
   background:var(--panel);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:10px;padding:0 180px 0 12px;z-index:1000;
+  display:flex;align-items:center;gap:10px;padding:0 200px 0 16px;z-index:1000;
   box-shadow:0 2px 16px rgba(0,0,0,.6);
 }
 #logo{display:flex;align-items:center;gap:8px;flex-shrink:0;text-decoration:none;}
@@ -715,7 +715,9 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
     .mn-auth-link{color:#5fb1ff;cursor:pointer;font-size:12px;text-align:center;margin-top:14px;}
     .mn-auth-link:hover{text-decoration:underline;}
     .mn-auth-footer{text-align:center;font-size:11px;color:#5e7491;margin-top:18px;line-height:1.5;}
-    #mn-user-badge{position:fixed;top:10px;right:14px;z-index:9000;background:rgba(15,23,34,.92);border:1px solid #2b3a52;border-radius:20px;padding:6px 14px;display:flex;align-items:center;gap:8px;font-size:12px;color:#e8eef7;font-family:-apple-system,sans-serif;cursor:pointer;}
+    #mn-user-badge{position:fixed;top:10px;right:16px;z-index:9000;background:rgba(15,23,34,.92);border:1px solid #2b3a52;border-radius:24px;padding:4px 14px 4px 4px;display:flex;align-items:center;gap:10px;font-size:12px;color:#e8eef7;font-family:-apple-system,sans-serif;cursor:pointer;transition:border-color .15s,background .15s;}
+    #mn-user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.15);}
+    #mn-user-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
     #mn-user-badge:hover{border-color:#5fb1ff;}
     #mn-user-menu{position:fixed;top:46px;right:14px;z-index:9001;background:#0f1722;border:1px solid #2b3a52;border-radius:10px;min-width:200px;box-shadow:0 10px 30px rgba(0,0,0,.4);display:none;font-family:-apple-system,sans-serif;}
     #mn-user-menu.open{display:block;}
@@ -5919,7 +5921,7 @@ window.selectParcel = function(p, layer) {
     <div class="mn-auth-footer">By creating an account, you agree to our terms of service.<br>Free tier available now &middot; Subscription plans coming soon.</div>
   </div>
 </div>
-<div id="mn-user-badge" style="display:none;"><span id="mn-user-badge-name"></span><span style="font-size:10px;opacity:.6;">&#9662;</span></div>
+<div id="mn-user-badge" style="display:none;"><div id="mn-user-avatar"><span id="mn-user-avatar-text">?</span></div><span id="mn-user-badge-name"></span><span style="font-size:10px;opacity:.6;">&#9662;</span></div>
 <div id="mn-user-menu">
   <div class="mn-menu-tier" id="mn-menu-tier">Free Plan</div>
   <div class="mn-menu-item" id="mn-menu-history">View History</div>
@@ -6023,6 +6025,15 @@ window.selectParcel = function(p, layer) {
   function showBadge(user, profile){
     const name = (profile && profile.display_name) || (user.email||'').split('@')[0];
     $('mn-user-badge-name').textContent = name;
+    try {
+      const avEl = $('mn-user-avatar');
+      if (profile && profile.avatar_url) {
+        avEl.innerHTML = '<img src="'+profile.avatar_url+'" alt="">';
+      } else {
+        const initials = name.trim().split(/\s+/).map(p=>p[0]||'').join('').slice(0,2).toUpperCase() || '?';
+        avEl.innerHTML = '<span id="mn-user-avatar-text">'+initials+'</span>';
+      }
+    } catch(e) {}
     badge.style.display='flex';
     $('mn-menu-tier').textContent = ((profile && profile.subscription_tier) || 'free').toUpperCase() + ' PLAN';
   }
