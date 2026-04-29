@@ -5745,15 +5745,40 @@ if (stateSelEl) {
   });
 }
 
-// Country selector handler — switching country resets state/county
+// Country selector handler — any change OR re-click resets state/county and pulls view to full country
 const countrySelEl = document.getElementById('country-sel');
-if (countrySelEl) {
-  countrySelEl.addEventListener('change', function(){
-    const ss = document.getElementById('state-sel');
-    if (!this.value) {
-      if (ss) { ss.value = ''; ss.dispatchEvent(new Event('change')); }
-      return;
+function __mnResetToCountry(countryVal){
+  const ss = document.getElementById('state-sel');
+  const cs = document.getElementById('county-sel');
+  if (cs) { cs.value = ''; }
+  if (ss) { ss.value = ''; ss.dispatchEvent(new Event('change')); }
+  if (cs) { cs.dispatchEvent(new Event('change')); }
+  try {
+    if (typeof map !== 'undefined' && map && map.setView) {
+      if (countryVal === 'usa' || !countryVal) {
+        map.setView([39.50, -98.35], 5);
+      }
     }
+  } catch(e){}
+  try {
+    const cd = document.getElementById('county-disp');
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
+  } catch(e){}
+}
+if (countrySelEl) {
+  countrySelEl.addEventListener('change', function(){ __mnResetToCountry(this.value); });
+  let __mnLastCountry = countrySelEl.value;
+  countrySelEl.addEventListener('mousedown', function(){ __mnLastCountry = this.value; });
+  countrySelEl.addEventListener('click', function(){
+    setTimeout(()=>{
+      const ss = document.getElementById('state-sel');
+      const cs = document.getElementById('county-sel');
+      const stateActive = ss && ss.value;
+      const countyActive = cs && cs.value;
+      if (countrySelEl.value === __mnLastCountry && (stateActive || countyActive)) {
+        __mnResetToCountry(countrySelEl.value);
+      }
+    }, 50);
   });
 }
 
