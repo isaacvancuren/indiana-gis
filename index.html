@@ -797,6 +797,50 @@ body.mn-county-selected #rpanel{display:flex!important;}
     #mn-user-menu .mn-menu-item:last-child{border-bottom:none;}
     #mn-user-menu .mn-menu-tier{padding:10px 14px;color:#8aa0bc;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #1a2434;}
   </style>
+<script>
+// Early bootstrap: render user badge instantly from cached session/profile
+(function(){
+  try {
+    var raw = localStorage.getItem("sb-pcalrousicyuyiyoppqt-auth-token");
+    if (!raw) return;
+    var sess = JSON.parse(raw);
+    var user = sess && (sess.user || (sess.currentSession && sess.currentSession.user));
+    if (!user) return;
+    var profile = null;
+    try { var p = sessionStorage.getItem("mn_profile_"+user.id); if (p) profile = JSON.parse(p); } catch(_){}
+    var name = (profile && profile.display_name) || (user.email||"").split("@")[0] || "User";
+    var initials = (name||"").trim().split(/\s+/).map(function(p){return p[0]||""}).join("").slice(0,2).toUpperCase() || "?";
+    function paint(){
+      var badge = document.getElementById("mn-user-badge");
+      if (!badge) { return false; }
+      var nameEl = document.getElementById("mn-user-badge-name");
+      var avEl = document.getElementById("mn-user-avatar");
+      if (nameEl) nameEl.textContent = name;
+      if (avEl) {
+        if (profile && profile.avatar_url) {
+          avEl.innerHTML = '<img src="'+profile.avatar_url+'" alt="">';
+        } else {
+          avEl.innerHTML = '<span id="mn-user-avatar-text">'+initials+'</span>';
+        }
+      }
+      badge.style.display = "flex";
+      var ov = document.getElementById("mn-auth-overlay");
+      if (ov) ov.style.display = "none";
+      var tier = document.getElementById("mn-menu-tier");
+      if (tier && profile && profile.subscription_tier) tier.textContent = String(profile.subscription_tier).toUpperCase()+" PLAN";
+      return true;
+    }
+    if (paint()) return;
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", paint, {once:true});
+    } else {
+      var obs = new MutationObserver(function(){ if (paint()) obs.disconnect(); });
+      obs.observe(document.documentElement, {childList:true, subtree:true});
+      setTimeout(function(){ try{obs.disconnect()}catch(_){}; }, 5000);
+    }
+  } catch(_){}
+})();
+</script>
 </head>
 <body>
 
