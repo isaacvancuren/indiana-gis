@@ -95,7 +95,7 @@ h1 { font-size:28px; margin:0 0 6px; }
 <script>
 const SUPABASE_URL = "https://pcalrousicyuyiyoppqt.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mFKL1y755kJphEu231y8AA_KgV3W6xe";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
 function toast(msg, type) {
@@ -119,15 +119,15 @@ function getInitials(profile, user) {
   return name.substring(0, 2).toUpperCase();
 }
 async function loadProfile() {
-  const userResp = await supabase.auth.getUser();
+  const userResp = await sb.auth.getUser();
   const user = userResp.data && userResp.data.user;
   if (!user) { window.location.href = "/?signin=1"; return; }
   currentUser = user;
-  const pr = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  const pr = await sb.from("profiles").select("*").eq("id", user.id).single();
   if (pr.error && pr.error.code !== "PGRST116") { console.error(pr.error); toast("Failed to load profile", "error"); return; }
   currentProfile = pr.data || { id: user.id, email: user.email };
-  const hc = await supabase.from("user_history").select("*", { count: "exact", head: true }).eq("user_id", user.id);
-  const bc = await supabase.from("bookmarks").select("*", { count: "exact", head: true }).eq("user_id", user.id);
+  const hc = await sb.from("user_history").select("*", { count: "exact", head: true }).eq("user_id", user.id);
+  const bc = await sb.from("bookmarks").select("*", { count: "exact", head: true }).eq("user_id", user.id);
   renderPage(hc.count || 0, bc.count || 0);
 }
 function renderPage(historyCount, bookmarksCount) {
@@ -207,7 +207,7 @@ async function saveProfile() {
     website: document.getElementById("website").value.trim() || null,
     updated_at: new Date().toISOString()
   };
-  const r = await supabase.from("profiles").upsert(updates);
+  const r = await sb.from("profiles").upsert(updates);
   btn.disabled = false; btn.textContent = "Save changes";
   if (r.error) { toast("Save failed: " + r.error.message, "error"); return; }
   Object.assign(currentProfile, updates);
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", function(){
   });
   document.getElementById("delete-confirm-btn").onclick = confirmDelete;
   document.getElementById("signout-btn").onclick = async function(){
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     window.location.href = "/";
   };
   loadProfile();
@@ -233,17 +233,17 @@ async function handleFileChange(e) {
   toast("Uploading...");
   const ext = file.name.split(".").pop().toLowerCase();
   const path = currentUser.id + "/avatar-" + Date.now() + "." + ext;
-  const up = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+  const up = await sb.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
   if (up.error) { toast("Upload failed: " + up.error.message, "error"); return; }
-  const pub = supabase.storage.from("avatars").getPublicUrl(path);
+  const pub = sb.storage.from("avatars").getPublicUrl(path);
   const publicUrl = pub.data.publicUrl;
   if (currentProfile.avatar_url) {
     try {
       const oldPath = currentProfile.avatar_url.split("/avatars/")[1];
-      if (oldPath && oldPath !== path) await supabase.storage.from("avatars").remove([oldPath]);
+      if (oldPath && oldPath !== path) await sb.storage.from("avatars").remove([oldPath]);
     } catch(_) {}
   }
-  const upd = await supabase.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, avatar_url: publicUrl, updated_at: new Date().toISOString() });
+  const upd = await sb.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, avatar_url: publicUrl, updated_at: new Date().toISOString() });
   if (upd.error) { toast("Save failed: " + upd.error.message, "error"); return; }
   currentProfile.avatar_url = publicUrl;
   toast("Profile picture updated", "success");
@@ -254,17 +254,17 @@ async function removeAvatar() {
   if (currentProfile.avatar_url) {
     try {
       const oldPath = currentProfile.avatar_url.split("/avatars/")[1];
-      if (oldPath) await supabase.storage.from("avatars").remove([oldPath]);
+      if (oldPath) await sb.storage.from("avatars").remove([oldPath]);
     } catch(_) {}
   }
-  const r = await supabase.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, avatar_url: null, updated_at: new Date().toISOString() });
+  const r = await sb.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, avatar_url: null, updated_at: new Date().toISOString() });
   if (r.error) { toast("Remove failed: " + r.error.message, "error"); return; }
   currentProfile.avatar_url = null;
   toast("Profile picture removed", "success");
   loadProfile();
 }
 async function sendPasswordReset() {
-  const r = await supabase.auth.resetPasswordForEmail(currentUser.email, { redirectTo: window.location.origin + "/" });
+  const r = await sb.auth.resetPasswordForEmail(currentUser.email, { redirectTo: window.location.origin + "/" });
   if (r.error) { toast(r.error.message, "error"); return; }
   toast("Password reset email sent to " + currentUser.email, "success");
 }
@@ -272,7 +272,7 @@ async function changeEmail() {
   const newEmail = document.getElementById("new_email").value.trim();
   if (!newEmail) { toast("Enter a new email", "error"); return; }
   if (newEmail === currentUser.email) { toast("That is already your email", "error"); return; }
-  const r = await supabase.auth.updateUser({ email: newEmail });
+  const r = await sb.auth.updateUser({ email: newEmail });
   if (r.error) { toast(r.error.message, "error"); return; }
   toast("Confirmation sent to " + newEmail + ". Check both inboxes.", "success");
 }
@@ -285,19 +285,19 @@ async function confirmDelete() {
   const btn = document.getElementById("delete-confirm-btn");
   btn.disabled = true; btn.textContent = "Deleting...";
   try {
-    const list = await supabase.storage.from("avatars").list(currentUser.id);
+    const list = await sb.storage.from("avatars").list(currentUser.id);
     if (list.data && list.data.length) {
       const paths = list.data.map(function(f){ return currentUser.id + "/" + f.name; });
-      await supabase.storage.from("avatars").remove(paths);
+      await sb.storage.from("avatars").remove(paths);
     }
   } catch(_) {}
-  await supabase.from("user_history").delete().eq("user_id", currentUser.id);
-  await supabase.from("bookmarks").delete().eq("user_id", currentUser.id);
-  await supabase.from("layer_preferences").delete().eq("user_id", currentUser.id);
-  const r = await supabase.from("profiles").delete().eq("id", currentUser.id);
+  await sb.from("user_history").delete().eq("user_id", currentUser.id);
+  await sb.from("bookmarks").delete().eq("user_id", currentUser.id);
+  await sb.from("layer_preferences").delete().eq("user_id", currentUser.id);
+  const r = await sb.from("profiles").delete().eq("id", currentUser.id);
   if (r.error) { toast("Delete failed: " + r.error.message, "error"); btn.disabled = false; btn.textContent = "Delete account"; return; }
-  try { await supabase.rpc("delete_user"); } catch(_) {}
-  await supabase.auth.signOut();
+  try { await sb.rpc("delete_user"); } catch(_) {}
+  await sb.auth.signOut();
   alert("Your account data has been deleted. You will be signed out.");
   window.location.href = "/";
 }
