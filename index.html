@@ -1222,7 +1222,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
             <i class="fas fa-compass"></i><span class="tl">Bearing</span>
           </button>
           <button class="tbtn" id="tb-coord" onclick="activateTool('coordinate',this)">
-            <i class="fas fa-crosshairs"></i><span class="tl">Coordinate</span>
+            <i class="fas fa-crosshairs"></i><span class="tl">Show Lat/Lng</span>
           </button>
         </div>
         <div id="mout">Click a tool above, then click on the map.</div>
@@ -1253,6 +1253,9 @@ body.mn-county-selected #rpanel{display:flex!important;}
             <i class="fas fa-eraser"></i><span class="tl">Clear All</span>
           </button>
         </div>
+        <button class="sbtn-o" id="btn-delete-selected" style="width:100%;margin-top:8px;justify-content:center;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.45);color:#fca5a5;" onclick="if(window.MNSelect)MNSelect.deleteSelected();">
+          <i class="fas fa-trash"></i> Delete Selected <span id="sel-count-badge" style="margin-left:6px;background:rgba(239,68,68,0.3);padding:1px 6px;border-radius:8px;font-size:10px;">0</span>
+        </button>
       </div>
 
       <div class="tsec">
@@ -1299,9 +1302,6 @@ body.mn-county-selected #rpanel{display:flex!important;}
           </button>
           <button class="tbtn tbtn-wide" onclick="openModal('proximity-modal')">
             <i class="fas fa-map-location"></i><span class="tl">Proximity Report</span>
-          </button>
-          <button class="tbtn tbtn-wide" onclick="openModal('query-modal')">
-            <i class="fas fa-table-list"></i><span class="tl">Attribute Query</span>
           </button>
         </div>
       </div>
@@ -7646,6 +7646,163 @@ window.selectParcel = function(p, layer) {
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',rewireModals);
   else rewireModals();
+})();
+</script>
+
+<script>
+(function(){
+  var MNSelect = window.MNSelect = {
+    selected: new Map(),
+    counter: 0,
+    keyFor: function(props, latlng){
+      var k = (props && (props.PARCEL_ID||props.parcel_id||props.PARCELID||props.OBJECTID||props.id)) || null;
+      if(k) return 'p:'+k;
+      if(latlng) return 'g:'+latlng.lat.toFixed(6)+','+latlng.lng.toFixed(6);
+      return 'n:'+(++MNSelect.counter);
+    },
+    add: function(layer, props, latlng){
+      try {
+        var key = MNSelect.keyFor(props, latlng);
+        if(MNSelect.selected.has(key)) return false;
+        var orig = null;
+        try { orig = layer.options ? Object.assign({}, layer.options) : null; } catch(e){}
+        MNSelect.selected.set(key, {layer: layer, originalStyle: orig, props: props, latlng: latlng});
+        try {
+          if(layer.setStyle){
+            layer.setStyle({color:'#fbbf24', weight:4, fillColor:'#fbbf24', fillOpacity:0.45});
+          } else if(layer._icon){
+            layer._icon.style.filter='drop-shadow(0 0 8px #fbbf24) hue-rotate(40deg)';
+          }
+          if(layer.bringToFront) layer.bringToFront();
+        } catch(e){}
+        MNSelect.updateBadge();
+        return true;
+      } catch(e){ return false; }
+    },
+    remove: function(key){
+      var rec = MNSelect.selected.get(key);
+      if(!rec) return;
+      try {
+        if(rec.layer.setStyle && rec.originalStyle){ rec.layer.setStyle(rec.originalStyle); }
+        else if(rec.layer._icon){ rec.layer._icon.style.filter=''; }
+      } catch(e){}
+      MNSelect.selected.delete(key);
+      MNSelect.updateBadge();
+    },
+    toggle: function(layer, props, latlng){
+      var key = MNSelect.keyFor(props, latlng);
+      if(MNSelect.selected.has(key)){ MNSelect.remove(key); return false; }
+      MNSelect.add(layer, props, latlng); return true;
+    },
+    clear: function(){ Array.from(MNSelect.selected.keys()).forEach(MNSelect.remove); },
+    deleteSelected: function(){
+      var n = MNSelect.selected.size;
+      try {
+        var dItems = null; try { dItems = eval('drawnItems'); } catch(e){}
+        var mp = eval('map');
+        MNSelect.selected.forEach(function(rec){
+          try {
+            if(dItems && dItems.hasLayer && dItems.hasLayer(rec.layer)){ dItems.removeLayer(rec.layer); }
+            else { try { mp.removeLayer(rec.layer); } catch(e){} }
+          } catch(e){}
+        });
+        MNSelect.selected.clear();
+        MNSelect.updateBadge();
+        if(n===0){
+          if(typeof clearDrawings==='function') clearDrawings();
+          if(typeof clearMeasure==='function') clearMeasure();
+          if(window.notify) notify('Cleared all drawings & measurements','fa-trash');
+        } else if(window.notify){ notify('Deleted '+n+' selected item(s)','fa-trash'); }
+      } catch(e){}
+    },
+    updateBadge: function(){
+      var b = document.getElementById('sel-count-badge');
+      if(b) b.textContent = MNSelect.selected.size;
+      var btn = document.getElementById('btn-delete-selected');
+      if(btn){
+        if(MNSelect.selected.size>0){ btn.style.background='rgba(239,68,68,0.35)'; btn.style.color='#fff'; }
+        else { btn.style.background='rgba(239,68,68,0.15)'; btn.style.color='#fca5a5'; }
+      }
+    }
+  };
+
+  function attachClickHandler(layer){
+    if(!layer || layer.__mnHooked) return;
+    layer.__mnHooked = true;
+    if(typeof layer.on !== 'function') return;
+    layer.on('click', function(ev){
+      try {
+        var at = ''; try { at = eval('activeTool'); } catch(e){}
+        var dItems = null; try { dItems = eval('drawnItems'); } catch(e){}
+        var isDraw = dItems && dItems.hasLayer && dItems.hasLayer(layer);
+        var isSelectMode = at==='select-rect'||at==='select-poly'||at==='select';
+        var shiftKey = ev.originalEvent && ev.originalEvent.shiftKey;
+        if(isSelectMode || shiftKey || isDraw){
+          var props = (layer.feature && layer.feature.properties) || {};
+          MNSelect.toggle(layer, props, ev.latlng);
+          if(ev.originalEvent){ try{L.DomEvent.stopPropagation(ev);}catch(e){} }
+        }
+      } catch(e){}
+    });
+  }
+
+  function installMapWatcher(){
+    try {
+      var mp = eval('map');
+      mp.on('layeradd', function(e){
+        var l = e.layer; if(!l) return;
+        attachClickHandler(l);
+        if(typeof l.eachLayer === 'function'){
+          l.eachLayer(attachClickHandler);
+          if(!l.__mnGroupHooked){
+            l.__mnGroupHooked = true;
+            try { l.on('layeradd', function(ee){ attachClickHandler(ee.layer); }); } catch(e){}
+          }
+        }
+      });
+      mp.eachLayer(function(l){
+        attachClickHandler(l);
+        if(typeof l.eachLayer==='function'){ l.eachLayer(attachClickHandler); }
+      });
+    } catch(e){}
+  }
+
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Delete' || (e.key==='Backspace' && e.shiftKey)){
+      var t = e.target;
+      if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
+      e.preventDefault();
+      MNSelect.deleteSelected();
+    } else if(e.key==='Escape'){
+      MNSelect.clear();
+    }
+  });
+
+  var oldCD = window.clearDrawings;
+  window.clearDrawings = function(){
+    try { MNSelect.clear(); } catch(e){}
+    if(typeof oldCD==='function') return oldCD.apply(this, arguments);
+  };
+  var oldCM = window.clearMeasure;
+  window.clearMeasure = function(){
+    try { MNSelect.clear(); } catch(e){}
+    if(typeof oldCM==='function') return oldCM.apply(this, arguments);
+  };
+
+  function tryInit(tries){
+    tries = tries||0;
+    if(tries>40) return;
+    try {
+      if(typeof eval('map')==='undefined' || !eval('map')){
+        return setTimeout(function(){tryInit(tries+1)}, 250);
+      }
+      installMapWatcher();
+      MNSelect.updateBadge();
+      console.log('[MNSelect v3] initialized');
+    } catch(e){ setTimeout(function(){tryInit(tries+1)}, 250); }
+  }
+  if(document.readyState==='complete' || document.readyState==='interactive') tryInit();
+  else document.addEventListener('DOMContentLoaded', function(){ tryInit(); });
 })();
 </script>
 
