@@ -1,68 +1,101 @@
-# IndianaGIS â Claude Code Instructions
+# Mapnova / IndianaGIS — Claude Code Instructions
 
 ## Project Overview
-Universal GIS mapping platform for all 92 Indiana counties. Single-page app using Leaflet.js.
+Mapnova is a universal GIS mapping platform covering all 92 Indiana counties (and growing). Single-page app built on Leaflet.js, deployed as a static site to mapnova.org via Netlify (auto-deploys from GitHub `main`).
 
-## Architecture
+The product directive is: give users a single fast tool to inquire on any parcel, run measurements, draw annotations, and group everything into named projects that persist per user.
 
-### Files
-- `index.html` â app shell (HTML structure only, no inline JS/CSS)
-- `css/app.css` â all styles
-- `js/app.js` â all application logic (~6000 lines)
+## File Layout (current reality, 2026-04)
 
-### Key Data Structures in js/app.js
+The codebase has NOT been split out yet. Almost everything still lives in `index.html`.
 
-**COUNTIES** â map of county key â {lat, lng, zoom, fips, name, em?}
-**EM_LAYER92** â ElevateMaps county â MapServer service name (Tier 1 owner data)
-**COUNTY_PARCEL_APIS** â county â ArcGIS REST endpoint config (Tier 2 owner data)
-**WTH_GIS** â county â WTH MapDotNet host (Tier 3 owner data)
-**BEACON_APPS** â county â Beacon App name for PRC links
-**BEACON_IDS** â county â {appId, layerId} for direct Beacon PRC URLs
+- `index.html` (~553 KB, 9,084 lines) — entire app: HTML shell, inline `<style>`, all inline `<script>` blocks (Leaflet bootstrap, county configs, parcel layer engine, owner data tier resolution, Supabase auth, projects/bookmarks/history, MNTools/MNSelect/MNProjects modules, MNToolsImpl tool engine).
+- `assets/mn-multiselect-projects.js` — extracted patch script that augments the inline modules. Loaded via `<script src="assets/mn-multiselect-projects.js" defer>` just before `</body>`. All future small additions/fixes should land here (or in similarly small extracted files) instead of growing `index.html`.
+- `css/` — empty placeholder folder. All styles are still inline in `index.html`.
+- `js/` — empty placeholder folder.
+- `netlify.toml`, `CNAME` — deploy config.
+- No build step. Files are served as-is.
 
-### Owner Data Tiers
-1. **Tier 1 ElevateMaps** â 19 counties â `getOwnershipConfig()` returns tier:1
-2. **Tier 2 ArcGIS REST** â 18 counties â `getOwnershipConfig()` returns tier:2
-3. **Tier 3 WTH GIS** â 21 counties â coordinate-based, uses corsproxy.io
+The earlier version of this file claimed a clean `js/app.js` + `css/app.css` split. **That split does not exist yet.** When making changes, assume everything is in `index.html` unless you've grepped and confirmed otherwise.
 
-### Key Functions
-- `prefetchOwnershipForView()` â batch fetch owner data for visible parcels
-- `fetchOwnershipByPin(pin, pin2)` â fetch single parcel owner data
-- `selectParcelLive(p, layer)` â handles parcel click, cache lookup, async fetch
-- `enrichParcelData(p, attr)` â applies owner attrs to parcel object
-- `_normalizeCountyAttr(raw, cfg)` â normalizes tier 2 field names
-- `_openPRCForCounty(cKey, p, pin)` â opens Beacon PRC
-- `buildCountyLayerPanel()` â rebuilds layer panel on county switch
+## Editing index.html
+At 553 KB, GitHub's web CodeMirror 6 editor virtualizes the file. `textContent` only shows the viewport (~1-2 KB). To edit reliably from the GitHub UI:
 
-### IGIO Parcel Layer
-- Endpoint: `https://gisdata.in.gov/server/rest/services/Hosted/Parcel_Boundaries_of_Indiana_Current/FeatureServer/0/query`
-- Fields: `objectid, parcel_id, state_parcel_id, prop_add, prop_city, prop_zip, dlgf_prop_class_code, latitude, longitude, county_fips`
-- **Known issue**: `state_parcel_id` and `parcel_id` sometimes return null â app falls back to `objectid`
+1. Navigate to `https://github.com/isaacvancuren/indiana-gis/edit/main/index.html`.
+2. Wait for `.cm-editor` to appear.
+3. Locate the EditorView via DOM probing (`view.state.doc`, `view.dispatch`).
+4. Use `view.dispatch({changes: {from, to, insert}})` for surgical edits or full replacement.
+5. Click the `Commit changes...` button (use `scrollIntoView()` first — it can be offscreen at negative y).
 
-## Locked Counties (DO NOT EDIT unless explicitly requested)
-Tier 1 (ElevateMaps) â LOCKED:
-  Bartholomew â ElevateMaps layer 92, confirmed working
-Tier 2 (Schneider WFS / ArcGIS REST) â LOCKED:
-  Marion â MapIndyProperty/MapServer/10 (confirmed working)
-  Johnson â JohnsonCountyIN_WFS/MapServer/2 (confirmed working)
-  Morgan â MorganCountyIN_WFS/MapServer/0 (confirmed 2026-04-27)
-  Miami â MiamiCountyIN_WFS/MapServer/0 (confirmed 2026-04-27)
-  Monroe â MonroeCountyIN_WFS/MapServer/0 (confirmed 2026-04-27, mixed-case fields)
-  White â WhiteCountyIN_WFS/MapServer/0 (confirmed 2026-04-27)
+Do NOT rely on `document.execCommand('selectAll')` + paste — it leaves residue when CM6 hasn't materialized the full doc.
 
-Active Issues
-1. IGIO returning null parcel IDs for some counties â spatial fallback needed for owner lookup
-2. Bartholomew confirmed working (Tier 1 ElevateMaps); all other broken EM_LAYER92 entries removed
-3. PRC links â only Bartholomew has confirmed AppID (1130/28606), others use Search page
+## Architecture (current globals)
+
+### Top-level data
+- `COUNTIES` — county key → `{lat, lng, zoom, fips, name, em?}`
+- `EM_LAYER92` — ElevateMaps county → MapServer service name (Tier 1 owner data)
+- `COUNTY_PARCEL_APIS` — county → ArcGIS REST endpoint config (Tier 2)
+- `WTH_GIS` — county → WTH MapDotNet host (Tier 3)
+- `BEACON_APPS` / `BEACON_IDS` — county → Beacon App config for PRC links
+
+### Core functions
+- `selectParcelLive(p, layer)` — primary entry point when a parcel is clicked in inquire mode. Updates `selectedParcel`, `selectedLayer`, `window._selectedLiveParcel`, then calls `loadLiveParcelPanel(p)`.
+- `loadLiveParcelPanel(p)` — renders the right-hand parcel detail panel (PRC card, owner, address, etc.).
+- `_buildParcelLayer(feature)` — builds a Leaflet layer with click + tooltip handlers for one parcel. The click handler reads the **legacy global** `activeTool` (NOT `MNTools.activeTool`) and only short-circuits for `select`, `select-rect`, `select-poly`. Anything else falls through to `selectParcelLive`.
+
+### Modules (window globals)
+- `MNTools` — tool registry. Public: `activeTool`, `measurements`, `annotations`, `selection`, `setMode(tool, btn)`, `returnToInquire()`, `start_meas_line`, `finish_meas_line`, `start_meas_area`, `finish_meas_area`, `start_draw_polygon`, `finish_draw_polygon`, `start_draw_polyline`, `finish_draw_polyline`, `start_sel_click`, `start_sel_box`, `start_sel_line`, `start_sel_poly`, `clearAllDrawings`, `clearSelection`, `deleteSelection`, `_addToSelection(layer)`, `_removeFromSelection(layer)`, `_handleMapClick`, `_handleMapDblClick`, `_findFeaturesInBounds`, `_findFeaturesIntersectingPolygon`, `_pointInPolygon`.
+- `MNToolsImpl` — sentinel boolean signaling MNTools real impl was loaded.
+- `MNSelect` — selection state. Public: `selected` (Map), `counter`, `keyFor(props, latlng)`, `add(layer, props, latlng)`, `remove(key)`, `toggle(layer, props, latlng)`, `clear()`, `deleteSelected()`, `updateBadge()`.
+- `MNProjects` — Supabase-backed projects. Public: `state {current, drawnLayer, view}`, `open()`, `close()`, `newProject()`, `detail(id)`, `rename(id)`, `del(id)`, `share(id)`, `activate(id)`, `deactivate()`, `openCurrent()`, `flyToFeature(id)`, `delFeature(id)`, `relabel(id)`, `saveFeature(featureType, geom, properties, label)`, `_renderFeatures(feats)`, `_reloadCurrentLayer()`, `_ensureLayer()`, `_clearLayer()`.
+- `MNHistory`, `MNBookmarks`, `MNNatFilter` — Supabase-backed user history, bookmarks, and national parcel filter.
+- `MNInquiryList` (added by `assets/mn-multiselect-projects.js`) — multi-parcel inquiry list. Public: `items[]`, `add(parcel, layer)`, `remove(key)`, `clear()`, `flyTo(key)`, `openDetail(key)`, `addAllToProject()`, `openPanel()`, `closePanel()`, `render()`.
+
+### Tool name conventions (IMPORTANT)
+There are TWO active-tool variables and they use DIFFERENT name conventions:
+
+- **Legacy global** `window.activeTool` — set by older measurement code. Values: `'distance'`, `'area'`, `'bearing'`, `'select'`, `'select-rect'`, `'select-poly'`, or null.
+- **Modern** `MNTools.activeTool` — set by MNToolsImpl. Values: `'meas-line'`, `'meas-area'`, `'draw-polygon'`, `'draw-polyline'`, `'draw-rect'`, `'draw-circle'`, `'draw-text'`, `'sel-click'`, `'sel-box'`, `'sel-line'`, `'sel-poly'`, `'inquire'`, or null.
+
+When gating "is a tool active?" you MUST check both. The legacy parcel click handler still uses the global. MNTools dispatch uses `MNTools.activeTool`.
+
+## Owner Data Tiers
+1. **Tier 1 ElevateMaps** — 19 counties — `getOwnershipConfig()` returns tier:1.
+2. **Tier 2 ArcGIS REST** — 18 counties — `getOwnershipConfig()` returns tier:2.
+3. **Tier 3 WTH MapDotNet** — additional counties.
+
+## Supabase
+- Client: `window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, ...)` — but the resulting client is held in a local `sb` const inside an IIFE, NOT exposed on window. Use the existing `MNProjects`/`MNBookmarks`/`MNHistory` APIs instead of trying to access the client directly.
+- Tables in use:
+  - `profiles` — user profiles
+  - `avatars` — uploaded avatars
+  - `user_history` — recent searches
+  - `bookmarks` — saved bookmarks
+  - `projects` — user-named projects (id, user_id, name, ...)
+  - `project_features` — features in a project: `{id, project_id, user_id, feature_type, geom, properties, label, created_at}`. Common `feature_type` values: `parcel`, `measure_line`, `measure_area`, `shape_polygon`, `shape_line`.
+  - `project_shares` — sharing config
+  - `layer_preferences` — per-user layer toggles
+
+## Active Issues (rolling)
+1. `index.html` is 553 KB monolithic — every IDE/editor struggles. Progressive extraction recommended (next: split MNToolsImpl block into `assets/mn-tools-impl.js`).
+2. IGIO returning null parcel IDs for some counties — spatial fallback needed.
+3. PRC links — only Bartholomew has confirmed AppID (1130/28606). Others fall back to Beacon search page.
 
 ## Adding a New County
-1. Add to `COUNTIES` map with lat/lng/zoom/fips/name
-2. Add to appropriate tier:
-   - ElevateMaps: add to `EM_LAYER92` with service name
-   - Schneider WFS: add to `COUNTY_PARCEL_APIS` with confirmed field names
-   - WTH: add to `WTH_GIS` with host URL
-3. Add to `BEACON_APPS` for PRC links
-4. Test: select county, zoom in, click parcel, verify owner shows
+1. Add to `COUNTIES` map with lat/lng/zoom/fips/name.
+2. Add to the appropriate tier (`EM_LAYER92`, `COUNTY_PARCEL_APIS`, or `WTH_GIS`).
+3. Add to `BEACON_APPS` for PRC links.
+4. Test: select county, zoom in, click a parcel, verify owner data loads.
 
 ## Deployment
-- Hosted on Netlify, auto-deploys from GitHub main branch
-- No build step required â static files only
+- Netlify auto-deploys from GitHub `main`.
+- Static files only, no build step.
+- Cache-bust by appending `?v=...` to the page URL when testing manually.
+- After committing, hard-reload the live site (`Ctrl+Shift+R`) or use a query string to bypass Netlify/browser cache.
+
+## Conventions for future Claude work
+- **Prefer extending `assets/mn-multiselect-projects.js` (or new sibling files in `assets/`) over editing `index.html`** for new features. Keep `index.html` edits to the minimum needed (e.g., adding a new `<script src>` tag).
+- Wrap existing module methods rather than replacing them. Use `var orig = MNX.method.bind(MNX); MNX.method = function(...) { ...orig(...) }`.
+- Always check both `window.activeTool` and `MNTools.activeTool` when gating behavior on "tool is active."
+- Never try to call `MNProjects.saveFeature` without an active project — it will toast and return null.
+- When adding a feature that touches Supabase, route through the existing `MNProjects` / `MNBookmarks` / `MNHistory` APIs; do not try to instantiate a new `createClient` call.
