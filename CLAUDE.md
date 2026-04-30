@@ -101,20 +101,35 @@ When gating "is a tool active?" you MUST check both. The legacy parcel click han
 - When adding a feature that touches Supabase, route through the existing `MNProjects` / `MNBookmarks` / `MNHistory` APIs; do not try to instantiate a new `createClient` call.
 
 
-## Recent Refactoring (April 2026)
+## Status (2026-04-30 — End of Day)
 
-The monolithic `index.html` (originally ~553KB) has been progressively split into separate asset files:
+`index.html` reduced from ~553 KB → **~317 KB** (-236 KB, -42 %).
+Eight asset files split out:
 
-- `assets/mn-multiselect-projects.js` — Multi-parcel selection + project save/load (Supabase-backed)
-- `assets/mn-tools-impl.js` — Tool engine (measure/draw/select/inquire); window.MNToolsImpl
-- `assets/county-gis-servers.js` — COUNTY_GIS_SERVERS layer registry (~34KB)
-- `assets/municipal-gis-servers.js` — MUNICIPAL_GIS_SERVERS layer registry (~16KB)
-- `assets/county-parcel-apis.js` — EM_LAYER92, EM_BASE, L92_FIELDS, COUNTY_PARCEL_APIS (~13KB)
-- `assets/county-layer-engines.js` — IGIO_SVC, IGIO_ADMIN, county-specific *_BASE/*_LAYERS (~46KB)
+| File | Size | Purpose |
+|---|---|---|
+| `assets/mn-multiselect-projects.js` | ~20 KB | Multi-parcel selection + project save/load (Supabase-backed) |
+| `assets/mn-tools-impl.js` | ~28 KB | Tool engine (measure/draw/select/inquire); window.MNToolsImpl |
+| `assets/county-gis-servers.js` | ~35 KB | COUNTY_GIS_SERVERS layer registry |
+| `assets/municipal-gis-servers.js` | ~16 KB | MUNICIPAL_GIS_SERVERS layer registry |
+| `assets/county-parcel-apis.js` | ~13 KB | EM_LAYER92, EM_BASE, L92_FIELDS, COUNTY_PARCEL_APIS |
+| `assets/county-layer-engines.js` | ~46 KB | IGIO_SVC, IGIO_ADMIN, county-specific *_BASE/*_LAYERS |
+| `assets/county-metadata.js` | ~15 KB | INDIANA_COUNTIES, EM_COUNTIES, WTH_GIS, XSOFT_SLUGS, BEACON_APPS |
+| `assets/mn-bookmarks.js` | ~25 KB | Bookmarks/history/Supabase client IIFE |
+| `css/app.css` | ~56 KB | All previously inline `<style>` blocks |
 
-Asset files are loaded synchronously via `<script src="assets/...">` BEFORE the main inline `<script>` block in index.html, so legacy inline code can still reference these as window globals.
+Loading order in index.html (synchronous, before main inline script):
+```html
+<link rel="stylesheet" href="css/app.css">
+<script src="assets/county-gis-servers.js"></script>
+<script src="assets/municipal-gis-servers.js"></script>
+<script src="assets/county-parcel-apis.js"></script>
+<script src="assets/county-layer-engines.js"></script>
+<script src="assets/county-metadata.js"></script>
+```
 
-`index.html` is now ~409KB.
+`assets/mn-bookmarks.js` loads inline at its original position (replaces a self-contained IIFE).
+`assets/mn-tools-impl.js` and `assets/mn-multiselect-projects.js` load with `defer` at end of body.
 
 ## Extraction Methodology
 
