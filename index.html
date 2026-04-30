@@ -5032,7 +5032,8 @@ map.on('click', e=>{
           if(hitFeature) return;
           if(f && typeof f.getBounds === 'function'){
             try {
-              if(f.getBounds().contains(clickPt) && f.feature && f.feature.properties){
+              var hasData = (f.feature && f.feature.properties) || f.parcelData;
+              if(hasData && f.getBounds().contains(clickPt)){
                 hitFeature = f;
               }
             } catch(_e){}
