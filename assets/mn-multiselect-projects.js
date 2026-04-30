@@ -1,20 +1,22 @@
 /* ============================================================================
- * Mapnova Multi-Select & Project Enhancements
+ * Mapnova Multi-Select & Project Enhancements (v2)
  * ----------------------------------------------------------------------------
  * Adds:
  *   1. Multi-parcel inquiry list with persistent visual highlights
  *   2. "Add to Project" for parcels, measurements, shapes/annotations
- *   3. Project review panel showing all parcels + tools + shapes
- *   4. Gates parcel-info popup so it does NOT appear while a measurement,
- *      drawing, or selection tool is active
- *   5. Returning to the Inquire tool no longer clears measurements,
- *      shapes, or annotations
+ *   3. Project review panel grouped by feature type
+ *   4. Suppresses parcel-info popup while ANY non-inquire tool is active
+ *      (checks both legacy global "activeTool" AND MNTools.activeTool)
+ *   5. Returning to Inquire no longer wipes finalized measurements/shapes
+ *   6. Multi-select via MNSelect.toggle/add now feeds the inquiry list
  * ============================================================================ */
 (function(){
-  if (window.MNMultiSelectLoaded) return;
-  window.MNMultiSelectLoaded = true;
+  if (window.MNMultiSelectLoaded === 'v2') {
+    console.log('[Mapnova MS] v2 already loaded — skipping re-init');
+    return;
+  }
+  window.MNMultiSelectLoaded = 'v2';
 
-  // ---- Wait until the rest of the app is up ------------------------------
   function whenReady(cb){
     var tries = 0;
     var t = setInterval(function(){
@@ -31,32 +33,31 @@
   whenReady(init);
 
   function init(){
-    var L_ = window.L;
     var MNT = window.MNTools;
     var MNP = window.MNProjects;
     var MNS = window.MNSelect;
 
-    /* ====================================================================
-     * 1. INQUIRY LIST — multi-parcel state + UI panel
-     * ==================================================================== */
     var INQ = window.MNInquiryList = {
-      items: [],            // [{ key, parcel, layer, owner, addr, parid, county, acres }]
-      _highlightLayer: null,
+      items: [],
       _origStyles: new WeakMap(),
 
       keyFor: function(p){
         if(!p) return null;
-        var props = p.properties || p;
+        var props = (p && p.properties) || p || {};
         return (props.PARCEL_ID || props.PARID || props.parcel_id || props.parid ||
-                props.GEOID || props.OBJECTID || JSON.stringify(props).slice(0,80));
+                props.PARCELID || props.GEOID || props.OBJECTID || JSON.stringify(props).slice(0,80));
       },
 
-      add: function(parcel, layer){
+      add: function(parcelOrLayer, maybeLayer){
+        var parcel, layer;
+        if (parcelOrLayer && parcelOrLayer.feature && parcelOrLayer._leaflet_id) {
+          layer = parcelOrLayer; parcel = parcelOrLayer.feature;
+        } else { parcel = parcelOrLayer; layer = maybeLayer || null; }
+        if (!parcel) return false;
         var k = INQ.keyFor(parcel);
         if (!k) return false;
         if (INQ.items.some(function(it){ return it.key === k; })) return false;
 
-        // Persist a yellow highlight on the parcel layer
         if (layer && typeof layer.setStyle === 'function') {
           try {
             if (!INQ._origStyles.has(layer)) {
@@ -73,21 +74,16 @@
         }
 
         var props = parcel.properties || parcel;
-        var record = {
-          key: k,
-          parcel: parcel,
-          layer: layer,
+        INQ.items.push({
+          key: k, parcel: parcel, layer: layer,
           owner: props.OWNER || props.owner || props.OWNER_NAME || props.owner_name || '—',
           addr:  props.SITE_ADDR || props.site_addr || props.PROP_ADDR || props.PROPERTY_ADDRESS || props.address || '—',
-          parid: props.PARCEL_ID || props.PARID || props.parcel_id || '—',
+          parid: props.PARCEL_ID || props.PARID || props.parcel_id || props.PARCELID || '—',
           county: props.COUNTY || props.county || '',
           acres: props.ACRES || props.DEEDED_AC || props.acres || null,
-          tax: props.TOTAL_AV || props.total_av || null,
           props_full: props
-        };
-        INQ.items.push(record);
-        INQ.render();
-        INQ.openPanel();
+        });
+        INQ.render(); INQ.openPanel();
         return true;
       },
 
@@ -95,7 +91,6 @@
         var idx = INQ.items.findIndex(function(it){ return it.key === key; });
         if (idx === -1) return;
         var it = INQ.items[idx];
-        // restore style
         if (it.layer && INQ._origStyles.has(it.layer)) {
           try { it.layer.setStyle(INQ._origStyles.get(it.layer)); } catch(e){}
           INQ._origStyles.delete(it.layer);
@@ -111,8 +106,7 @@
             INQ._origStyles.delete(it.layer);
           }
         });
-        INQ.items = [];
-        INQ.render();
+        INQ.items = []; INQ.render();
       },
 
       flyTo: function(key){
@@ -131,7 +125,7 @@
           window.selectedParcel = it.parcel;
           window.selectedLayer = it.layer;
           window._selectedLiveParcel = it.parcel;
-          window.loadLiveParcelPanel(it.parcel);
+          if (typeof window.loadLiveParcelPanel === 'function') window.loadLiveParcelPanel(it.parcel);
         } catch(e){ console.warn('openDetail', e); }
       },
 
@@ -156,8 +150,7 @@
 
       _ensurePanel: function(){
         if (document.getElementById('mn-inq-list')) return;
-        var html = ''
-          + '<div id="mn-inq-list" class="mn-inq-list" style="display:none">'
+        var html = '<div id="mn-inq-list" class="mn-inq-list" style="display:none">'
           +   '<div class="mn-inq-hdr">'
           +     '<i class="fas fa-list"></i> '
           +     '<span>Inquiry List</span>'
@@ -174,8 +167,7 @@
         wrap.innerHTML = html;
         document.body.appendChild(wrap.firstElementChild);
 
-        var css = ''
-          + '.mn-inq-list{position:fixed;right:12px;bottom:80px;width:340px;max-height:55vh;'
+        var css = '.mn-inq-list{position:fixed;right:12px;bottom:80px;width:340px;max-height:55vh;'
           + 'background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:10px;'
           + 'box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:5500;display:flex;flex-direction:column;'
           + 'font:13px/1.4 system-ui,sans-serif;overflow:hidden}'
@@ -191,14 +183,14 @@
           + '.mn-inq-row{padding:7px 8px;margin-bottom:5px;background:#1e293b;border:1px solid #334155;'
           + 'border-left:3px solid #facc15;border-radius:6px;cursor:pointer;position:relative}'
           + '.mn-inq-row:hover{background:#273449}'
-          + '.mn-inq-row .o{font-weight:600;color:#fde047;margin-bottom:2px;padding-right:48px}'
-          + '.mn-inq-row .a{color:#94a3b8;font-size:12px;padding-right:48px}'
+          + '.mn-inq-row .o{font-weight:600;color:#fde047;margin-bottom:2px;padding-right:60px}'
+          + '.mn-inq-row .a{color:#94a3b8;font-size:12px;padding-right:60px}'
           + '.mn-inq-row .meta{color:#64748b;font-size:11px;margin-top:3px}'
           + '.mn-inq-row .rm{position:absolute;top:6px;right:6px;background:#475569;color:#fff;border:0;'
-          + 'border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:10px}'
+          + 'border-radius:4px;width:24px;height:24px;cursor:pointer;font-size:11px}'
           + '.mn-inq-row .rm:hover{background:#dc2626}'
-          + '.mn-inq-row .det{position:absolute;top:6px;right:32px;background:#475569;color:#fff;border:0;'
-          + 'border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:10px}'
+          + '.mn-inq-row .det{position:absolute;top:6px;right:34px;background:#475569;color:#fff;border:0;'
+          + 'border-radius:4px;width:24px;height:24px;cursor:pointer;font-size:11px}'
           + '.mn-inq-row .det:hover{background:#0ea5e9}'
           + '.mn-inq-empty{color:#64748b;text-align:center;padding:18px;font-style:italic}'
           + '#mn-inq-fab{position:fixed;right:14px;bottom:18px;background:#0ea5e9;color:#fff;border:0;'
@@ -208,7 +200,6 @@
           + '#mn-inq-fab .b{background:#fff;color:#0ea5e9;border-radius:10px;padding:1px 7px;margin-left:6px;font-size:11px}';
         var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-        // Floating "open" button
         var fab = document.createElement('button');
         fab.id = 'mn-inq-fab';
         fab.innerHTML = '<i class="fas fa-list"></i> Inquiry List <span class="b" id="mn-inq-fab-count">0</span>';
@@ -228,10 +219,14 @@
         var count = document.getElementById('mn-inq-count');
         var fabCount = document.getElementById('mn-inq-fab-count');
         var fab = document.getElementById('mn-inq-fab');
+        var panel = document.getElementById('mn-inq-list');
         if (!body) return;
         count.textContent = INQ.items.length;
         if (fabCount) fabCount.textContent = INQ.items.length;
-        if (fab) fab.style.display = INQ.items.length > 0 ? 'block' : 'none';
+        if (fab) {
+          if (INQ.items.length === 0) fab.style.display = 'none';
+          else if (panel && panel.style.display === 'none') fab.style.display = 'block';
+        }
 
         if (INQ.items.length === 0) {
           body.innerHTML = '<div class="mn-inq-empty">No parcels selected.<br><small>Use a selection tool or click parcels.</small></div>';
@@ -253,7 +248,6 @@
         });
         body.innerHTML = html;
 
-        // Click handlers
         Array.from(body.querySelectorAll('.mn-inq-row')).forEach(function(row){
           row.onclick = function(e){
             var btn = e.target.closest('button');
@@ -263,9 +257,7 @@
               var act = btn.getAttribute('data-act');
               if (act === 'rm') INQ.remove(k);
               else if (act === 'det') INQ.openDetail(k);
-            } else {
-              INQ.flyTo(k);
-            }
+            } else { INQ.flyTo(k); }
           };
         });
       },
@@ -288,48 +280,88 @@
     function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
     function escAttr(s){ return escHtml(s); }
 
-    /* ====================================================================
-     * 2. Hook selectParcelLive — every parcel click adds to inquiry list
-     * ==================================================================== */
+    /* Tool gating */
+    function isToolActive(){
+      var legacy = null;
+      try { legacy = window.activeTool; } catch(e){}
+      var modern = MNT && MNT.activeTool;
+      function bad(t){ return t && t !== 'inquire' && t !== 'inquire-tool'; }
+      return bad(legacy) || bad(modern);
+    }
+    function activeToolName(){
+      try { return window.activeTool || (MNT && MNT.activeTool) || null; } catch(e){ return MNT && MNT.activeTool; }
+    }
+    function isSelectTool(){
+      var n = activeToolName() || '';
+      return n === 'select' || n === 'select-rect' || n === 'select-poly' || /^sel[\-_]/.test(n) || /^sel_/.test(n);
+    }
+
+    /* selectParcelLive: bail when tool active; feed inquiry list when select tool */
     var origSelectLive = window.selectParcelLive;
     window.selectParcelLive = function(p, layer){
-      // Suppress when a non-inquire tool is active (measure/draw/selection)
-      var active = MNT && MNT.activeTool;
-      if (active && active !== 'inquire' && active !== null) {
-        // Selection tools handle their own logic — don't open the parcel panel
-        if (/^sel_/.test(active)) {
-          // Selection-tool clicks should also feed the inquiry list
-          INQ.add(p, layer);
-          return;
-        }
-        // Measure/draw — fully ignore parcel clicks
+      if (isToolActive()) {
+        if (isSelectTool()) INQ.add(p, layer);
         return;
       }
-      // Normal inquire mode: open the panel AND add to list
       try { origSelectLive.call(this, p, layer); } catch(e) { console.warn(e); }
       INQ.add(p, layer);
     };
 
-    /* ====================================================================
-     * 3. Patch MNTools.returnToInquire — preserve measures/shapes/annotations
-     * ==================================================================== */
-    if (typeof MNT.returnToInquire === 'function') {
-      var origReturn = MNT.returnToInquire.bind(MNT);
-      MNT.returnToInquire = function(){
-        // Only clean up the *temp/in-progress* drawing buffers; do NOT touch
-        // finalized measLayer / drawLayer / annotation layers.
-        try { if (typeof MNT._cleanupTemp === 'function') MNT._cleanupTemp(); } catch(e){}
-        MNT.activeTool = 'inquire';
-        try { if (typeof MNT._clearActiveBtn === 'function') MNT._clearActiveBtn(); } catch(e){}
-        // Note: we deliberately do NOT call origReturn() if it removes layers.
-        // If origReturn only resets state without removing finalized layers,
-        // calling it is safe; we call it inside a guard so existing layers stay.
+    /* loadLiveParcelPanel: also gate (some other paths call it directly) */
+    if (typeof window.loadLiveParcelPanel === 'function') {
+      var origLoadPanel = window.loadLiveParcelPanel;
+      window.loadLiveParcelPanel = function(p){
+        if (isToolActive() && !isSelectTool()) return;
+        return origLoadPanel.apply(this, arguments);
       };
     }
 
-    /* ====================================================================
-     * 4. Patch MNTools.setMode — also avoid wiping finalized work
-     * ==================================================================== */
+    /* MNSelect.add / toggle / clear: feed inquiry list */
+    if (MNS && typeof MNS.add === 'function') {
+      var origMSadd = MNS.add.bind(MNS);
+      MNS.add = function(layer, props, latlng){
+        var ret = origMSadd(layer, props, latlng);
+        try {
+          var parcel = (layer && layer.feature) ? layer.feature : { properties: props || {} };
+          INQ.add(parcel, layer);
+        } catch(e){ console.warn('MNSelect.add hook', e); }
+        return ret;
+      };
+    }
+    if (MNS && typeof MNS.toggle === 'function') {
+      var origMStoggle = MNS.toggle.bind(MNS);
+      MNS.toggle = function(layer, props, latlng){
+        var keyForCheck = MNS.keyFor ? MNS.keyFor(props || (layer && layer.feature && layer.feature.properties), latlng) : null;
+        var wasSelected = keyForCheck && MNS.selected && MNS.selected.has(keyForCheck);
+        var ret = origMStoggle(layer, props, latlng);
+        try {
+          var parcel = (layer && layer.feature) ? layer.feature : { properties: props || {} };
+          var iqKey = INQ.keyFor(parcel);
+          if (wasSelected) { if (iqKey) INQ.remove(iqKey); }
+          else INQ.add(parcel, layer);
+        } catch(e){ console.warn('MNSelect.toggle hook', e); }
+        return ret;
+      };
+    }
+    if (MNS && typeof MNS.clear === 'function') {
+      var origMSclear = MNS.clear.bind(MNS);
+      MNS.clear = function(){
+        var ret = origMSclear();
+        try { INQ.clear(); } catch(e){}
+        return ret;
+      };
+    }
+
+    /* Preserve finalized work when returning to inquire / switching modes */
+    if (typeof MNT.returnToInquire === 'function') {
+      var origReturn = MNT.returnToInquire.bind(MNT);
+      MNT.returnToInquire = function(){
+        try { if (typeof MNT._cleanupTemp === 'function') MNT._cleanupTemp(); } catch(e){}
+        try { window.activeTool = null; } catch(e){}
+        try { MNT.activeTool = null; } catch(e){}
+        try { if (typeof MNT._clearActiveBtn === 'function') MNT._clearActiveBtn(); } catch(e){}
+      };
+    }
     if (typeof MNT.setMode === 'function') {
       var origSetMode = MNT.setMode.bind(MNT);
       MNT.setMode = function(tool, btn){
@@ -338,9 +370,7 @@
       };
     }
 
-    /* ====================================================================
-     * 5. Add "Add to Project" button to parcel detail panel
-     * ==================================================================== */
+    /* Add to Project button on parcel detail */
     function ensureAddToProjectBtn(){
       var detail = document.getElementById('parcel-detail');
       if (!detail || document.getElementById('mn-add-parcel-proj')) return;
@@ -368,14 +398,11 @@
         if (window.toast) window.toast('Parcel saved to project.', 2500);
       };
       detail.insertBefore(btn, detail.firstChild);
-
       var css = '.mn-add-proj-btn{display:block;width:calc(100% - 16px);margin:8px;padding:10px;'
         + 'background:#0ea5e9;color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;'
         + 'font-size:14px}.mn-add-proj-btn:hover{background:#0284c7}';
       var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     }
-
-    // Re-inject the button whenever the parcel panel updates
     var detailEl = document.getElementById('parcel-detail');
     if (detailEl) {
       var mo = new MutationObserver(function(){ ensureAddToProjectBtn(); });
@@ -383,132 +410,12 @@
       ensureAddToProjectBtn();
     }
 
-    /* ====================================================================
-     * 6. Auto-save measurements & shapes when an active project exists
-     * ==================================================================== */
-    function wrapMeasureSave(name, type){
-      var fn = MNT[name];
-      if (typeof fn !== 'function') return;
-      MNT[name] = function(){
-        var ret = fn.apply(MNT, arguments);
-        try {
-          if (MNP.state.current && MNT.measurements && MNT.measurements.length) {
-            var last = MNT.measurements[MNT.measurements.length - 1];
-            if (last && !last._savedToProject) {
-              last._savedToProject = true;
-              MNP.saveFeature(type, last.geom || null, {
-                length: last.length, area: last.area, unit: last.unit, label: last.label || ''
-              }, last.label || (type === 'measure_line' ? 'Line measurement' : 'Area measurement'));
-            }
-          }
-        } catch(e){ console.warn('wrap measure', e); }
-        return ret;
-      };
-    }
-    wrapMeasureSave('finish_meas_line', 'measure_line');
-    wrapMeasureSave('finish_meas_area', 'measure_area');
-
-    function wrapDrawSave(name, type){
-      var fn = MNT[name];
-      if (typeof fn !== 'function') return;
-      MNT[name] = function(){
-        var ret = fn.apply(MNT, arguments);
-        try {
-          if (MNP.state.current && MNT.annotations && MNT.annotations.length) {
-            var last = MNT.annotations[MNT.annotations.length - 1];
-            if (last && !last._savedToProject) {
-              last._savedToProject = true;
-              MNP.saveFeature(type, last.geom || null, last.props || {}, last.label || type);
-            }
-          }
-        } catch(e){ console.warn('wrap draw', e); }
-        return ret;
-      };
-    }
-    wrapDrawSave('finish_draw_polygon', 'shape_polygon');
-    wrapDrawSave('finish_draw_polyline', 'shape_line');
-
-    /* ====================================================================
-     * 7. Enrich the project review panel — show parcels/measures/shapes
-     *    grouped by feature_type instead of one flat list.
-     * ==================================================================== */
-    if (typeof MNP._renderFeatures === 'function') {
-      var origRender = MNP._renderFeatures.bind(MNP);
-      MNP._renderFeatures = function(feats){
-        // Try to render grouped list if a host element exists
-        var host = document.getElementById('mn-project-feats') ||
-                   document.getElementById('mn-projects-body');
-        try {
-          if (host && Array.isArray(feats)) {
-            var groups = { parcel: [], measure_line: [], measure_area: [], shape_polygon: [], shape_line: [], other: [] };
-            feats.forEach(function(f){
-              var t = f.feature_type || 'other';
-              if (groups[t]) groups[t].push(f); else groups.other.push(f);
-            });
-            var sec = document.createElement('div');
-            sec.className = 'mn-proj-grouped';
-            var titles = {
-              parcel: 'Parcels', measure_line: 'Line Measurements', measure_area: 'Area Measurements',
-              shape_polygon: 'Polygon Shapes', shape_line: 'Line Shapes', other: 'Other'
-            };
-            Object.keys(groups).forEach(function(k){
-              if (!groups[k].length) return;
-              var h = document.createElement('div');
-              h.className = 'mn-proj-grp-hdr';
-              h.textContent = titles[k] + ' (' + groups[k].length + ')';
-              sec.appendChild(h);
-              groups[k].forEach(function(f){
-                var row = document.createElement('div');
-                row.className = 'mn-proj-grp-row';
-                row.innerHTML = '<span>' + escHtml(f.label || (f.properties && (f.properties.OWNER || f.properties.label)) || k) + '</span>'
-                              + '<button data-id="'+ escAttr(f.id) +'" title="Zoom"><i class="fas fa-crosshairs"></i></button>'
-                              + '<button data-id="'+ escAttr(f.id) +'" data-act="del" title="Remove"><i class="fas fa-trash"></i></button>';
-                row.querySelectorAll('button').forEach(function(b){
-                  b.onclick = function(){
-                    var id = b.getAttribute('data-id');
-                    if (b.getAttribute('data-act') === 'del') {
-                      if (confirm('Remove this feature from the project?')) MNP.delFeature(id);
-                    } else {
-                      MNP.flyToFeature(id);
-                    }
-                  };
-                });
-                sec.appendChild(row);
-              });
-            });
-            // Inject styles once
-            if (!document.getElementById('mn-proj-grp-css')) {
-              var st = document.createElement('style');
-              st.id = 'mn-proj-grp-css';
-              st.textContent = '.mn-proj-grouped{padding:6px}'
-                + '.mn-proj-grp-hdr{font-weight:700;color:#0ea5e9;margin:8px 0 4px;border-bottom:1px solid #334155;padding-bottom:3px}'
-                + '.mn-proj-grp-row{display:flex;align-items:center;gap:6px;padding:5px 6px;background:#1e293b;border-radius:6px;margin-bottom:3px}'
-                + '.mn-proj-grp-row span{flex:1;color:#e2e8f0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-                + '.mn-proj-grp-row button{background:#334155;color:#e2e8f0;border:0;border-radius:4px;width:26px;height:26px;cursor:pointer}'
-                + '.mn-proj-grp-row button:hover{background:#475569}';
-              document.head.appendChild(st);
-            }
-            // Replace existing rendered content (if the original host got something)
-            var existing = host.querySelector('.mn-proj-grouped');
-            if (existing) existing.replaceWith(sec); else host.appendChild(sec);
-          }
-        } catch(e){ console.warn('grouped render', e); }
-        // Always also call original for any other behavior it has
-        try { return origRender(feats); } catch(e){}
-      };
-    }
-
-    /* ====================================================================
-     * 8. Public hook for selection-tool implementations to feed the list
-     * ==================================================================== */
+    /* Public hooks */
     window.MNAddParcelToInquiry = function(parcel, layer){ return INQ.add(parcel, layer); };
     window.MNClearInquiryList   = function(){ return INQ.clear(); };
     window.MNOpenInquiryList    = function(){ return INQ.openPanel(); };
 
-    // Render initial empty state (creates the panel + FAB up front)
-    INQ.render();
-    INQ.closePanel();
-
-    console.log('[Mapnova] Multi-select & project enhancements loaded.');
+    INQ.render(); INQ.closePanel();
+    console.log('[Mapnova] Multi-select & project enhancements v2 loaded.');
   }
 })();
