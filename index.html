@@ -1235,19 +1235,46 @@ body.mn-county-selected #rpanel{display:flex!important;}
 
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-ruler"></i> Measurement</div>
-        <div class="tgrid">
-          <button class="tbtn" id="tb-dist" onclick="activateTool('distance',this)">
-            <i class="fas fa-ruler-horizontal"></i><span class="tl">Distance</span>
-          </button>
-          <button class="tbtn" id="tb-area" onclick="activateTool('area',this)">
-            <i class="fas fa-draw-polygon"></i><span class="tl">Area</span>
-          </button>
-          <button class="tbtn" id="tb-bear" onclick="activateTool('bearing',this)">
-            <i class="fas fa-compass"></i><span class="tl">Bearing</span>
-          </button>
-          <button class="tbtn" id="tb-coord" onclick="activateTool('coordinate',this)">
-            <i class="fas fa-crosshairs"></i><span class="tl">Show Lat/Lng</span>
-          </button>
+        <div id="mn-meas-toolbar" style="margin-bottom:6px;">
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="tbtn" id="tb-dist" onclick="activateTool('distance',this)" style="flex:1;min-width:70px;">
+              <i class="fas fa-route"></i><span class="tl">Line Distance</span>
+            </button>
+            <button class="tbtn" id="tb-rectmeas" onclick="activateTool('rectmeas',this)" style="flex:1;min-width:70px;">
+              <i class="fas fa-vector-square"></i><span class="tl">Rectangle</span>
+            </button>
+            <button class="tbtn" id="tb-area" onclick="activateTool('area',this)" style="flex:1;min-width:70px;">
+              <i class="fas fa-draw-polygon"></i><span class="tl">Area</span>
+            </button>
+          </div>
+          <div id="mn-meas-units" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+              <label style="font-size:11px;color:#aaa;width:60px;">Distance</label>
+              <select id="mn-dist-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+                <option value="ft">Feet</option>
+                <option value="mi">Miles</option>
+                <option value="m">Meters</option>
+                <option value="km">Kilometers</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:11px;color:#aaa;width:60px;">Area</label>
+              <select id="mn-area-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+                <option value="acres">Acres</option>
+                <option value="sqft">Sq Feet</option>
+                <option value="sqm">Sq Meters</option>
+                <option value="ha">Hectares</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <button class="tbtn" id="tb-bear" onclick="activateTool('bearing',this)" style="flex:1;">
+              <i class="fas fa-compass"></i><span class="tl">Bearing</span>
+            </button>
+            <button class="tbtn" id="tb-coord" onclick="activateTool('coordinate',this)" style="flex:1;">
+              <i class="fas fa-crosshairs"></i><span class="tl">Coordinates</span>
+            </button>
+          </div>
         </div>
         <div id="mout" style="font-size:11px;color:#8fa3bf;">Click a tool above, then click on the map.</div>
         <div style="display:flex;gap:6px;margin-top:6px;">
@@ -1263,11 +1290,14 @@ body.mn-county-selected #rpanel{display:flex!important;}
         </div>
       </div>
 
-      <div class="tsec">
+      <div class="tsec" id="draw-annotate-sec">
         <div class="tsec-title"><i class="fas fa-pencil"></i> Draw &amp; Annotate</div>
-        <div class="tgrid">
+        <div class="tgrid" style="grid-template-columns:repeat(3,1fr);">
           <button class="tbtn" id="tb-dpoly" onclick="activateDraw('polygon',this)">
-            <i class="fas fa-vector-square"></i><span class="tl">Polygon</span>
+            <i class="fas fa-draw-polygon"></i><span class="tl">Polygon</span>
+          </button>
+          <button class="tbtn" id="tb-dfree" onclick="activateDraw('freehand',this)">
+            <i class="fas fa-signature"></i><span class="tl">Freehand</span>
           </button>
           <button class="tbtn" id="tb-drect" onclick="activateDraw('rectangle',this)">
             <i class="fas fa-square"></i><span class="tl">Rectangle</span>
@@ -1278,18 +1308,22 @@ body.mn-county-selected #rpanel{display:flex!important;}
           <button class="tbtn" id="tb-dline" onclick="activateDraw('polyline',this)">
             <i class="fas fa-pen-nib"></i><span class="tl">Polyline</span>
           </button>
+          <button class="tbtn" id="tb-dtext" onclick="activateDraw('textlabel',this)">
+            <i class="fas fa-font"></i><span class="tl">Text Label</span>
+          </button>
           <button class="tbtn" id="tb-dmark" onclick="activateDraw('marker',this)">
-            <i class="fas fa-map-pin"></i><span class="tl">Pin Marker</span>
+            <i class="fas fa-map-pin"></i><span class="tl">Marker</span>
           </button>
           <button class="tbtn" onclick="clearDrawings()">
             <i class="fas fa-eraser"></i><span class="tl">Clear All</span>
           </button>
         </div>
         <div id="draw-status" style="display:none;margin:6px 0 2px;padding:6px 10px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:6px;font-size:12px;color:#67e8f9;line-height:1.4;">
-          <i class="fas fa-pencil"></i> Drawing  double-click to finish
-          <button onclick="if(window._currentDrawHandler){try{window._currentDrawHandler.disable();}catch(e){};window._currentDrawHandler=null;} document.getElementById('draw-status').style.display='none'; try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(e){} document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));" style="float:right;background:none;border:none;color:#f87171;cursor:pointer;padding:0;font-size:11px;"><i class="fas fa-times"></i> Exit</button>
+          <i class="fas fa-pencil"></i> <span id="draw-status-msg">Drawing</span>
+          <button onclick="window._cancelDraw()" style="float:right;background:none;border:none;color:#f87171;cursor:pointer;padding:0;font-size:11px;"><i class="fas fa-times"></i> Cancel</button>
         </div>
-        <button class="sbtn-o" id="btn-delete-selected" style="width:100%;margin-top:8px;justify-content:center;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.45);color:#fca5a5;" onclick="if(window.MNSelect)MNSelect.deleteSelected();">
+        <div id="mn-annotations-list" style="margin-top:8px;"></div>
+        <button class="sbtn-o" id="btn-delete-selected" style="width:100%;margin-top:8px;justify-content:center;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.45);color:#fca5a5;display:none;" onclick="if(window.MNSelect)MNSelect.deleteSelected();">
           <i class="fas fa-trash"></i> Delete Selected <span id="sel-count-badge" style="margin-left:6px;background:rgba(239,68,68,0.3);padding:1px 6px;border-radius:8px;font-size:10px;">0</span>
         </button>
       </div>
@@ -4889,14 +4923,20 @@ function _hideMeasPanel() {
   if(p) p.style.display = 'none';
 }
 function _fmtDist(miles) {
-  const ft = miles * 5280;
-  if(ft < 5280) return ft.toFixed(0) + ' ft (' + miles.toFixed(4) + ' mi)';
-  return miles.toFixed(3) + ' mi (' + (miles * 1.60934).toFixed(3) + ' km)';
+  var unit=(document.getElementById('mn-dist-unit')||{}).value||'ft';
+  if(unit==='ft'){var ft=miles*5280;return ft<5280?ft.toFixed(0)+' ft':ft.toFixed(0)+' ft ('+(miles).toFixed(3)+' mi)';}
+  if(unit==='mi') return miles.toFixed(4)+' mi';
+  if(unit==='m') return (miles*1609.34).toFixed(1)+' m';
+  if(unit==='km') return (miles*1.60934).toFixed(3)+' km';
+  var ft=miles*5280; return ft<5280?ft.toFixed(0)+' ft':miles.toFixed(3)+' mi';
 }
 function _fmtArea(acres) {
-  const sf = acres * 43560;
-  if(acres < 1) return sf.toFixed(0) + ' sq ft (' + acres.toFixed(4) + ' ac)';
-  return acres.toFixed(3) + ' acres (' + (acres * 0.404686).toFixed(4) + ' ha)';
+  var unit=(document.getElementById('mn-area-unit')||{}).value||'acres';
+  if(unit==='acres') return acres>=1?acres.toFixed(3)+' acres':(acres*43560).toFixed(0)+' sq ft ('+(acres).toFixed(4)+' ac)';
+  if(unit==='sqft') return (acres*43560).toFixed(0)+' sq ft';
+  if(unit==='sqm') return (acres*4046.86).toFixed(1)+' sq m';
+  if(unit==='ha') return (acres*0.404686).toFixed(4)+' ha';
+  return acres.toFixed(3)+' acres';
 }
 function _addSegLabel(pt1, pt2, text) {
   const mid = [(pt1[0]+pt2[0])/2, (pt1[1]+pt2[1])/2];
@@ -4912,28 +4952,32 @@ function activateTool(name, btn) {
   activeTool = name;
   measurePts = [];
   measureTotal = 0;
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-  btn?.classList.add('on');
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
   try{document.querySelector('.leaflet-overlay-pane').style.pointerEvents='none';}catch(e){}
   try{document.getElementById('map').style.cursor='crosshair';}catch(e){}
-  const hints = {
-    distance: '<span style="color:#8fa3bf;font-size:11px;">Click to place points &middot; Double-click to finish</span>',
-    area: '<span style="color:#8fa3bf;font-size:11px;">Click to place points &middot; Double-click to close</span>',
-    bearing: '<span style="color:#8fa3bf;font-size:11px;">Click point 1, then point 2</span>',
-    coordinate: '<span style="color:#8fa3bf;font-size:11px;">Click any location for coordinates</span>',
-    'section-corner': '<span style="color:#8fa3bf;font-size:11px;">Click to record section corner</span>'
+  var unitsEl=document.getElementById('mn-meas-units');
+  if(unitsEl) unitsEl.style.display=(name==='distance'||name==='area'||name==='rectmeas')?'block':'none';
+  const hints={
+    distance:'<div style="font-size:11px;color:#8fa3bf;">Line Distance</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click to add points • Double-click to finish</div>',
+    rectmeas:'<div style="font-size:11px;color:#8fa3bf;">90° Rectangle</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click two corners to measure rectangle</div>',
+    area:'<div style="font-size:11px;color:#8fa3bf;">Area</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click to place points • Double-click to close</div>',
+    bearing:'<div style="font-size:11px;color:#8fa3bf;">Bearing</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click point 1, then point 2</div>',
+    coordinate:'<div style="font-size:11px;color:#8fa3bf;">Coordinates</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click any location for lat/lng</div>',
+    'section-corner':'<div style="font-size:11px;color:#8fa3bf;">Section Corner</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click to record section corner</div>'
   };
-  _showMeasPanel(hints[name] || '<span style="color:#8fa3bf;font-size:11px;">Tool active</span>');
-  document.getElementById('mout').innerHTML = hints[name] || 'Tool active.';
-  var _donBtn=document.getElementById('btn-done-measure'), _exitBtn=document.getElementById('btn-exit-tool');
+  _showMeasPanel('<div>'+(hints[name]||'<span style="font-size:11px;color:#8fa3bf;">Tool active</span>')+'</div>');
+  document.getElementById('mout').innerHTML=hints[name]||'Tool active.';
+  var _donBtn=document.getElementById('btn-done-measure'),_exitBtn=document.getElementById('btn-exit-tool');
   if(_donBtn) _donBtn.style.display='flex';
   if(_exitBtn) _exitBtn.style.display='flex';
-  notify(name.charAt(0).toUpperCase()+name.slice(1)+' tool activated','fa-check-circle');
+  var nameLabel={distance:'Line Distance',rectmeas:'Rectangle Measure',area:'Area',bearing:'Bearing',coordinate:'Coordinates'}[name]||name;
+  notify(nameLabel+' tool active','fa-ruler');
 }
 
 map.on('mousemove', function(e) {
   if(!activeTool || measurePts.length===0) return;
-  if(activeTool!=='distance' && activeTool!=='area' && activeTool!=='bearing') return;
+  if(activeTool!=='distance' && activeTool!=='area' && activeTool!=='bearing' && activeTool!=='rectmeas') return;
   const last=measurePts[measurePts.length-1], cur=[e.latlng.lat,e.latlng.lng];
   if(_measurePreviewLine){try{map.removeLayer(_measurePreviewLine);}catch(er){} _measurePreviewLine=null;}
   _measurePreviewLine=L.polyline([last,cur],{color:'#f0a500',weight:1.5,dashArray:'6,4',opacity:0.6,interactive:false}).addTo(map);
@@ -4946,6 +4990,12 @@ map.on('mousemove', function(e) {
     _showMeasPanel('<div style="display:flex;justify-content:space-between;"><span style="color:#8fa3bf;">Area:</span><span style="font-weight:700;color:var(--accent,#06b6d4);">'+_fmtArea(a)+'</span></div><div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:#8fa3bf;">Points:</span><span>'+(measurePts.length+1)+'</span></div><div style="margin-top:8px;font-size:10px;color:#4a6080;">Click to add &middot; Double-click to close</div>');
   } else if(activeTool==='bearing'){
     _showMeasPanel('<div style="display:flex;justify-content:space-between;"><span style="color:#8fa3bf;">Bearing:</span><span>'+calcBearing(last,cur).toFixed(1)+'&deg;</span></div><div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:#8fa3bf;">Distance:</span><span>'+_fmtDist(segDist)+'</span></div>');
+  } else if(activeTool==='rectmeas'){
+    var rb=L.latLngBounds([last],[cur]);
+    var rw=calcDist([rb.getSouth(),rb.getWest()],[rb.getSouth(),rb.getEast()]);
+    var rh=calcDist([rb.getSouth(),rb.getWest()],[rb.getNorth(),rb.getWest()]);
+    var ra=calcArea([rb.getSouthWest(),rb.getNorthWest(),rb.getNorthEast(),rb.getSouthEast()]);
+    _showMeasPanel('<div style="font-size:11px;color:#8fa3bf;margin-bottom:5px;">90° Rectangle</div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#8fa3bf;">W:</span><span>'+_fmtDist(rw)+'</span></div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#8fa3bf;">H:</span><span>'+_fmtDist(rh)+'</span></div><div style="display:flex;justify-content:space-between;padding-top:5px;border-top:1px solid rgba(255,255,255,.08);"><span style="color:#8fa3bf;">Area:</span><span style="font-weight:700;color:var(--accent,#06b6d4);">'+_fmtArea(ra)+'</span></div>');
   }
 });
 
@@ -4973,6 +5023,19 @@ function handleToolClick(lat,lng) {
   const dot=L.circleMarker([lat,lng],{radius:5,color:'#f0a500',fillColor:'#f0a500',fillOpacity:1,weight:2,interactive:false}).addTo(map);
   measurePolylines.push(dot);
 
+  if(activeTool==='rectmeas' && measurePts.length===2){
+    var rBounds=L.latLngBounds([measurePts[0]],[measurePts[1]]);
+    var rRect=L.rectangle(rBounds,{color:'#06b6d4',fillColor:'#06b6d4',fillOpacity:.12,weight:2,interactive:false}).addTo(map);
+    measurePolylines.push(rRect);
+    var rW=calcDist([rBounds.getSouth(),rBounds.getWest()],[rBounds.getSouth(),rBounds.getEast()]);
+    var rH=calcDist([rBounds.getSouth(),rBounds.getWest()],[rBounds.getNorth(),rBounds.getWest()]);
+    var rA=calcArea([rBounds.getSouthWest(),rBounds.getNorthWest(),rBounds.getNorthEast(),rBounds.getSouthEast()]);
+    _showMeasPanel('<div style="font-weight:700;font-size:12px;margin-bottom:6px;color:var(--accent,#06b6d4);">90° Rectangle</div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#8fa3bf;">Width:</span><span>'+_fmtDist(rW)+'</span></div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#8fa3bf;">Height:</span><span>'+_fmtDist(rH)+'</span></div><div style="display:flex;justify-content:space-between;padding-top:5px;border-top:1px solid rgba(255,255,255,.08);"><span style="color:#8fa3bf;">Area:</span><span style="font-weight:700;color:var(--accent,#06b6d4);">'+_fmtArea(rA)+'</span></div>');
+    document.getElementById('mout').innerHTML='<div class="mout-row"><span class="mk">W</span><span class="mv">'+_fmtDist(rW)+'</span></div><div class="mout-row"><span class="mk">H</span><span class="mv">'+_fmtDist(rH)+'</span></div><div class="mout-row"><span class="mk">Area</span><span class="mv">'+_fmtArea(rA)+'</span></div>';
+    var _db5=document.getElementById('btn-done-measure'); if(_db5) _db5.style.display='flex';
+    measurePts=[];
+    return;
+  }
   if(activeTool==='bearing' && measurePts.length===2){
     const b=calcBearing(measurePts[0],measurePts[1]), d=calcDist(measurePts[0],measurePts[1]);
     const line=L.polyline(measurePts,{color:'#f0a500',weight:2.5,dashArray:'8,4',interactive:false}).addTo(map);
@@ -5097,123 +5160,153 @@ let drawActive = false;
 
 var _currentDrawHandler = null;
 
-function activateDraw(type, btn) {
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-  btn?.classList.add('on');
-  if(_currentDrawHandler){try{_currentDrawHandler.disable();}catch(e){} _currentDrawHandler=null;}
-  try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='none';}catch(e){}
-  var opts = {
-    polygon:{shapeOptions:{color:'#f0a500',fillColor:'#f0a500',fillOpacity:.15,weight:2},allowIntersection:false},
-    rectangle:{shapeOptions:{color:'#f0a500',fillColor:'#f0a500',fillOpacity:.15,weight:2}},
-    circle:{shapeOptions:{color:'#f0a500',fillColor:'#f0a500',fillOpacity:.15,weight:2}},
-    polyline:{shapeOptions:{color:'#f0a500',weight:2}},
-    marker:{}
-  };
-  var Handlers={polygon:L.Draw.Polygon,rectangle:L.Draw.Rectangle,circle:L.Draw.Circle,polyline:L.Draw.Polyline,marker:L.Draw.Marker};
-  if(!Handlers[type]){notify('Draw tool not available','fa-exclamation-circle');return;}
-  try{
-    _currentDrawHandler = new Handlers[type](map, opts[type]||{});
-    _currentDrawHandler.enable();
-    var _ds=document.getElementById('draw-status'); if(_ds) _ds.style.display='block';
-    var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='flex';
-    notify('Draw ' + type + '  click to place points, double-click to finish','fa-pencil');
-  } catch(err){
-    console.error('Draw error:',err);
-    try{var _op2=document.querySelector('.leaflet-overlay-pane');if(_op2)_op2.style.pointerEvents='';}catch(e){}
-    notify('Draw error: '+err.message,'fa-exclamation-circle');
-  }
+var _mnObjects=[];
+var _mnObjId=0;
+var _MN_COLORS=['#3b82f6','#ef4444','#22c55e','#f59e0b','#a855f7','#ec4899','#06b6d4'];
+
+function _cancelDraw(){
+  if(window._currentDrawHandler){try{window._currentDrawHandler.disable();}catch(e){} window._currentDrawHandler=null;}
+  try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(e){}
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  var ds=document.getElementById('draw-status'); if(ds) ds.style.display='none';
+  try{map.getContainer().style.cursor='';}catch(e){}
 }
 
-map.on('draw:created', function(e){
-  var layer = e.layer;
+function activateDraw(type, btn) {
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  _cancelDraw();
+  if(btn) btn.classList.add('on');
+  try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='none';}catch(e){}
+  var instrMap={polygon:'Click to add points • Double-click to finish',freehand:'Click and drag to draw freehand shape',rectangle:'Click and drag to draw rectangle',circle:'Click center, drag to set radius',polyline:'Click to add points • Double-click to finish',textlabel:'Click on map to place text label',marker:'Click on map to place marker'};
+  var ds=document.getElementById('draw-status'); var dsm=document.getElementById('draw-status-msg');
+  if(ds) ds.style.display='block'; if(dsm) dsm.textContent=instrMap[type]||type;
+  if(type==='textlabel'){
+    try{map.getContainer().style.cursor='text';}catch(e){}
+    map.once('click',function(e){
+      _cancelDraw();
+      var lbl=prompt('Enter label text:','');
+      if(!lbl) return;
+      var icon=L.divIcon({className:'',html:'<div style="background:rgba(0,0,0,0.7);color:#fff;padding:3px 8px;border-radius:4px;font-size:13px;font-weight:600;white-space:nowrap;">'+lbl+'</div>',iconAnchor:[0,0]});
+      var layer=L.marker(e.latlng,{icon:icon,draggable:true});
+      layer._mnType='textlabel';
+      drawnItems.addLayer(layer);
+      _mnOpenSaveDialog(layer,e.latlng,0,0,'textlabel',lbl);
+    });
+    return;
+  }
+  if(type==='freehand'){
+    var fhPoints=[],fhLine=null,fhActive=false;
+    var fhCont=map.getContainer();
+    fhCont.style.cursor='crosshair';
+    function fhDown(ev){if(ev.button!==0)return;fhActive=true;fhPoints=[];var ll=map.containerPointToLatLng(L.point(ev.offsetX,ev.offsetY));fhPoints.push(ll);if(fhLine)map.removeLayer(fhLine);fhLine=L.polyline([ll],{color:'#3b82f6',weight:2,dashArray:'4 2'}).addTo(map);}
+    function fhMove(ev){if(!fhActive)return;var ll=map.containerPointToLatLng(L.point(ev.offsetX,ev.offsetY));fhPoints.push(ll);fhLine.addLatLng(ll);}
+    function fhUp(){if(!fhActive||fhPoints.length<3)return;fhActive=false;fhCont.removeEventListener('mousedown',fhDown);fhCont.removeEventListener('mousemove',fhMove);fhCont.removeEventListener('mouseup',fhUp);if(fhLine)map.removeLayer(fhLine);var layer=L.polygon(fhPoints,{color:'#3b82f6',fillColor:'#3b82f6',fillOpacity:.15,weight:2});drawnItems.addLayer(layer);var center=layer.getBounds().getCenter();var area=L.GeometryUtil?L.GeometryUtil.geodesicArea(fhPoints)/4047:0;_cancelDraw();_mnOpenSaveDialog(layer,center,area,0,'polygon');}
+    fhCont.addEventListener('mousedown',fhDown);
+    fhCont.addEventListener('mousemove',fhMove);
+    fhCont.addEventListener('mouseup',fhUp);
+    window._currentDrawHandler={disable:function(){fhActive=false;fhCont.removeEventListener('mousedown',fhDown);fhCont.removeEventListener('mousemove',fhMove);fhCont.removeEventListener('mouseup',fhUp);if(fhLine)map.removeLayer(fhLine);}};
+    return;
+  }
+  var opts={polygon:{shapeOptions:{color:'#3b82f6',fillColor:'#3b82f6',fillOpacity:.15,weight:2},allowIntersection:false},rectangle:{shapeOptions:{color:'#3b82f6',fillColor:'#3b82f6',fillOpacity:.15,weight:2}},circle:{shapeOptions:{color:'#3b82f6',fillColor:'#3b82f6',fillOpacity:.15,weight:2}},polyline:{shapeOptions:{color:'#3b82f6',weight:2}},marker:{}};
+  var Handlers={polygon:L.Draw.Polygon,rectangle:L.Draw.Rectangle,circle:L.Draw.Circle,polyline:L.Draw.Polyline,marker:L.Draw.Marker};
+  if(!Handlers[type]){notify('Draw tool not available','fa-exclamation-circle');return;}
+  try{_currentDrawHandler=new Handlers[type](map,opts[type]||{});_currentDrawHandler.enable();}
+  catch(err){console.error('Draw error:',err);_cancelDraw();notify('Draw error: '+err.message,'fa-exclamation-circle');}
+}
+
+function _mnAreaAcres(latlngs){try{var flat=latlngs[0]&&Array.isArray(latlngs[0])?latlngs[0]:latlngs;if(L.GeometryUtil)return L.GeometryUtil.geodesicArea(flat)/4046.86;var a=0,n=flat.length;for(var i=0;i<n;i++){var j=(i+1)%n;a+=flat[i].lng*flat[j].lat-flat[j].lng*flat[i].lat;}return Math.abs(a/2)*12365.1516;}catch(e){return 0;}}
+
+function _mnOpenSaveDialog(layer,latlng,areaAcres,distFt,type,defaultTitle){
+  map.closePopup();
+  var objNum=_mnObjId+1;
+  var defTitle=defaultTitle||(type==='textlabel'?'Text Label':'Untitled Object '+objNum);
+  var aStr=(areaAcres>0)?'<div style="font-size:22px;font-weight:700;color:#fff;text-align:center;line-height:1.1;">'+(areaAcres>=10?areaAcres.toFixed(1):areaAcres.toFixed(2))+'</div><div style="font-size:11px;color:#aaa;text-align:center;margin-bottom:8px;">acres</div>':'';
+  var csw=_MN_COLORS.map(function(c,i){return '<span onclick="document.getElementById(\'mn-save-cs\').value=\''+c+'\';document.querySelectorAll(\'.mn-csw\').forEach(function(x){x.style.outline=\'none\'});this.style.outline=\'3px solid #fff\';" class="mn-csw" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:'+c+';cursor:pointer;margin-right:3px;'+(i===0?'outline:3px solid #fff;':'')+'" ></span>';}).join('');
+  window._mnSaveObj=function(){var t=document.getElementById('mn-save-title');var tv=t?t.value.trim():'';if(!tv){if(t)t.focus();return;}var d=document.getElementById('mn-save-desc');var dv=d?d.value.trim():'';var c=document.getElementById('mn-save-cs');var cv=c?c.value:'#3b82f6';_mnCommitObject(layer,tv,dv,cv,type,areaAcres);map.closePopup();};
+  window._mnCancelSave=function(){drawnItems.removeLayer(layer);map.closePopup();_cancelDraw();};
+  var html='<div style="min-width:220px;padding:4px;">'+aStr+'<input id="mn-save-title" value="'+defTitle+'" placeholder="Object name" style="width:100%;box-sizing:border-box;padding:5px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:13px;margin-bottom:8px;"><textarea id="mn-save-desc" placeholder="Description (optional)" style="width:100%;box-sizing:border-box;padding:4px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:12px;min-height:44px;resize:none;margin-bottom:8px;"></textarea><div style="margin-bottom:8px;"><div style="font-size:11px;color:#aaa;margin-bottom:4px;">Color</div>'+csw+'<input type="hidden" id="mn-save-cs" value="#3b82f6"></div><div style="display:flex;gap:6px;"><button onclick="window._mnSaveObj()" style="flex:1;padding:6px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Save as Object</button><button onclick="window._mnCancelSave()" style="padding:6px 10px;background:#333;color:#ccc;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Cancel</button></div></div>';
+  L.popup({maxWidth:280,closeButton:false,className:'mn-draw-pop'}).setLatLng(latlng).setContent(html).openOn(map);
+  setTimeout(function(){var t=document.getElementById('mn-save-title');if(t)t.select();},100);
+}
+
+function _mnCommitObject(layer,title,desc,color,type,areaAcres){
+  var id='mnobj_'+(++_mnObjId);
+  if(layer.setStyle)layer.setStyle({color:color,fillColor:color,fillOpacity:.15,weight:2});
+  else if(layer.setIcon&&type!=='textlabel'){var mi=L.divIcon({className:'mn-marker-icon',html:'<div style="width:14px;height:14px;border-radius:50%;background:'+color+';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5);"></div>',iconAnchor:[7,7]});layer.setIcon(mi);}
+  var obj={id:id,layer:layer,title:title,desc:desc,color:color,visible:true,type:type,area:areaAcres||0};
+  _mnObjects.push(obj);
+  layer._mnObjId=id;
+  layer.on('contextmenu',function(ev){L.DomEvent.stopPropagation(ev);_mnEditObject(id);});
+  _mnRenderList();
+  notify('Saved: '+title,'fa-check-circle');
+  _cancelDraw();
+}
+
+function _mnRenderList(){
+  var el=document.getElementById('mn-annotations-list'); if(!el) return;
+  if(_mnObjects.length===0){el.innerHTML='';return;}
+  var html='<div style="font-size:11px;color:#aaa;margin-bottom:4px;font-weight:600;letter-spacing:.5px;">OBJECTS ('+_mnObjects.length+')</div>';
+  _mnObjects.forEach(function(obj){
+    var eye=obj.visible?'fa-eye':'fa-eye-slash';
+    var aStr=obj.area>0?' <span style="font-size:10px;color:#aaa;">('+obj.area.toFixed(2)+' ac)</span>':'';
+    html+='<div style="display:flex;align-items:center;gap:5px;padding:5px 6px;background:rgba(255,255,255,0.04);border-radius:5px;margin-bottom:3px;">'
+      +'<span style="width:12px;height:12px;border-radius:50%;background:'+obj.color+';flex-shrink:0;border:1px solid rgba(255,255,255,0.2);"></span>'
+      +'<span style="flex:1;font-size:12px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+obj.title+'">'+obj.title+aStr+'</span>'
+      +'<button onclick="_mnZoomTo(''+obj.id+'')" title="Zoom to" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:2px;font-size:11px;"><i class="fas fa-crosshairs"></i></button>'
+      +'<button onclick="_mnToggleVisible(''+obj.id+'')" title="Toggle" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:2px;font-size:11px;"><i class="fas '+eye+'"></i></button>'
+      +'<button onclick="_mnEditObject(''+obj.id+'')" title="Edit" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:2px;font-size:11px;"><i class="fas fa-pen"></i></button>'
+      +'<button onclick="_mnDeleteObject(''+obj.id+'')" title="Delete" style="background:none;border:none;color:#f87171;cursor:pointer;padding:2px;font-size:11px;"><i class="fas fa-trash"></i></button>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+function _mnZoomTo(id){var obj=_mnObjects.find(function(o){return o.id===id;});if(!obj)return;try{if(obj.layer.getBounds)map.fitBounds(obj.layer.getBounds(),{padding:[40,40]});else if(obj.layer.getLatLng)map.setView(obj.layer.getLatLng(),16);}catch(e){}}
+function _mnToggleVisible(id){var obj=_mnObjects.find(function(o){return o.id===id;});if(!obj)return;obj.visible=!obj.visible;if(obj.visible){if(!drawnItems.hasLayer(obj.layer))drawnItems.addLayer(obj.layer);}else{drawnItems.removeLayer(obj.layer);}_mnRenderList();}
+function _mnDeleteObject(id){var idx=_mnObjects.findIndex(function(o){return o.id===id;});if(idx<0)return;drawnItems.removeLayer(_mnObjects[idx].layer);_mnObjects.splice(idx,1);_mnRenderList();notify('Object deleted','fa-trash');}
+
+function _mnEditObject(id){
+  var obj=_mnObjects.find(function(o){return o.id===id;}); if(!obj)return;
+  var latlng=obj.layer.getBounds?obj.layer.getBounds().getCenter():obj.layer.getLatLng?obj.layer.getLatLng():map.getCenter();
+  var aStr=obj.area>0?'<div style="font-size:11px;color:#aaa;margin-bottom:6px;">'+obj.area.toFixed(2)+' acres</div>':'';
+  var csw=_MN_COLORS.map(function(c){return '<span onclick="document.getElementById(\'mn-edit-cs\').value=\''+c+'\';document.querySelectorAll(\'.mn-csw2\').forEach(function(x){x.style.outline=\'none\'});this.style.outline=\'3px solid #fff\';" class="mn-csw2" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:'+c+';cursor:pointer;margin-right:3px;'+(c===obj.color?'outline:3px solid #fff;':'')+'" ></span>';}).join('');
+  window._mnSaveEdit=function(){var t=document.getElementById('mn-edit-title');var d=document.getElementById('mn-edit-desc');var c=document.getElementById('mn-edit-cs');var vis=document.getElementById('mn-edit-vis');obj.title=t?t.value.trim()||obj.title:obj.title;obj.desc=d?d.value.trim():obj.desc;var nc=c?c.value:obj.color;if(nc!==obj.color){obj.color=nc;if(obj.layer.setStyle)obj.layer.setStyle({color:nc,fillColor:nc,fillOpacity:.15,weight:2});}if(vis){obj.visible=vis.checked;if(obj.visible){if(!drawnItems.hasLayer(obj.layer))drawnItems.addLayer(obj.layer);}else{drawnItems.removeLayer(obj.layer);}}_mnRenderList();map.closePopup();notify('Updated: '+obj.title,'fa-check-circle');};
+  window._mnDelFromEdit=function(){_mnDeleteObject(id);map.closePopup();};
+  var html='<div style="min-width:240px;padding:4px;"><div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px;"><i class="fas fa-pen"></i> Edit Object</div>'+aStr+'<label style="font-size:11px;color:#aaa;">Title</label><input id="mn-edit-title" value="'+obj.title+'" style="width:100%;box-sizing:border-box;padding:5px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:13px;margin-bottom:8px;"><label style="font-size:11px;color:#aaa;">Description</label><textarea id="mn-edit-desc" style="width:100%;box-sizing:border-box;padding:4px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:12px;min-height:40px;resize:none;margin-bottom:8px;">'+obj.desc+'</textarea><div style="margin-bottom:8px;"><div style="font-size:11px;color:#aaa;margin-bottom:4px;">Color</div>'+csw+'<input type="hidden" id="mn-edit-cs" value="'+obj.color+'"></div><div style="display:flex;align-items:center;margin-bottom:8px;gap:8px;"><label style="font-size:12px;color:#ccc;flex:1;">Visible on map</label><input type="checkbox" id="mn-edit-vis" '+(obj.visible?'checked':'')+' style="width:16px;height:16px;cursor:pointer;"></div><div style="display:flex;gap:6px;"><button onclick="window._mnSaveEdit()" style="flex:1;padding:6px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Save</button><button onclick="window._mnDelFromEdit()" style="padding:6px 10px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);border-radius:4px;cursor:pointer;font-size:12px;"><i class=\'fas fa-trash\'></i></button></div></div>';
+  L.popup({maxWidth:280,closeButton:true,className:'mn-draw-pop'}).setLatLng(latlng).setContent(html).openOn(map);
+}
+
+map.on('draw:created',function(e){
+  var layer=e.layer;
   drawnItems.addLayer(layer);
   try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(er){}
-  _currentDrawHandler = null;
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-  var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='none';
+  _currentDrawHandler=null;
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
   var _ds=document.getElementById('draw-status'); if(_ds) _ds.style.display='none';
-  var latlng = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng ? layer.getLatLng() : map.getCenter();
-  window._shapeApply = function(){
-    var lblEl=document.getElementById('shp-label-in');
-    var colEl=document.getElementById('shp-color-in');
-    var opaEl=document.getElementById('shp-opacity-in');
-    var lbl=lblEl?lblEl.value.trim():'';
-    var col=colEl?colEl.value:'#f0a500';
-    var opa=opaEl?(parseInt(opaEl.value)||15)/100:0.15;
-    if(layer.setStyle) layer.setStyle({color:col,fillColor:col,fillOpacity:opa,weight:2});
-    if(lbl){try{layer.bindTooltip(lbl,{permanent:true,direction:'center',className:'mn-shape-label'});layer.openTooltip();}catch(e){}}
-    layer._mnLabel=lbl; layer._mnColor=col;
-    layer.on('contextmenu',function(ev){L.DomEvent.stopPropagation(ev);window._editShapeLayer(layer);});
-    map.closePopup();
-    notify('Shape added'+(lbl?' "'+lbl+'"':''),'fa-check-circle');
-  };
-  window._shapeSkip = function(){
-    layer.on('contextmenu',function(ev){L.DomEvent.stopPropagation(ev);window._editShapeLayer(layer);});
-    map.closePopup();
-    notify('Shape added  right-click to label/recolor','fa-check');
-  };
-  var pHtml = '<div style="min-width:210px;padding:4px;">' +
-    '<b style="color:var(--accent);font-size:13px;"><i class=\'fas fa-tag\'></i> Label Shape</b><br>' +
-    '<input id="shp-label-in" placeholder="Label (optional)" style="width:100%;margin:6px 0;padding:4px 8px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">' +
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
-    '<label style="font-size:11px;color:#aaa;white-space:nowrap;">Color:</label>' +
-    '<input type="color" id="shp-color-in" value="#f0a500" style="width:36px;height:24px;border:none;background:none;cursor:pointer;border-radius:3px;">' +
-    '<label style="font-size:11px;color:#aaa;white-space:nowrap;">Fill %:</label>' +
-    '<input type="range" id="shp-opacity-in" min="0" max="80" value="15" style="flex:1;">' +
-    '</div>' +
-    '<div style="display:flex;gap:6px;">' +
-    '<button onclick="window._shapeApply()" style="flex:1;padding:5px;background:var(--accent);color:#000;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Apply</button>' +
-    '<button onclick="window._shapeSkip()" style="flex:1;padding:5px;background:#333;color:#ccc;border:none;border-radius:4px;cursor:pointer;font-size:12px;"><i class=\'fas fa-times\'></i> Skip</button>' +
-    '</div></div>';
-  L.popup({maxWidth:260,closeButton:false,className:'mn-draw-pop'}).setLatLng(latlng).setContent(pHtml).openOn(map);
-});
-
-window._editShapeLayer = function(layer){
-  var latlng = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng ? layer.getLatLng() : map.getCenter();
-  var curLbl = layer._mnLabel||'';
-  var curCol = layer._mnColor||'#f0a500';
-  window._editApply = function(){
-    var l2=document.getElementById('shp-label-in2'); var c2=document.getElementById('shp-color-in2');
-    var l=l2?l2.value.trim():''; var c=c2?c2.value:'#f0a500';
-    if(layer.setStyle) layer.setStyle({color:c,fillColor:c,fillOpacity:.2,weight:2});
-    layer._mnLabel=l; layer._mnColor=c;
-    try{if(layer.getTooltip())layer.unbindTooltip();}catch(e){}
-    if(l){try{layer.bindTooltip(l,{permanent:true,direction:'center',className:'mn-shape-label'});layer.openTooltip();}catch(e){}}
-    map.closePopup();
-    notify('Shape updated','fa-check-circle');
-  };
-  window._editDelete = function(){
-    drawnItems.removeLayer(layer);
-    map.closePopup();
-    notify('Shape deleted','fa-trash');
-  };
-  var pH2 = '<div style="min-width:210px;padding:4px;">' +
-    '<b style="color:var(--accent);font-size:13px;"><i class=\'fas fa-edit\'></i> Edit Shape</b><br>' +
-    '<input id="shp-label-in2" value="'+curLbl+'" placeholder="Label" style="width:100%;margin:6px 0;padding:4px 8px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">' +
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
-    '<label style="font-size:11px;color:#aaa;">Color:</label>' +
-    '<input type="color" id="shp-color-in2" value="'+curCol+'" style="width:36px;height:24px;border:none;background:none;cursor:pointer;border-radius:3px;">' +
-    '</div>' +
-    '<div style="display:flex;gap:6px;">' +
-    '<button onclick="window._editApply()" style="flex:1;padding:5px;background:var(--accent);color:#000;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Save</button>' +
-    '<button onclick="window._editDelete()" style="flex:1;padding:5px;background:rgba(239,68,68,0.25);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);border-radius:4px;cursor:pointer;font-size:12px;"><i class=\'fas fa-trash\'></i> Delete</button>' +
-    '</div></div>';
-  L.popup({maxWidth:260,closeButton:true,className:'mn-draw-pop'}).setLatLng(latlng).setContent(pH2).openOn(map);
-};
-
-map.on('draw:drawstop', function(){
-  try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(er){}
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-  var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='none';
-  var _ds2=document.getElementById('draw-status'); if(_ds2) _ds2.style.display='none';
+  var latlng=layer.getBounds?layer.getBounds().getCenter():layer.getLatLng?layer.getLatLng():map.getCenter();
+  var latlngs=layer.getLatLngs?layer.getLatLngs():null;
+  var areaAcres=0; if(latlngs) areaAcres=_mnAreaAcres(latlngs);
+  var type=layer instanceof L.Circle?'circle':layer instanceof L.Rectangle?'rectangle':layer instanceof L.Polygon?'polygon':layer instanceof L.Polyline?'polyline':'marker';
+  _mnOpenSaveDialog(layer,latlng,areaAcres,0,type);
 });
 
 function clearDrawings(){
   drawnItems.clearLayers();
+  _mnObjects=[];
+  _mnRenderList();
   try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(er){}
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
   notify('All drawings cleared','fa-eraser');
 }
+
+map.on('draw:drawstop', function(){
+  try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(er){}
+  document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('on');});
+  var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='none';
+  var _ds2=document.getElementById('draw-status'); if(_ds2) _ds2.style.display='none';
+});
+
+// clearDrawings defined above
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  COORDINATE CONVERTER
