@@ -1,50 +1,47 @@
 /* ============================================================================
- * Mapnova Hot-Fixes (post-extraction)
+ * Mapnova Hot-Fixes (post-extraction) - resilient edition
  * ----------------------------------------------------------------------------
- * Addresses bugs identified after split-file refactor:
+ * Each fix is idempotent and applied independently. Polls every 200ms for up
+ * to 60 seconds; stops once all three fixes succeed.
  *
- *   1. window.MNT alias - many index.html call-sites reference MNT.activeTool
- *      directly. Without this alias, those sites throw ReferenceError.
- *
- *   2. activeTool global sync - MNTools.setMode updates this.activeTool but
- *      not the legacy top-level "activeTool" variable used by handleToolClick
- *      / map.on('click') in index.html. We patch setMode so both stay in sync.
- *
- *   3. INQ.add field-name coverage - widen field fallbacks for parcel address
- *      and parcel id, and consult ownerCache for tier-1 enriched ownership.
+ *   1. window.MNT alias - many index.html call-sites reference MNT directly.
+ *   2. activeTool global sync - keep legacy activeTool var in sync with MNT.
+ *   3. INQ.add field-name coverage - widen field fallbacks + ownerCache lookup.
  * ========================================================================= */
 (function(){
   'use strict';
 
-  function whenReady(cb){
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', cb, {once:true});
-    } else { cb(); }
-  }
-
-  function applyMNTAlias(){
-    if (!window.MNT && window.MNTools) {
-      try { window.MNT = window.MNTools; } catch(e){}
+  function aliasMNT(){
+    if (window.MNT) return true;
+    if (window.MNTools) {
+      try { window.MNT = window.MNTools; return true; } catch(e){ return false; }
     }
+    return false;
   }
 
-  function applySetModeSync(){
+  function wrapSetMode(){
+    var MNT = window.MNTools;
+    if (!MNT || typeof MNT.setMode !== 'function') return false;
+    if (MNT.__legacySyncWrapped) return true;
     try {
-      var MNT = window.MNTools;
-      if (!MNT || typeof MNT.setMode !== 'function' || MNT.__legacySyncWrapped) return;
-      var origSetMode = MNT.setMode.bind(MNT);
+      var orig = MNT.setMode.bind(MNT);
       MNT.setMode = function(tool, btn){
-        origSetMode(tool, btn);
+        orig(tool, btn);
         try { window.activeTool = tool || null; } catch(e){}
       };
       MNT.__legacySyncWrapped = true;
-    } catch(e){ console.warn('[mn-bugfixes] setMode wrap failed:', e); }
+      return true;
+    } catch(e){
+      console.warn('[mn-bugfixes] setMode wrap failed:', e);
+      return false;
+    }
   }
 
-  function applyINQPatch(){
+  function patchINQ(){
+    var INQ = window.MNInquiryList;
+    if (!INQ || typeof INQ.add !== 'function') return false;
+    if (INQ.__fieldsPatched) return true;
     try {
-      var INQ = window.MNInquiryList;
-      if (!INQ || typeof INQ.add !== 'function' || INQ.__fieldsPatched) return false;
       var origAdd = INQ.add.bind(INQ);
       INQ.add = function(parcelOrLayer, maybeLayer){
         var ret = origAdd(parcelOrLayer, maybeLayer);
@@ -52,7 +49,7 @@
         var item = INQ.items[INQ.items.length - 1];
         if (!item || !item.parcel) return ret;
         var p = item.parcel;
-        var props = p.properties || p;
+        var props = (p && p.properties) || p || {};
         if (item.addr === '—' || !item.addr) {
           item.addr = props.prop_add || p.addr ||
                       props.SITE_ADDR || props.site_addr ||
@@ -81,32 +78,38 @@
       INQ.__fieldsPatched = true;
       return true;
     } catch(e){
-      console.warn('[mn-bugfixes] INQ.add patch failed:', e);
+      console.warn('[mn-bugfixes] INQ patch failed:', e);
       return false;
     }
   }
 
-  whenReady(function(){
-    var tries = 0;
-    var t = setInterval(function(){
-      tries++;
-      var mntReady = window.MNTools && typeof window.MNTools === 'object';
-      var inqReady = window.MNInquiryList && typeof window.MNInquiryList.add === 'function';
-      if (mntReady) {
-        applyMNTAlias();
-        applySetModeSync();
-      }
-      if (inqReady) {
-        applyINQPatch();
-      }
-      if (mntReady && (inqReady || window.MNInquiryList && window.MNInquiryList.__fieldsPatched)) {
-        clearInterval(t);
-        console.log('[Mapnova] Hot-fixes applied (MNT alias, activeTool sync, INQ field fallbacks)');
-      } else if (tries > 400) {
-        // Apply whatever we got
-        if (mntReady) console.log('[Mapnova] Hot-fixes partial (MNT alias + setMode only — INQ never appeared)');
-        clearInterval(t);
-      }
-    }, 100);
-  });
+  var done = { mnt: false, setMode: false, inq: false };
+  var tries = 0;
+  var maxTries = 300; // 60s at 200ms
+
+  function tick(){
+    tries++;
+    if (!done.mnt) done.mnt = aliasMNT();
+    if (!done.setMode) done.setMode = wrapSetMode();
+    if (!done.inq) done.inq = patchINQ();
+    if (done.mnt && done.setMode && done.inq) {
+      console.log('[Mapnova] Hot-fixes applied: MNT alias, activeTool sync, INQ field fallbacks (' + tries + ' ticks)');
+      clearInterval(timer);
+    } else if (tries >= maxTries) {
+      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq);
+      clearInterval(timer);
+    }
+  }
+
+  function start(){
+    tick(); // immediate first attempt
+    return setInterval(tick, 200);
+  }
+
+  var timer;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ timer = start(); }, {once:true});
+  } else {
+    timer = start();
+  }
 })();
