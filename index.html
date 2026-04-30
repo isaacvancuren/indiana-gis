@@ -5002,8 +5002,32 @@ map.on('mousemove', function(e) {
 
 map.on('click', e=>{
   const {lat,lng}=e.latlng;
-  if(!activeTool) return;
-  handleToolClick(lat,lng);
+  if(activeTool){ handleToolClick(lat,lng); return; }
+  // No tool active: hit-test parcel layers and select clicked parcel
+  try {
+    var clickPt = e.latlng;
+    var hitFeature = null;
+    map.eachLayer(function(layer){
+      if(hitFeature) return;
+      if(layer && layer._layers && typeof layer.eachLayer === 'function'){
+        layer.eachLayer(function(f){
+          if(hitFeature) return;
+          if(f && typeof f.getBounds === 'function'){
+            try {
+              if(f.getBounds().contains(clickPt) && f.feature && f.feature.properties){
+                hitFeature = f;
+              }
+            } catch(_e){}
+          }
+        });
+      }
+    });
+    if(hitFeature && typeof selectParcelLive === 'function'){
+      var p = (hitFeature.feature && hitFeature.feature.properties) || hitFeature.parcelData || {};
+      hitFeature.parcelData = p;
+      selectParcelLive(p, hitFeature);
+    }
+  } catch(err){}
 });
 
 function handleToolClick(lat,lng) {
