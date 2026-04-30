@@ -1233,116 +1233,132 @@ body.mn-county-selected #rpanel{display:flex!important;}
     <!--    TOOLS TAB    -->
     <div class="tpane" id="tab-tools">
 
+      <!-- ========== INQUIRE MODE (default) ========== -->
+      <div class="tsec" id="mn-inquire-sec">
+        <button id="mn-inquire-btn" class="tbtn tbtn-wide mn-active" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.45);color:#67e8f9;padding:8px;font-weight:600;">
+          <i class="fas fa-mouse-pointer"></i><span>Inquire on Property</span>
+        </button>
+        <div style="font-size:10px;color:#8fa3bf;margin-top:4px;text-align:center;" id="mn-mode-status">Click parcels to view info</div>
+      </div>
+
+      <!-- ========== MEASUREMENT ========== -->
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-ruler"></i> Measurement</div>
-        <div id="mn-meas-toolbar" style="margin-bottom:6px;">
-          <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <button class="tbtn" id="tb-dist" onclick="activateTool('distance',this)" style="flex:1;min-width:70px;">
-              <i class="fas fa-route"></i><span class="tl">Line Distance</span>
-            </button>
-            <button class="tbtn" id="tb-rectmeas" onclick="activateTool('rectmeas',this)" style="flex:1;min-width:70px;">
-              <i class="fas fa-vector-square"></i><span class="tl">Rectangle</span>
-            </button>
-            <button class="tbtn" id="tb-area" onclick="activateTool('area',this)" style="flex:1;min-width:70px;">
-              <i class="fas fa-draw-polygon"></i><span class="tl">Area</span>
-            </button>
-          </div>
-          <div id="mn-meas-units" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-              <label style="font-size:11px;color:#aaa;width:60px;">Distance</label>
-              <select id="mn-dist-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
-                <option value="ft">Feet</option>
-                <option value="mi">Miles</option>
-                <option value="m">Meters</option>
-                <option value="km">Kilometers</option>
-              </select>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label style="font-size:11px;color:#aaa;width:60px;">Area</label>
-              <select id="mn-area-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
-                <option value="acres">Acres</option>
-                <option value="sqft">Sq Feet</option>
-                <option value="sqm">Sq Meters</option>
-                <option value="ha">Hectares</option>
-              </select>
-            </div>
-          </div>
-          <div style="display:flex;gap:4px;margin-top:4px;">
-            <button class="tbtn" id="tb-bear" onclick="activateTool('bearing',this)" style="flex:1;">
-              <i class="fas fa-compass"></i><span class="tl">Bearing</span>
-            </button>
-            <button class="tbtn" id="tb-coord" onclick="activateTool('coordinate',this)" style="flex:1;">
-              <i class="fas fa-crosshairs"></i><span class="tl">Coordinates</span>
-            </button>
-          </div>
-        </div>
-        <div id="mout" style="font-size:11px;color:#8fa3bf;">Click a tool above, then click on the map.</div>
-        <div style="display:flex;gap:6px;margin-top:6px;">
-          <button id="btn-done-measure" class="sbtn" style="flex:1;justify-content:center;display:none;" onclick="doneMeasure()">
-            <i class="fas fa-check-circle"></i> Done
+        <div class="tgrid" style="grid-template-columns:1fr 1fr;">
+          <button class="tbtn" data-mn-tool="meas-line" id="tb-meas-line">
+            <i class="fas fa-route"></i><span class="tl">Measure Line</span>
           </button>
-          <button id="btn-exit-tool" class="sbtn-o" style="flex:1;justify-content:center;display:none;" onclick="clearMeasure()">
-            <i class="fas fa-times"></i> Exit
-          </button>
-          <button class="sbtn-o" style="flex:1;justify-content:center;" onclick="clearMeasure()">
-            <i class="fas fa-trash-can"></i> Clear
+          <button class="tbtn" data-mn-tool="meas-area" id="tb-meas-area">
+            <i class="fas fa-draw-polygon"></i><span class="tl">Measure Area</span>
           </button>
         </div>
+        <!-- Per-tool options for measurement -->
+        <div id="mn-meas-opts" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <label style="font-size:11px;color:#aaa;width:70px;">Distance</label>
+            <select id="mn-dist-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+              <option value="ft">Feet</option>
+              <option value="mi">Miles</option>
+              <option value="m">Meters</option>
+              <option value="km">Kilometers</option>
+              <option value="yd">Yards</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:11px;color:#aaa;width:70px;">Area</label>
+            <select id="mn-area-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+              <option value="acres">Acres</option>
+              <option value="sqft">Sq Feet</option>
+              <option value="sqm">Sq Meters</option>
+              <option value="ha">Hectares</option>
+              <option value="sqmi">Sq Miles</option>
+              <option value="sqkm">Sq Kilometers</option>
+            </select>
+          </div>
+        </div>
+        <!-- Saved measurements list -->
+        <div id="mn-meas-list" style="margin-top:8px;"></div>
       </div>
 
-      <div class="tsec" id="draw-annotate-sec">
-        <div class="tsec-title"><i class="fas fa-pencil"></i> Draw &amp; Annotate</div>
-        <div class="tgrid" style="grid-template-columns:repeat(3,1fr);">
-          <button class="tbtn" id="tb-dpoly" onclick="activateDraw('polygon',this)">
+      <!-- ========== DRAW & ANNOTATE ========== -->
+      <div class="tsec">
+        <div class="tsec-title"><i class="fas fa-pencil-alt"></i> Draw &amp; Annotate</div>
+        <div class="tgrid" style="grid-template-columns:1fr 1fr 1fr;">
+          <button class="tbtn" data-mn-tool="draw-polygon" id="tb-draw-polygon">
             <i class="fas fa-draw-polygon"></i><span class="tl">Polygon</span>
           </button>
-          <button class="tbtn" id="tb-dfree" onclick="activateDraw('freehand',this)">
+          <button class="tbtn" data-mn-tool="draw-freehand" id="tb-draw-freehand">
             <i class="fas fa-signature"></i><span class="tl">Freehand</span>
           </button>
-          <button class="tbtn" id="tb-drect" onclick="activateDraw('rectangle',this)">
-            <i class="fas fa-square"></i><span class="tl">Rectangle</span>
+          <button class="tbtn" data-mn-tool="draw-rect" id="tb-draw-rect">
+            <i class="fas fa-vector-square"></i><span class="tl">Shape</span>
           </button>
-          <button class="tbtn" id="tb-dcirc" onclick="activateDraw('circle',this)">
+          <button class="tbtn" data-mn-tool="draw-circle" id="tb-draw-circle">
             <i class="fas fa-circle"></i><span class="tl">Circle</span>
           </button>
-          <button class="tbtn" id="tb-dline" onclick="activateDraw('polyline',this)">
-            <i class="fas fa-pen-nib"></i><span class="tl">Polyline</span>
+          <button class="tbtn" data-mn-tool="draw-polyline" id="tb-draw-polyline">
+            <i class="fas fa-minus"></i><span class="tl">Polyline</span>
           </button>
-          <button class="tbtn" id="tb-dtext" onclick="activateDraw('textlabel',this)">
-            <i class="fas fa-font"></i><span class="tl">Text Label</span>
-          </button>
-          <button class="tbtn" id="tb-dmark" onclick="activateDraw('marker',this)">
-            <i class="fas fa-map-pin"></i><span class="tl">Marker</span>
-          </button>
-          <button class="tbtn" onclick="clearDrawings()">
-            <i class="fas fa-eraser"></i><span class="tl">Clear All</span>
+          <button class="tbtn" data-mn-tool="draw-text" id="tb-draw-text">
+            <i class="fas fa-font"></i><span class="tl">Text Box</span>
           </button>
         </div>
-        <div id="draw-status" style="display:none;margin:6px 0 2px;padding:6px 10px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:6px;font-size:12px;color:#67e8f9;line-height:1.4;">
-          <i class="fas fa-pencil"></i> <span id="draw-status-msg">Drawing</span>
-          <button onclick="window._cancelDraw()" style="float:right;background:none;border:none;color:#f87171;cursor:pointer;padding:0;font-size:11px;"><i class="fas fa-times"></i> Cancel</button>
+        <!-- Per-tool draw options -->
+        <div id="mn-draw-opts" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <label style="font-size:11px;color:#aaa;width:60px;">Color</label>
+            <div id="mn-draw-swatches" style="display:flex;gap:4px;flex:1;">
+              <span data-clr="#3b82f6" style="width:18px;height:18px;background:#3b82f6;border-radius:3px;cursor:pointer;border:2px solid #fff;"></span>
+              <span data-clr="#ef4444" style="width:18px;height:18px;background:#ef4444;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
+              <span data-clr="#22c55e" style="width:18px;height:18px;background:#22c55e;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
+              <span data-clr="#f59e0b" style="width:18px;height:18px;background:#f59e0b;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
+              <span data-clr="#a855f7" style="width:18px;height:18px;background:#a855f7;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
+              <span data-clr="#ec4899" style="width:18px;height:18px;background:#ec4899;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
+              <span data-clr="#06b6d4" style="width:18px;height:18px;background:#06b6d4;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
+            </div>
+          </div>
+          <div id="mn-draw-textinput-wrap" style="display:none;align-items:center;gap:8px;margin-top:5px;">
+            <label style="font-size:11px;color:#aaa;width:60px;">Text</label>
+            <input id="mn-draw-textinput" type="text" placeholder="Label text" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+          </div>
         </div>
-        <div id="mn-annotations-list" style="margin-top:8px;"></div>
-        <button class="sbtn-o" id="btn-delete-selected" style="width:100%;margin-top:8px;justify-content:center;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.45);color:#fca5a5;display:none;" onclick="if(window.MNSelect)MNSelect.deleteSelected();">
-          <i class="fas fa-trash"></i> Delete Selected <span id="sel-count-badge" style="margin-left:6px;background:rgba(239,68,68,0.3);padding:1px 6px;border-radius:8px;font-size:10px;">0</span>
+        <button class="tbtn tbtn-wide" id="tb-clear-draw" style="margin-top:6px;">
+          <i class="fas fa-eraser"></i><span class="tl">Clear All Drawings</span>
         </button>
+        <div id="mn-annotations-list" style="margin-top:8px;"></div>
       </div>
 
+      <!-- ========== SELECTION ========== -->
       <div class="tsec">
-        <div class="tsec-title"><i class="fas fa-object-group"></i> Selection &amp; Query</div>
-        <div class="tgrid">
-          <button class="tbtn" id="tb-selrect" onclick="activateTool('select-rect',this)">
+        <div class="tsec-title"><i class="fas fa-object-group"></i> Selection</div>
+        <div class="tgrid" style="grid-template-columns:1fr 1fr;">
+          <button class="tbtn" data-mn-tool="sel-click" id="tb-sel-click">
+            <i class="fas fa-hand-pointer"></i><span class="tl">Click Select</span>
+          </button>
+          <button class="tbtn" data-mn-tool="sel-box" id="tb-sel-box">
             <i class="fas fa-crop-simple"></i><span class="tl">Box Select</span>
           </button>
-          <button class="tbtn" id="tb-selpoly" onclick="activateTool('select-poly',this)">
+          <button class="tbtn" data-mn-tool="sel-line" id="tb-sel-line">
+            <i class="fas fa-grip-lines"></i><span class="tl">Line Select</span>
+          </button>
+          <button class="tbtn" data-mn-tool="sel-poly" id="tb-sel-poly">
             <i class="fas fa-lasso"></i><span class="tl">Poly Select</span>
           </button>
-          <button class="tbtn tbtn-wide" onclick="openModal('query-modal')">
-            <i class="fas fa-filter"></i><span class="tl">Attribute Query Builder</span>
+        </div>
+        <button class="tbtn tbtn-wide" onclick="openModal('query-modal')" style="margin-top:6px;">
+          <i class="fas fa-filter"></i><span class="tl">Attribute Query Builder</span>
+        </button>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <button class="tbtn" id="tb-sel-clear" style="flex:1;">
+            <i class="fas fa-times"></i><span class="tl">Clear Selection</span>
+          </button>
+          <button class="tbtn" id="tb-sel-delete" style="flex:1;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.45);color:#fca5a5;">
+            <i class="fas fa-trash"></i><span class="tl">Delete (<span id="sel-count-badge">0</span>)</span>
           </button>
         </div>
       </div>
 
+      <!-- ========== NAVIGATE & VIEW ========== -->
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-compass"></i> Navigate &amp; View</div>
         <div class="tgrid">
@@ -1352,7 +1368,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
           <button class="tbtn" onclick="goToMe()">
             <i class="fas fa-location-crosshairs"></i><span class="tl">My Location</span>
           </button>
-          <button class="tbtn" onclick="toggleFullscreen()">
+          <button class="tbtn" onclick="toggleFullScreen()">
             <i class="fas fa-expand"></i><span class="tl">Full Screen</span>
           </button>
           <button class="tbtn" onclick="openModal('bookmarks-modal')">
@@ -1361,6 +1377,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
         </div>
       </div>
 
+      <!-- ========== SPATIAL ANALYSIS ========== -->
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-brain"></i> Spatial Analysis</div>
         <div class="tgrid">
@@ -1376,13 +1393,14 @@ body.mn-county-selected #rpanel{display:flex!important;}
         </div>
       </div>
 
+      <!-- ========== SURVEYOR TOOLS ========== -->
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-drafting-compass"></i> Surveyor Tools</div>
         <div class="tgrid">
           <button class="tbtn" onclick="openModal('plss-modal')">
             <i class="fas fa-th-large"></i><span class="tl">PLSS Lookup</span>
           </button>
-          <button class="tbtn" id="tb-secco" onclick="activateTool('section-corner',this)">
+          <button class="tbtn" data-mn-tool="section-corner" id="tb-secco">
             <i class="fas fa-location-pin"></i><span class="tl">Sec. Corner</span>
           </button>
           <button class="tbtn tbtn-wide" onclick="openModal('drain-modal')">
@@ -8337,5 +8355,109 @@ window.selectParcel = function(p, layer) {
 })();
 </script>
 
+
+<script>
+(function(){
+  // ===== MNTools v1 - Pass 1: Core state machine =====
+  if(window.MNTools){return;}
+  var MNT = window.MNTools = {
+    activeTool: null,
+    activeBtn: null,
+    distUnit: 'ft',
+    areaUnit: 'acres',
+    drawColor: '#3b82f6',
+    measurements: [],
+    annotations: [],
+    selection: new Set(),
+    drawnLayer: null,
+    drawHandler: null,
+    setMode: function(tool, btn){
+      try { if(this.drawHandler){ this.drawHandler.disable(); this.drawHandler = null; } } catch(e){}
+      this._clearActiveBtn();
+      this.activeTool = tool;
+      this.activeBtn = btn || null;
+      try { window.activeTool = tool; } catch(e){}
+      var inquireBtn = document.getElementById('mn-inquire-btn');
+      var statusEl = document.getElementById('mn-mode-status');
+      if(!tool){
+        if(inquireBtn){ inquireBtn.classList.add('mn-active'); inquireBtn.style.background='rgba(6,182,212,0.15)'; inquireBtn.style.borderColor='rgba(6,182,212,0.45)'; inquireBtn.style.color='#67e8f9'; }
+        if(statusEl){ statusEl.textContent='Click parcels to view info'; statusEl.style.color='#8fa3bf'; }
+        document.body.style.cursor='';
+        if(typeof map !== 'undefined' && map._container){ map._container.style.cursor=''; }
+      } else {
+        if(inquireBtn){ inquireBtn.classList.remove('mn-active'); inquireBtn.style.background=''; inquireBtn.style.borderColor=''; inquireBtn.style.color=''; }
+        if(btn){ btn.classList.add('mn-active'); btn.style.background='rgba(6,182,212,0.18)'; btn.style.borderColor='rgba(6,182,212,0.5)'; btn.style.color='#67e8f9'; }
+        if(statusEl){ statusEl.textContent='Tool active: '+tool+' (double-click to finish, ESC to cancel)'; statusEl.style.color='#67e8f9'; }
+        if(typeof map !== 'undefined' && map._container){ map._container.style.cursor='crosshair'; }
+      }
+      this._showOptionsForTool(tool);
+    },
+    returnToInquire: function(){ this.setMode(null, null); },
+    _clearActiveBtn: function(){
+      var btns = document.querySelectorAll('[data-mn-tool]');
+      btns.forEach(function(b){ b.classList.remove('mn-active'); b.style.background=''; b.style.borderColor=''; b.style.color=''; });
+    },
+    _showOptionsForTool: function(tool){
+      var measOpts = document.getElementById('mn-meas-opts');
+      var drawOpts = document.getElementById('mn-draw-opts');
+      var textInput = document.getElementById('mn-draw-textinput-wrap');
+      if(measOpts) measOpts.style.display = (tool && tool.indexOf('meas-')===0) ? '' : 'none';
+      if(drawOpts) drawOpts.style.display = (tool && tool.indexOf('draw-')===0) ? '' : 'none';
+      if(textInput) textInput.style.display = (tool === 'draw-text') ? 'flex' : 'none';
+    }
+  };
+
+  // ===== Bootstrap on DOM ready =====
+  function MNTBoot(){
+    // Inquire button
+    var inq = document.getElementById('mn-inquire-btn');
+    if(inq) inq.addEventListener('click', function(){ MNT.returnToInquire(); });
+
+    // Tool button delegation
+    document.addEventListener('click', function(ev){
+      var btn = ev.target.closest('[data-mn-tool]');
+      if(!btn) return;
+      var tool = btn.getAttribute('data-mn-tool');
+      if(MNT.activeTool === tool){ MNT.returnToInquire(); return; }
+      MNT.setMode(tool, btn);
+      if(typeof MNT['start_'+tool.replace(/-/g,'_')] === 'function') MNT['start_'+tool.replace(/-/g,'_')]();
+    });
+
+    // Color swatch delegation
+    document.addEventListener('click', function(ev){
+      var sw = ev.target.closest('[data-clr]');
+      if(!sw) return;
+      var wrap = sw.closest('#mn-draw-swatches');
+      if(!wrap) return;
+      MNT.drawColor = sw.getAttribute('data-clr');
+      Array.from(wrap.children).forEach(function(c){ c.style.border='2px solid transparent'; });
+      sw.style.border='2px solid #fff';
+    });
+
+    // ESC key cancels
+    document.addEventListener('keydown', function(ev){
+      if(ev.key==='Escape' && MNT.activeTool){ MNT.returnToInquire(); }
+    });
+
+    // Unit dropdowns
+    var du = document.getElementById('mn-dist-unit');
+    if(du) du.addEventListener('change', function(){ MNT.distUnit = du.value; if(MNT.renderMeasList) MNT.renderMeasList(); });
+    var au = document.getElementById('mn-area-unit');
+    if(au) au.addEventListener('change', function(){ MNT.areaUnit = au.value; if(MNT.renderMeasList) MNT.renderMeasList(); });
+
+    // Clear All Drawings
+    var cad = document.getElementById('tb-clear-draw');
+    if(cad) cad.addEventListener('click', function(){ if(MNT.clearAllDrawings) MNT.clearAllDrawings(); });
+
+    // Selection clear/delete
+    var sc = document.getElementById('tb-sel-clear');
+    if(sc) sc.addEventListener('click', function(){ if(MNT.clearSelection) MNT.clearSelection(); });
+    var sd = document.getElementById('tb-sel-delete');
+    if(sd) sd.addEventListener('click', function(){ if(MNT.deleteSelection) MNT.deleteSelection(); });
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive') setTimeout(MNTBoot,100);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(MNTBoot,100); });
+})();
+</script>
 </body>
 </html>
