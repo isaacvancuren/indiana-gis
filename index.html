@@ -640,7 +640,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
   display:flex;align-items:center;gap:6px;padding:8px 12px;
   border-bottom:1px solid var(--border);background:var(--panel2);flex-shrink:0;
 }
-.mn-natfilter-btn{flex-shrink:0;background:linear-gradient(135deg,rgba(56,189,248,0.18),rgba(99,102,241,0.18))!important;border:1px solid rgba(56,189,248,0.45)!important;color:#7dd3fc!important;font-weight:700!important;letter-spacing:.4px;}.mn-projects-btn{flex-shrink:0;background:linear-gradient(135deg,rgba(34,197,94,0.18),rgba(16,185,129,0.18))!important;border:1px solid rgba(34,197,94,0.45)!important;color:#86efac!important;font-weight:700!important;letter-spacing:.4px;margin-left:8px;}.mn-projects-btn:hover{background:linear-gradient(135deg,rgba(34,197,94,0.28),rgba(16,185,129,0.28))!important;border-color:rgba(34,197,94,0.7)!important;}
+.mn-natfilter-btn{flex-shrink:0;background:linear-gradient(135deg,rgba(56,189,248,0.18),rgba(99,102,241,0.18))!important;border:1px solid rgba(56,189,248,0.45)!important;color:#7dd3fc!important;font-weight:700!important;letter-spacing:.4px;}.mn-projects-btn{flex-shrink:0;background:linear-gradient(135deg,rgba(56,189,248,0.18),rgba(99,102,241,0.18))!important;border:1px solid rgba(56,189,248,0.45)!important;color:#7dd3fc!important;font-weight:700!important;letter-spacing:.4px;margin-left:8px;}.mn-projects-btn:hover{background:linear-gradient(135deg,rgba(56,189,248,0.28),rgba(99,102,241,0.28))!important;border-color:rgba(56,189,248,0.7)!important;}
 .mn-natfilter-btn:hover{background:linear-gradient(135deg,rgba(56,189,248,0.28),rgba(99,102,241,0.28))!important;border-color:rgba(56,189,248,0.7)!important;}
 .mn-natfilter-btn.has-active{background:linear-gradient(135deg,#0891b2,#1e40af)!important;color:#fff!important;border-color:#06b6d4!important;}
 .mn-natfilter-menu{position:absolute;top:calc(100% + 6px);left:0;width:480px;max-height:560px;overflow-y:auto;background:#0f1722;border:1px solid #2b3a52;border-radius:8px;box-shadow:0 12px 36px rgba(0,0,0,0.55);z-index:1000;padding:8px;font-family:"Barlow Condensed",sans-serif;}
@@ -6173,7 +6173,7 @@ function runBuffer() {
   }).addTo(bufferLayer);
 
   bufferLayer.addTo(map);
-  map.fitBounds(L.circle(center, { radius: radiusM }).getBounds(), { padding: [30, 30] });
+  try{var __c=L.circle(center,{radius:radiusM});__c.addTo(map);map.fitBounds(__c.getBounds(),{padding:[30,30]});map.removeLayer(__c);}catch(e){map.setView(center,Math.max(10,15-Math.log2(Math.max(1,radiusM/500))));}
 
   // Count parcels within buffer using live layer data
   const liveParcelsForBuffer=[];
@@ -7474,18 +7474,18 @@ window.selectParcel = function(p, layer) {
 
 <script>
 (function(){
-  // === MAPNOVA TOOL FIXES ===
+  // === MAPNOVA TOOL FIXES (v2) ===
   function getInputs(modalId){return document.querySelectorAll('#'+modalId+' input,#'+modalId+' select,#'+modalId+' textarea');}
+  function notif(m,i){if(window.notify)return window.notify(m,i);console.log('[notify]',m);}
 
-  // ======= FLOOD RISK CHECK =======
   window.runFloodCheck=function(){
     var inputs=getInputs('flood-modal');
     var addr=inputs[0]?.value?.trim();
-    if(!addr){if(window.notify)notify('Enter an address or parcel ID','fa-exclamation');return;}
-    if(window.notify)notify('Checking FEMA flood zones for '+addr+'…','fa-house-flood-water');
+    if(!addr){notif('Enter an address or parcel ID','fa-exclamation');return;}
+    notif('Checking FEMA flood zones for '+addr+'…','fa-house-flood-water');
     fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(addr+', '+(inputs[1]?.value||'')+' County, IN'))
       .then(r=>r.json()).then(g=>{
-        if(!g||!g.length){if(window.notify)notify('Address not found','fa-exclamation');return;}
+        if(!g||!g.length){notif('Address not found','fa-exclamation');return;}
         var lat=parseFloat(g[0].lat),lon=parseFloat(g[0].lon);
         if(window.map)window.map.setView([lat,lon],17);
         var url='https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query?f=json&geometry='+lon+','+lat+'&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=FLD_ZONE,ZONE_SUBTY,STATIC_BFE&returnGeometry=false';
@@ -7493,22 +7493,24 @@ window.selectParcel = function(p, layer) {
           if(d.features&&d.features.length){
             var f=d.features[0].attributes;
             var zone=f.FLD_ZONE||'Unknown',sub=f.ZONE_SUBTY||'',bfe=f.STATIC_BFE||'';
-            if(window.notify)notify('Flood Zone: '+zone+(sub?' ('+sub+')':'')+(bfe&&bfe!=-9999?' BFE: '+bfe+'ft':''),'fa-house-flood-water');
+            notif('Flood Zone: '+zone+(sub?' ('+sub+')':'')+(bfe&&bfe!=-9999?' BFE: '+bfe+'ft':''),'fa-house-flood-water');
           }else{
-            if(window.notify)notify('Outside FEMA mapped flood zones (Zone X)','fa-check');
+            notif('Outside FEMA mapped flood zones (Zone X)','fa-check');
           }
-          if(window.map&&window.L)L.marker([lat,lon]).addTo(window.map).bindPopup('<b>'+addr+'</b>').openPopup();
+          if(window.map&&window.L){
+            if(window.__floodMarker)window.map.removeLayer(window.__floodMarker);
+            window.__floodMarker=L.marker([lat,lon]).addTo(window.map).bindPopup('<b>'+addr+'</b>').openPopup();
+          }
         });
-      }).catch(e=>{if(window.notify)notify('Flood check failed: '+e.message,'fa-exclamation');});
+      }).catch(e=>notif('Flood check failed: '+e.message,'fa-exclamation'));
     if(window.closeModal)closeModal('flood-modal');
   };
 
-  // ======= PLSS LOOKUP =======
   window.goToPLSS=function(){
     var inputs=getInputs('plss-modal');
     var sec=inputs[0]?.value, twp=inputs[1]?.value, rng=inputs[2]?.value;
-    if(!sec||!twp||!rng){if(window.notify)notify('Enter Section, Township, and Range','fa-exclamation');return;}
-    if(window.notify)notify('Locating Section '+sec+' T'+twp+' R'+rng+'…','fa-th-large');
+    if(!sec||!twp||!rng){notif('Enter Section, Township, and Range','fa-exclamation');return;}
+    notif('Locating Section '+sec+' T'+twp+' R'+rng+'…','fa-th-large');
     var where="FRSTDIVNO='"+sec+"' AND TWNSHPNO='"+twp.replace(/[^0-9]/g,'')+"' AND PRINMERN='2'";
     var url='https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/2/query?f=geojson&where='+encodeURIComponent(where)+'&outFields=*';
     fetch(url).then(r=>r.json()).then(d=>{
@@ -7517,19 +7519,18 @@ window.selectParcel = function(p, layer) {
         window.map.fitBounds(layer.getBounds());
         if(window.__plssLayer)window.map.removeLayer(window.__plssLayer);
         window.__plssLayer=layer;
-        if(window.notify)notify('Section '+sec+' T'+twp+' R'+rng+' located','fa-check');
+        notif('Section '+sec+' T'+twp+' R'+rng+' located','fa-check');
       }else{
-        if(window.notify)notify('Section not found - try alternate format','fa-exclamation');
+        notif('Section not found - try alternate format','fa-exclamation');
       }
-    }).catch(e=>{if(window.notify)notify('PLSS query failed: '+e.message,'fa-exclamation');});
+    }).catch(e=>notif('PLSS query failed: '+e.message,'fa-exclamation'));
     if(window.closeModal)closeModal('plss-modal');
   };
 
-  // ======= REGULATED DRAIN VIEWER =======
   window.showDrains=function(){
     var inputs=getInputs('drain-modal');
     var name=inputs[0]?.value?.trim();
-    if(window.notify)notify('Loading regulated drains'+(name?' for "'+name+'"':'')+'…','fa-water');
+    notif('Loading regulated drains'+(name?' for "'+name+'"':'')+'…','fa-water');
     var where=name?"DRAIN_NAME LIKE '%25"+name.toUpperCase().replace(/'/g,"''")+"%25'":'1=1';
     var url='https://gisdata.in.gov/server/rest/services/Hosted/Regulated_Drains/FeatureServer/0/query?f=geojson&where='+encodeURIComponent(where)+'&outFields=*&resultRecordCount=500';
     fetch(url).then(r=>r.json()).then(d=>{
@@ -7539,20 +7540,92 @@ window.selectParcel = function(p, layer) {
         layer.bindPopup(function(l){var p=l.feature.properties;return '<b>'+(p.DRAIN_NAME||p.NAME||'Drain')+'</b>';});
         window.map.fitBounds(layer.getBounds());
         window.__drainLayer=layer;
-        if(window.notify)notify(d.features.length+' drains shown','fa-check');
+        notif(d.features.length+' drains shown','fa-check');
       }else{
-        if(window.notify)notify('No regulated drains found','fa-exclamation');
+        notif('No regulated drains found','fa-exclamation');
       }
-    }).catch(e=>{if(window.notify)notify('Drain query failed: '+e.message,'fa-exclamation');});
+    }).catch(e=>notif('Drain query failed: '+e.message,'fa-exclamation'));
     if(window.closeModal)closeModal('drain-modal');
   };
 
-  // ======= REPORT GENERATOR =======
   window.runReport=function(){
-    if(window.notify)notify('Opening print dialog…','fa-file-pdf');
+    notif('Opening print dialog…','fa-file-pdf');
     setTimeout(function(){window.print();},300);
     if(window.closeModal)closeModal('report-modal');
   };
+
+  // ======= BOX SELECT / POLY SELECT =======
+  var __boxStart=null, __boxRect=null, __polyPts=[], __polyLayer=null;
+
+  function selectInBounds(bounds){
+    var hits=[];
+    if(!window.map)return hits;
+    window.map.eachLayer(function(layer){
+      if(layer.eachLayer){
+        try{
+          layer.eachLayer(function(sub){
+            try{
+              if(sub.getBounds&&bounds.intersects(sub.getBounds()))hits.push(sub);
+              else if(sub.getLatLng&&bounds.contains(sub.getLatLng()))hits.push(sub);
+            }catch(e){}
+          });
+        }catch(e){}
+      }
+    });
+    return hits;
+  }
+
+  function installSelectHandlers(){
+    if(!window.map||!window.L)return false;
+    window.map.on('mousedown',function(e){
+      var at;try{at=eval('activeTool');}catch(_){at=null;}
+      if(at!=='select-rect')return;
+      __boxStart=e.latlng;
+      window.map.dragging.disable();
+      if(__boxRect){window.map.removeLayer(__boxRect);__boxRect=null;}
+    });
+    window.map.on('mousemove',function(e){
+      if(!__boxStart)return;
+      var b=L.latLngBounds(__boxStart,e.latlng);
+      if(__boxRect)window.map.removeLayer(__boxRect);
+      __boxRect=L.rectangle(b,{color:'#38bdf8',weight:2,dashArray:'5,5',fillOpacity:0.1}).addTo(window.map);
+    });
+    window.map.on('mouseup',function(e){
+      if(!__boxStart)return;
+      var b=L.latLngBounds(__boxStart,e.latlng);
+      __boxStart=null;
+      window.map.dragging.enable();
+      var hits=selectInBounds(b);
+      notif('Selected '+hits.length+' features in box','fa-crop-simple');
+      hits.forEach(function(h){try{if(h.setStyle)h.setStyle({color:'#fbbf24',weight:3});}catch(e){}});
+      setTimeout(function(){if(__boxRect){window.map.removeLayer(__boxRect);__boxRect=null;}},2000);
+    });
+    window.map.on('click',function(e){
+      var at;try{at=eval('activeTool');}catch(_){at=null;}
+      if(at!=='select-poly')return;
+      __polyPts.push(e.latlng);
+      if(__polyLayer)window.map.removeLayer(__polyLayer);
+      if(__polyPts.length>=2){
+        __polyLayer=L.polygon(__polyPts,{color:'#a855f7',weight:2,dashArray:'4,4',fillOpacity:0.1}).addTo(window.map);
+      }else{
+        __polyLayer=L.circleMarker(__polyPts[0],{radius:5,color:'#a855f7'}).addTo(window.map);
+      }
+    });
+    window.map.on('dblclick',function(e){
+      var at;try{at=eval('activeTool');}catch(_){at=null;}
+      if(at!=='select-poly'||__polyPts.length<3)return;
+      var poly=L.polygon(__polyPts);poly.addTo(window.map);
+      var b=poly.getBounds();window.map.removeLayer(poly);
+      var hits=selectInBounds(b);
+      notif('Selected '+hits.length+' features in polygon','fa-lasso');
+      hits.forEach(function(h){try{if(h.setStyle)h.setStyle({color:'#fbbf24',weight:3});}catch(e){}});
+      __polyPts=[];
+      setTimeout(function(){if(__polyLayer){window.map.removeLayer(__polyLayer);__polyLayer=null;}},2000);
+    });
+    return true;
+  }
+  function tryInstall(){if(!installSelectHandlers())setTimeout(tryInstall,500);}
+  tryInstall();
 
   function rewireModals(){
     function patch(modalId,btnText,newOnclick){
