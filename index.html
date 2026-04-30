@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mapnova — Universal Mapping Platform</title>
+<title>Mapnova  Universal Mapping Platform</title>
 <meta name="application-name" content="Mapnova">
-<meta name="description" content="Mapnova — Universal GIS mapping platform. Explore parcels, layers, zoning, flood zones, imagery and more for any location.">
+<meta name="description" content="Mapnova  Universal GIS mapping platform. Explore parcels, layers, zoning, flood zones, imagery and more for any location.">
 <meta name="keywords" content="Mapnova, GIS, mapping, parcels, land data, zoning, aerial imagery, property search">
 <meta name="author" content="Mapnova">
 <meta name="theme-color" content="#080b0f">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Mapnova — Universal Mapping Platform">
+<meta property="og:title" content="Mapnova  Universal Mapping Platform">
 <meta property="og:description" content="Explore parcels, layers, zoning, flood zones, and aerial imagery for any location worldwide.">
 <meta property="og:site_name" content="Mapnova">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Mapnova — Universal Mapping Platform">
+<meta name="twitter:title" content="Mapnova  Universal Mapping Platform">
 <meta name="twitter:description" content="Explore parcels, layers, zoning, flood zones, and aerial imagery for any location worldwide.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -762,6 +762,8 @@ body.mn-county-selected #rpanel{display:flex!important;}
   pointer-events:none;opacity:0;transition:opacity .3s;text-align:center;
 }
 #zoom-hint.on{opacity:1;}
+.mn-seg-label{background:rgba(0,0,0,.75)!important;border:none!important;border-radius:3px!important;color:#f0a500!important;font-size:11px!important;font-weight:700!important;padding:1px 5px!important;white-space:nowrap!important;pointer-events:none!important;box-shadow:none!important;}
+.mn-meas-panel{font-family:Barlow,sans-serif;}
 .mn-shape-label {
   background: rgba(0,0,0,0.7) !important;
   border: 1px solid rgba(255,255,255,0.25) !important;
@@ -890,14 +892,14 @@ body.mn-county-selected #rpanel{display:flex!important;}
   <div class="hsep"></div>
   <div id="loc-sel-wrap" class="loc-sel-wrap">
     <select id="country-sel" class="loc-sel" title="Select Country">
-      <option value="" selected>— Select Country —</option>
+      <option value="" selected> Select Country </option>
       <option value="usa"><�<� United States</option>
       <option value="canada" disabled><�<� Canada (coming soon)</option>
       <option value="mexico" disabled><�<� Mexico (coming soon)</option>
       <option value="intl" disabled>< International (coming soon)</option>
     </select>
     <select id="state-sel" class="loc-sel" title="Select State">
-      <option value="" selected>— Select State —</option>
+      <option value="" selected> Select State </option>
       <option value="indiana">Indiana</option>
       <option value="alabama" disabled>Alabama (coming soon)</option>
       <option value="alaska" disabled>Alaska (coming soon)</option>
@@ -950,7 +952,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
       <option value="wyoming" disabled>Wyoming (coming soon)</option>
     </select>
     <select id="county-sel" class="loc-sel" title="Select State first" disabled>
-      <option value="" selected>— Select State first —</option>
+      <option value="" selected> Select State first </option>
     </select>
   </div>
 
@@ -1063,12 +1065,12 @@ body.mn-county-selected #rpanel{display:flex!important;}
     </div>
   <div id="sbody">
 
-    <!--    LAYERS TAB — Dynamically generated per county    -->
+    <!--    LAYERS TAB  Dynamically generated per county    -->
     <div class="tpane on" id="tab-layers">
 
-      <!-- STATEWIDE LAYERS — always present, always working -->
+      <!-- STATEWIDE LAYERS  always present, always working -->
 
-      <!-- COUNTY-SPECIFIC LAYERS — populated dynamically on county switch -->
+      <!-- COUNTY-SPECIFIC LAYERS  populated dynamically on county switch -->
       <div id="county-layers-container">
         <div style="padding:16px 14px;color:var(--text3);font-size:11px;text-align:center;">
           <i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>
@@ -1085,7 +1087,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
         <p>Click any highlighted parcel on the map to load full property details, owner info, and the Property Record Card.</p>
         <div class="pe-hint">
           <i class="fas fa-arrow-pointer"></i>
-          <span>Parcel click mode is <strong>always active</strong> — just click!</span>
+          <span>Parcel click mode is <strong>always active</strong>  just click!</span>
         </div>
       </div>
       <div id="parcel-detail" style="display:none;">
@@ -1116,31 +1118,31 @@ body.mn-county-selected #rpanel{display:flex!important;}
             <div class="prc-grid">
               <div class="prc-cell">
                 <div class="lbl">Parcel Number</div>
-                <div class="val" id="prc-pid" style="font-size:10px;">—</div>
+                <div class="val" id="prc-pid" style="font-size:10px;"></div>
               </div>
               <div class="prc-cell">
                 <div class="lbl">Use Classification</div>
-                <div class="val" id="prc-use">—</div>
+                <div class="val" id="prc-use"></div>
               </div>
               <div class="prc-cell">
                 <div class="lbl">Total Assessed Value</div>
-                <div class="val big" id="prc-tv">—</div>
+                <div class="val big" id="prc-tv"></div>
               </div>
               <div class="prc-cell">
                 <div class="lbl">Annual Tax Liability</div>
-                <div class="val big" id="prc-tax" style="color:var(--green);">—</div>
+                <div class="val big" id="prc-tax" style="color:var(--green);"></div>
               </div>
               <div class="prc-cell prc-fullwidth">
                 <div class="lbl">Property Address</div>
-                <div class="val" id="prc-addr">—</div>
+                <div class="val" id="prc-addr"></div>
               </div>
               <div class="prc-cell">
                 <div class="lbl">Land Area</div>
-                <div class="val" id="prc-acres">—</div>
+                <div class="val" id="prc-acres"></div>
               </div>
               <div class="prc-cell">
                 <div class="lbl">Zoning District</div>
-                <div class="val" id="prc-zone">—</div>
+                <div class="val" id="prc-zone"></div>
               </div>
             </div>
 
@@ -1157,48 +1159,48 @@ body.mn-county-selected #rpanel{display:flex!important;}
         <!-- Owner Information -->
         <div class="psec">
           <div class="psec-title"><i class="fas fa-user-tie"></i> Owner Information</div>
-          <div class="prow"><span class="pk">Owner Name</span><span class="pv" id="pi-owner">—</span></div>
-          <div class="prow"><span class="pk">Owner Type</span><span class="pv"><span class="pbadge" id="pi-otype">—</span></span></div>
-          <div class="prow"><span class="pk">Mailing Address</span><span class="pv" id="pi-oaddr">—</span></div>
-          <div class="prow"><span class="pk">Deed Reference</span><span class="pv" id="pi-deed">—</span></div>
-          <div class="prow"><span class="pk">Transfer Date</span><span class="pv" id="pi-txdate">—</span></div>
-          <div class="prow"><span class="pk">Transfer Price</span><span class="pv" id="pi-txprice">—</span></div>
+          <div class="prow"><span class="pk">Owner Name</span><span class="pv" id="pi-owner"></span></div>
+          <div class="prow"><span class="pk">Owner Type</span><span class="pv"><span class="pbadge" id="pi-otype"></span></span></div>
+          <div class="prow"><span class="pk">Mailing Address</span><span class="pv" id="pi-oaddr"></span></div>
+          <div class="prow"><span class="pk">Deed Reference</span><span class="pv" id="pi-deed"></span></div>
+          <div class="prow"><span class="pk">Transfer Date</span><span class="pv" id="pi-txdate"></span></div>
+          <div class="prow"><span class="pk">Transfer Price</span><span class="pv" id="pi-txprice"></span></div>
         </div>
 
         <!-- Location -->
         <div class="psec">
           <div class="psec-title"><i class="fas fa-location-dot"></i> Location &amp; PLSS</div>
-          <div class="prow"><span class="pk">Address</span><span class="pv" id="pi-addr">—</span></div>
-          <div class="prow"><span class="pk">City / ZIP</span><span class="pv" id="pi-citzip">—</span></div>
+          <div class="prow"><span class="pk">Address</span><span class="pv" id="pi-addr"></span></div>
+          <div class="prow"><span class="pk">City / ZIP</span><span class="pv" id="pi-citzip"></span></div>
           <div class="prow"><span class="pk">County</span><span class="pv" id="pi-county">Bartholomew</span></div>
-          <div class="prow"><span class="pk">Coordinates</span><span class="pv" id="pi-latlon">—</span></div>
-          <div class="prow"><span class="pk">Township</span><span class="pv" id="pi-twp">—</span></div>
-          <div class="prow"><span class="pk">Section</span><span class="pv" id="pi-sec">—</span></div>
-          <div class="prow"><span class="pk">Range</span><span class="pv" id="pi-range">—</span></div>
-          <div class="prow"><span class="pk">Legal Desc.</span><span class="pv" id="pi-legal">—</span></div>
+          <div class="prow"><span class="pk">Coordinates</span><span class="pv" id="pi-latlon"></span></div>
+          <div class="prow"><span class="pk">Township</span><span class="pv" id="pi-twp"></span></div>
+          <div class="prow"><span class="pk">Section</span><span class="pv" id="pi-sec"></span></div>
+          <div class="prow"><span class="pk">Range</span><span class="pv" id="pi-range"></span></div>
+          <div class="prow"><span class="pk">Legal Desc.</span><span class="pv" id="pi-legal"></span></div>
         </div>
 
         <!-- Physical Characteristics -->
         <div class="psec">
           <div class="psec-title"><i class="fas fa-building"></i> Physical Characteristics</div>
-          <div class="prow"><span class="pk">Acres / Sq Ft</span><span class="pv" id="pi-acressf">—</span></div>
-          <div class="prow"><span class="pk">Year Built</span><span class="pv" id="pi-yr">—</span></div>
-          <div class="prow"><span class="pk">Structure SF</span><span class="pv" id="pi-struct">—</span></div>
-          <div class="prow"><span class="pk">Bedrooms / Baths</span><span class="pv" id="pi-bed">—</span></div>
-          <div class="prow"><span class="pk">Construction</span><span class="pv" id="pi-const">—</span></div>
-          <div class="prow"><span class="pk">Condition</span><span class="pv"><span class="pbadge" id="pi-cond">—</span></span></div>
+          <div class="prow"><span class="pk">Acres / Sq Ft</span><span class="pv" id="pi-acressf"></span></div>
+          <div class="prow"><span class="pk">Year Built</span><span class="pv" id="pi-yr"></span></div>
+          <div class="prow"><span class="pk">Structure SF</span><span class="pv" id="pi-struct"></span></div>
+          <div class="prow"><span class="pk">Bedrooms / Baths</span><span class="pv" id="pi-bed"></span></div>
+          <div class="prow"><span class="pk">Construction</span><span class="pv" id="pi-const"></span></div>
+          <div class="prow"><span class="pk">Condition</span><span class="pv"><span class="pbadge" id="pi-cond"></span></span></div>
         </div>
 
         <!-- Assessment -->
         <div class="psec">
           <div class="psec-title"><i class="fas fa-circle-dollar-to-slot"></i> Assessment &amp; Tax</div>
-          <div class="prow"><span class="pk">Land Value</span><span class="pv" id="pi-lv">—</span></div>
-          <div class="prow"><span class="pk">Improvements</span><span class="pv" id="pi-iv">—</span></div>
-          <div class="prow"><span class="pk">Total Assessed</span><span class="pv" id="pi-tv" style="color:var(--accent);font-weight:700;">—</span></div>
-          <div class="prow"><span class="pk">Homestead Ex.</span><span class="pv" id="pi-hx">—</span></div>
-          <div class="prow"><span class="pk">Annual Tax</span><span class="pv" id="pi-tax" style="color:var(--green);">—</span></div>
-          <div class="prow"><span class="pk">Tax Year</span><span class="pv" id="pi-ty">—</span></div>
-          <div class="prow"><span class="pk">Tax Status</span><span class="pv"><span class="pbadge" id="pi-txstat">—</span></span></div>
+          <div class="prow"><span class="pk">Land Value</span><span class="pv" id="pi-lv"></span></div>
+          <div class="prow"><span class="pk">Improvements</span><span class="pv" id="pi-iv"></span></div>
+          <div class="prow"><span class="pk">Total Assessed</span><span class="pv" id="pi-tv" style="color:var(--accent);font-weight:700;"></span></div>
+          <div class="prow"><span class="pk">Homestead Ex.</span><span class="pv" id="pi-hx"></span></div>
+          <div class="prow"><span class="pk">Annual Tax</span><span class="pv" id="pi-tax" style="color:var(--green);"></span></div>
+          <div class="prow"><span class="pk">Tax Year</span><span class="pv" id="pi-ty"></span></div>
+          <div class="prow"><span class="pk">Tax Status</span><span class="pv"><span class="pbadge" id="pi-txstat"></span></span></div>
         </div>
 
         <!-- Sales History -->
@@ -1247,13 +1249,13 @@ body.mn-county-selected #rpanel{display:flex!important;}
             <i class="fas fa-crosshairs"></i><span class="tl">Show Lat/Lng</span>
           </button>
         </div>
-        <div id="mout">Click a tool above, then click on the map.</div>
+        <div id="mout" style="font-size:11px;color:#8fa3bf;">Click a tool above, then click on the map.</div>
         <div style="display:flex;gap:6px;margin-top:6px;">
           <button id="btn-done-measure" class="sbtn" style="flex:1;justify-content:center;display:none;" onclick="doneMeasure()">
             <i class="fas fa-check-circle"></i> Done
           </button>
           <button id="btn-exit-tool" class="sbtn-o" style="flex:1;justify-content:center;display:none;" onclick="clearMeasure()">
-            <i class="fas fa-arrow-left"></i> Exit
+            <i class="fas fa-times"></i> Exit
           </button>
           <button class="sbtn-o" style="flex:1;justify-content:center;" onclick="clearMeasure()">
             <i class="fas fa-trash-can"></i> Clear
@@ -1284,7 +1286,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
           </button>
         </div>
         <div id="draw-status" style="display:none;margin:6px 0 2px;padding:6px 10px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:6px;font-size:12px;color:#67e8f9;line-height:1.4;">
-          <i class="fas fa-pencil"></i> Drawing — double-click to finish
+          <i class="fas fa-pencil"></i> Drawing  double-click to finish
           <button onclick="if(window._currentDrawHandler){try{window._currentDrawHandler.disable();}catch(e){};window._currentDrawHandler=null;} document.getElementById('draw-status').style.display='none'; try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='';}catch(e){} document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));" style="float:right;background:none;border:none;color:#f87171;cursor:pointer;padding:0;font-size:11px;"><i class="fas fa-times"></i> Exit</button>
         </div>
         <button class="sbtn-o" id="btn-delete-selected" style="width:100%;margin-top:8px;justify-content:center;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.45);color:#fca5a5;" onclick="if(window.MNSelect)MNSelect.deleteSelected();">
@@ -1479,7 +1481,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
 
   <!-- Status bar -->
   <div id="sbar">
-    <span id="coords-disp"><i class="fas fa-crosshairs" style="margin-right:4px;"></i>Lat: — � Lon: —</span>
+    <span id="coords-disp"><i class="fas fa-crosshairs" style="margin-right:4px;"></i>Lat:  � Lon: </span>
     <span class="sbar-sep"></span>
     <span id="zoom-disp"><i class="fas fa-search-plus" style="margin-right:4px;"></i>Zoom: 12</span>
     <span class="sbar-sep"></span>
@@ -1512,12 +1514,12 @@ body.mn-county-selected #rpanel{display:flex!important;}
   </div>
   <div id="rpbody">
     <div class="rcard">
-      <div class="rcard-title"><i class="fas fa-map-pin"></i> <span id="rp-county-name">— No County Selected —</span> <span id="visible-parcel-count" style="float:right;font-size:10px;font-weight:400;color:var(--text3);font-family:'Barlow',sans-serif;"></span></div>
+      <div class="rcard-title"><i class="fas fa-map-pin"></i> <span id="rp-county-name"> No County Selected </span> <span id="visible-parcel-count" style="float:right;font-size:10px;font-weight:400;color:var(--text3);font-family:'Barlow',sans-serif;"></span></div>
       <div class="rgrid">
-        <div class="rstat"><div class="rstat-val" id="rp-total-parcels">—</div><div class="rstat-lbl">Total Parcels</div></div>
-        <div class="rstat"><div class="rstat-val" id="rp-total-area">—</div><div class="rstat-lbl">Total Area</div></div>
-        <div class="rstat"><div class="rstat-val" id="rp-total-assessed">—</div><div class="rstat-lbl">Total Assessed</div></div>
-        <div class="rstat"><div class="rstat-val" id="rp-population">—</div><div class="rstat-lbl">Population</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-total-parcels"></div><div class="rstat-lbl">Total Parcels</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-total-area"></div><div class="rstat-lbl">Total Area</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-total-assessed"></div><div class="rstat-lbl">Total Assessed</div></div>
+        <div class="rstat"><div class="rstat-val" id="rp-population"></div><div class="rstat-lbl">Population</div></div>
       </div>
       <!-- Mini donut / use breakdown bars -->
       <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
@@ -1580,7 +1582,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
         </div>
         <div style="font-size:10px;color:var(--text3);line-height:1.7;">
           <i class="fas fa-server" style="margin-right:4px;"></i>ElevateMaps ArcGIS MapServer<br>
-          <i class="fas fa-layer-group" style="margin-right:4px;"></i>BartholomewINDynamic — 60+ layers<br>
+          <i class="fas fa-layer-group" style="margin-right:4px;"></i>BartholomewINDynamic  60+ layers<br>
           <i class="fas fa-clock" style="margin-right:4px;"></i>Updated nightly by County GIS Dept.
         </div>
       </div>
@@ -1625,7 +1627,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
 <div class="modal">
   <div class="mhdr"><div class="mhdr-icon"><i class="fas fa-circle-info"></i></div><div class="mhdr-title">About Mapnova</div><button class="mclose" onclick="closeModal('about-modal')"><i class="fas fa-xmark"></i></button></div>
   <div class="mbody">
-    <p style="color:var(--text2);font-size:13px;line-height:1.8;margin-bottom:14px;">Mapnova is a universal GIS mapping platform pulling <strong style="color:var(--accent);">live data</strong> directly from Bartholomew County's official GIS server — the same source that powers Beacon/ElevateMaps — combined with statewide Indiana parcel, assessment, and spatial data.</p>
+    <p style="color:var(--text2);font-size:13px;line-height:1.8;margin-bottom:14px;">Mapnova is a universal GIS mapping platform pulling <strong style="color:var(--accent);">live data</strong> directly from Bartholomew County's official GIS server  the same source that powers Beacon/ElevateMaps  combined with statewide Indiana parcel, assessment, and spatial data.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;"><b style="color:var(--accent);font-size:18px;font-family:'Barlow Condensed',sans-serif;">92</b><br><span style="color:var(--text3);">Indiana Counties</span></div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;"><b style="color:var(--accent);font-size:18px;font-family:'Barlow Condensed',sans-serif;">2M+</b><br><span style="color:var(--text3);">Statewide Parcels</span></div>
@@ -1635,12 +1637,12 @@ body.mn-county-selected #rpanel{display:flex!important;}
     <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;margin-bottom:8px;">
       <div style="font-weight:700;color:var(--accent2);margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.4px;text-transform:uppercase;font-size:11px;"><i class="fas fa-database" style="margin-right:5px;"></i>Live Data Sources</div>
       <div style="color:var(--text2);line-height:1.8;">
-        " <b style="color:var(--text);">Bartholomew County ArcGIS MapServer</b> — elb.elevatemaps.io (Beacon/ElevateMaps)<br>
-        " <b style="color:var(--text);">Parcels, Zoning, Drains, Roads, Sections</b> — Bartholomew Co. Surveyor/Assessor<br>
-        " <b style="color:var(--text);">Esri World Imagery</b> — Aerial basemap<br>
-        " <b style="color:var(--text);">CARTO Basemaps</b> — Streets, Dark, Light tiles<br>
-        " <b style="color:var(--text);">FEMA NFHL</b> — Floodplain data<br>
-        " <b style="color:var(--text);">USDA SSURGO</b> — Soil survey data
+        " <b style="color:var(--text);">Bartholomew County ArcGIS MapServer</b>  elb.elevatemaps.io (Beacon/ElevateMaps)<br>
+        " <b style="color:var(--text);">Parcels, Zoning, Drains, Roads, Sections</b>  Bartholomew Co. Surveyor/Assessor<br>
+        " <b style="color:var(--text);">Esri World Imagery</b>  Aerial basemap<br>
+        " <b style="color:var(--text);">CARTO Basemaps</b>  Streets, Dark, Light tiles<br>
+        " <b style="color:var(--text);">FEMA NFHL</b>  Floodplain data<br>
+        " <b style="color:var(--text);">USDA SSURGO</b>  Soil survey data
       </div>
     </div>
     <p style="color:var(--text3);font-size:10px;line-height:1.6;">Layer IDs sourced directly from the BartholomewINDynamic MapServer. GIS data represents current county records maintained by the Bartholomew County Surveyor's Office, Assessor's Office, and Columbus/Bartholomew Planning Dept.</p>
@@ -1680,7 +1682,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
       <div><label class="fl">Print DPI</label><select class="fsel"><option>96 dpi (screen)</option><option>150 dpi</option><option>300 dpi (press)</option></select></div>
     </div>
     <label class="fl">Map Title</label>
-    <input class="fi" value="Mapnova — Bartholomew County"/>
+    <input class="fi" value="Mapnova  Bartholomew County"/>
     <label class="fchk"><input type="checkbox" checked> Include Legend</label>
     <label class="fchk"><input type="checkbox" checked> Include Scale Bar</label>
     <label class="fchk"><input type="checkbox" checked> Include North Arrow</label>
@@ -1724,7 +1726,7 @@ body.mn-county-selected #rpanel{display:flex!important;}
     </div>
     <div id="buf-target" style="background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:9px;margin:10px 0;font-size:12px;color:var(--text3);">
       <i class="fas fa-info-circle" style="margin-right:6px;"></i>
-      <span id="buf-target-txt">No parcel selected — buffer will use map center</span>
+      <span id="buf-target-txt">No parcel selected  buffer will use map center</span>
     </div>
     <label class="fl">Find Features Within Buffer</label>
     <label class="fchk"><input type="checkbox" checked id="buf-parcels"> Parcels</label>
@@ -1950,30 +1952,30 @@ const map = L.map('map',{
 });
 
 const basemaps = {
-  // CARTO Voyager — clean street map, no referer required
+  // CARTO Voyager  clean street map, no referer required
   streets: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
     maxZoom:19, attribution:'� <a href="https://carto.com/">CARTO</a> � OpenStreetMap contributors',
     subdomains:'abcd'
   }),
-  // Esri World Imagery — free, no referer required
+  // Esri World Imagery  free, no referer required
   satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19, attribution:'� Esri, Maxar, Earthstar Geographics'
   }),
-  // Esri World Topo — no referer required
+  // Esri World Topo  no referer required
   topo: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19, attribution:'� Esri, HERE, Garmin, FAO, NOAA, USGS'
   }),
-  // CARTO Dark Matter — no referer required (was already working)
+  // CARTO Dark Matter  no referer required (was already working)
   dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
     maxZoom:19, attribution:'� <a href="https://carto.com/">CARTO</a> � OpenStreetMap contributors',
     subdomains:'abcd'
   }),
-  // CARTO Positron Light — no referer required
+  // CARTO Positron Light  no referer required
   light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
     maxZoom:19, attribution:'� <a href="https://carto.com/">CARTO</a> � OpenStreetMap contributors',
     subdomains:'abcd'
   }),
-  // Esri World Street Map — extra fallback
+  // Esri World Street Map  extra fallback
   esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19, attribution:'� Esri, HERE, Garmin'
   })
@@ -1993,16 +1995,16 @@ function setBasemap(name,btn){
 }
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  PARCEL DATA — Extended with full owner + PRC history
+//  PARCEL DATA  Extended with full owner + PRC history
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  LIVE PARCEL SYSTEM — Indiana IGIO Official Data
+//  LIVE PARCEL SYSTEM  Indiana IGIO Official Data
 //  Source: gisdata.in.gov FeatureServer
 //  Bartholomew County FIPS: 18005 / county_id: 3
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
-//    Parcel layer — Canvas renderer is dramatically faster than SVG             
-// Canvas renders all polygons as a single bitmap — no DOM elements per parcel
+//    Parcel layer  Canvas renderer is dramatically faster than SVG             
+// Canvas renders all polygons as a single bitmap  no DOM elements per parcel
 const canvasRenderer = L.canvas({ padding: 0.5, tolerance: 4 });
 const parcelLayer = L.featureGroup().addTo(map);
 let selectedParcel = null;
@@ -2053,7 +2055,7 @@ function tileBBox(row, col, tileSize, pad) {
   };
 }
 
-//    Debounced tile loader — prevents rapid-pan from flooding requests          
+//    Debounced tile loader  prevents rapid-pan from flooding requests          
 function loadParcelsForView() {
   clearTimeout(loadDebounceTimer);
   loadDebounceTimer = setTimeout(_doLoadParcels, 150);
@@ -2105,7 +2107,7 @@ async function _fetchOneTile(bbox) {
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     if (data && Array.isArray(data.features) && data.features.length > 0) {
-      // Render in non-blocking chunks — never block the main thread
+      // Render in non-blocking chunks  never block the main thread
       _renderChunked(data.features, 0, 60);
       apiErrorCount = 0;
     }
@@ -2131,7 +2133,7 @@ function _renderChunked(features, startIdx, chunkSize) {
     const layer = _buildParcelLayer(features[i]);
     if (layer) batch.push(layer);
   }
-  // Single addLayer call per batch — one Leaflet redraw instead of N
+  // Single addLayer call per batch  one Leaflet redraw instead of N
   if (batch.length) {
     batch.forEach(l => parcelLayer.addLayer(l));
   }
@@ -2161,13 +2163,13 @@ function _buildParcelLayer(feature) {
     lat, lon: lng, addr, city, zip, pid, use,
     owner:'(see assessor)', otype:use,
     oaddr:`${addr}, ${city}, IN ${zip}`,
-    deed:'—', txdate:'—', txprice:'—', acres:'—', sqft:'—', twp:'—',
-    sec:'—', range:'—', legal:pid, zone:'—', yr:'—', struct:'—',
-    bed:'—', const:'—', cond:'—', lv:'—', iv:'—', tv:'—', hx:'—',
-    ty:'2024', tax:'—', txstat:'—', sales:[], taxhist:[]
+    deed:'', txdate:'', txprice:'', acres:'', sqft:'', twp:'',
+    sec:'', range:'', legal:pid, zone:'', yr:'', struct:'',
+    bed:'', const:'', cond:'', lv:'', iv:'', tv:'', hx:'',
+    ty:'2024', tax:'', txstat:'', sales:[], taxhist:[]
   };
 
-  // Extract coordinate rings — use L.polygon directly, skip geoJSON wrapper
+  // Extract coordinate rings  use L.polygon directly, skip geoJSON wrapper
   let latlngs = null;
   try {
     const g = feature.geometry;
@@ -2199,13 +2201,13 @@ function _buildParcelLayer(feature) {
     const ownerName = cached?.owner || p.owner || null;
     const tv        = cached?.tot_assessed_value != null
                         ? '$' + Math.round(cached.tot_assessed_value).toLocaleString()
-                        : (p.tv && p.tv !== '—' ? p.tv : null);
+                        : (p.tv && p.tv !== '' ? p.tv : null);
 
     this.bindTooltip(
       `<div style="font-family:'Barlow Condensed',sans-serif;line-height:1.6;min-width:180px;">
          <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:.2px;">${addr || 'Parcel'}</div>
          <div style="font-size:10px;color:#94a3b8;">${city}${zip ? ', IN '+zip : ''}</div>
-         ${ownerName && ownerName !== '(see assessor)' && ownerName !== '—'
+         ${ownerName && ownerName !== '(see assessor)' && ownerName !== ''
            ? `<div style="font-size:11px;color:#34d399;font-weight:600;margin-top:3px;">
                 <i class="fas fa-user" style="font-size:9px;margin-right:4px;opacity:.7;"></i>${ownerName}</div>`
            : `<div style="font-size:10px;color:#64748b;margin-top:2px;font-style:italic;">Click to load owner&</div>`}
@@ -2298,12 +2300,12 @@ function showZoomHint() {
 //    Select a live (API-loaded) parcel                                         
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  OWNERSHIP DATA — ElevateMaps Layer 92
+//  OWNERSHIP DATA  ElevateMaps Layer 92
 //  Bartholomew County full parcel + owner data
 //  Same source that powers Beacon GIS
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
-// ElevateMaps ownership URL — dynamic based on active county
+// ElevateMaps ownership URL  dynamic based on active county
 // Counties on ElevateMaps have rich ownership data; others use IGIO + Gateway links
 function getElevateUrl() {
   const em = activeCounty.em;
@@ -2314,12 +2316,12 @@ const ELEVATE_URL = getElevateUrl; // function reference, call as getElevateUrl(
 
 // In-memory ownership cache keyed by pin_18 (parcel ID)
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  OWNERSHIP DATA SYSTEM — ALL 92 INDIANA COUNTIES
+//  OWNERSHIP DATA SYSTEM  ALL 92 INDIANA COUNTIES
 //
-//  TIER 1: ElevateMaps Layer 92 — 19 counties (richest: owner, AV, sales)
-//  TIER 2: County-specific ArcGIS REST services — 20+ additional counties
+//  TIER 1: ElevateMaps Layer 92  19 counties (richest: owner, AV, sales)
+//  TIER 2: County-specific ArcGIS REST services  20+ additional counties
 //  TIER 3: Marion County (Indy) own ArcGIS service
-//  TIER 4: DLGF Tax Bill lookup link — remaining counties (no API, link only)
+//  TIER 4: DLGF Tax Bill lookup link  remaining counties (no API, link only)
 //
 //  Architecture: prefetchOwnershipForView() bulk-fetches for viewport.
 //  fetchOwnershipByPin() fetches on-demand when a parcel is clicked.
@@ -2328,7 +2330,7 @@ const ELEVATE_URL = getElevateUrl; // function reference, call as getElevateUrl(
 
 
 // ������������������������������������������������������������������������������
-//  !! BASELINE LOCKED — DO NOT MODIFY THIS OWNERSHIP SYSTEM !!
+//  !! BASELINE LOCKED  DO NOT MODIFY THIS OWNERSHIP SYSTEM !!
 //
 //  This is the confirmed working ownership model for ALL Indiana counties.
 //  Bartholomew County is the baseline. Every county uses this exact system.
@@ -2345,15 +2347,15 @@ const ELEVATE_URL = getElevateUrl; // function reference, call as getElevateUrl(
 //  3. click � selectParcelLive() � buildPopupHTML() � shows popup
 //  4. fetchOwnershipByPin() � enrichParcelData() � popup.setContent() updates
 //
-//  TIER 1 (ElevateMaps Layer 92 — 19 counties): direct fetch, richest data
+//  TIER 1 (ElevateMaps Layer 92  19 counties): direct fetch, richest data
 //  TIER 2 (County ArcGIS services): normalized via _normalizeCountyAttr()
 // ������������������������������������������������������������������������������
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  OWNERSHIP DATA SYSTEM — ALL 92 INDIANA COUNTIES
+//  OWNERSHIP DATA SYSTEM  ALL 92 INDIANA COUNTIES
 //
-//  TIER 1: ElevateMaps Layer 92 — 19 counties (richest: owner, AV, sales)
-//  TIER 2: County-specific ArcGIS REST services — additional counties
+//  TIER 1: ElevateMaps Layer 92  19 counties (richest: owner, AV, sales)
+//  TIER 2: County-specific ArcGIS REST services  additional counties
 //  Architecture: prefetchOwnershipForView() bulk-fetches for viewport.
 //  fetchOwnershipByPin() fetches on-demand when a parcel is clicked.
 //  enrichParcelData() maps any source's fields onto the common parcel object.
@@ -2364,7 +2366,7 @@ let ownerCacheLoading = false;
 
 //    TIER 1: ElevateMaps Layer 92                                              
 const EM_LAYER92 = {
-  bartholomew: 'BartholomewINDynamic', // = LOCKED — Tier 1 confirmed working
+  bartholomew: 'BartholomewINDynamic', // = LOCKED  Tier 1 confirmed working
 };
 const EM_BASE = 'https://elb.elevatemaps.io/arcgis/rest/services/eGISDynamicServices/';
 const L92_FIELDS = [
@@ -2385,7 +2387,7 @@ const L92_FIELDS = [
 const COUNTY_PARCEL_APIS = {
   //    TIER 2A: County-hosted ArcGIS                                           
 
-  // Marion County (Indianapolis) — confirmed working
+  // Marion County (Indianapolis)  confirmed working
   marion: {
     // MapIndyProperty/10 = confirmed public parcel+owner layer (AGOL item 0d28e222479743baa97f8f4456da7bb4)
     url: 'https://gis.indy.gov/server/rest/services/MapIndy/MapIndyProperty/MapServer/10/query',
@@ -2398,8 +2400,8 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://maps.indy.gov/AssessorPropertyCards/'
   },
 
-  // Hamilton County — confirmed fields from gis1.hamiltoncounty.in.gov live schema
-  hamilton: { // = LOCKED — STPRCLNO matches IGIO parcel_id, confirmed working
+  // Hamilton County  confirmed fields from gis1.hamiltoncounty.in.gov live schema
+  hamilton: { // = LOCKED  STPRCLNO matches IGIO parcel_id, confirmed working
     url:             'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelsPublic/FeatureServer/0/query',
     pinField:        'STPRCLNO',   ownerField:    'DEEDEDOWNR',
     addrField:       'LOCADDRESS', cityField:     'LOCCITY',    zipField:  'LOCZIP',
@@ -2415,7 +2417,7 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://www.hamiltoncounty.in.gov/propertyreports'
   },
 
-  // Allen County (Fort Wayne) — county parcel service
+  // Allen County (Fort Wayne)  county parcel service
   allen: {
     url: 'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Parcels/FeatureServer/0/query',
     pinField: 'PARCEL_ID', ownerField: 'OWNER', addrField: 'PROP_ADDR',
@@ -2439,7 +2441,7 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://sjcgov.org/department/assessor'
   },
 
-  // Vanderburgh County (Evansville) — confirmed public MapServer
+  // Vanderburgh County (Evansville)  confirmed public MapServer
   vanderburgh: {
     url:      'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/PARCELS/MapServer/0/query',
     pinField: 'STATE_PARCEL_ID', ownerField: 'OWNER_NAME', addrField: 'PROP_ADDR',
@@ -2447,7 +2449,7 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://maps.evansvillegis.com/'
   },
 
-  // Tippecanoe County (Lafayette) — ArcGIS Online public layer
+  // Tippecanoe County (Lafayette)  ArcGIS Online public layer
   tippecanoe: {
     url: 'https://wfs.schneidercorp.com/arcgis/rest/services/TippecanoeCountyIN_WFS/MapServer/58/query',
     pinField: 'PARCEL_NUMBER', ownerField: 'OWNER_NAME', addrField: 'PROPERTY_ADDRESS',
@@ -2455,9 +2457,9 @@ const COUNTY_PARCEL_APIS = {
     lookupUrl: 'https://beacon.schneidercorp.com/?site=TippecanoeCountyIN'
   },
 
-  //    TIER 2B: Schneider WFS — confirmed field schemas                        
+  //    TIER 2B: Schneider WFS  confirmed field schemas                        
 
-  // Johnson County — LOCKED (confirmed working)
+  // Johnson County  LOCKED (confirmed working)
   johnson: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/JohnsonCountyIN_WFS/MapServer/2/query',
     pinField:      'PARCEL_NUM',  ownerField:    'OWNER1',
@@ -2469,7 +2471,7 @@ const COUNTY_PARCEL_APIS = {
     schema: 'schneiderjc', lookupUrl: 'https://beacon.schneidercorp.com/?site=JohnsonCountyIN'
   },
 
-  // Hancock County — confirmed from live schema: OWNER1, PARCEL_ID, LEG_ACR
+  // Hancock County  confirmed from live schema: OWNER1, PARCEL_ID, LEG_ACR
   hancock: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/HancockCountyIN_WFS/MapServer/3/query',
     pinField:      'PARCEL_ID',   ownerField:    'OWNER1',
@@ -2480,7 +2482,7 @@ const COUNTY_PARCEL_APIS = {
     schema: 'schneiderhc', lookupUrl: 'https://beacon.schneidercorp.com/?site=HancockCountyIN'
   },
 
-  // Decatur County — confirmed from live schema: owner1, PIN, TotalValue
+  // Decatur County  confirmed from live schema: owner1, PIN, TotalValue
   decatur: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/DecaturCountyIN_WFS/MapServer/0/query',
     pinField:      'PIN',         ownerField:    'owner1',
@@ -2491,45 +2493,45 @@ const COUNTY_PARCEL_APIS = {
     schema: 'schneiderdc', lookupUrl: 'https://beacon.schneidercorp.com/?site=DecaturCountyIN'
   },
 
-  // LaGrange County — confirmed: Owner, PIN, Legal_Ac
+  // LaGrange County  confirmed: Owner, PIN, Legal_Ac
   lagrange: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/LaGrangeCountyIN_WFS/MapServer/3/query',
     pinField: 'PIN', ownerField: 'Owner', acresField: 'Legal_Ac', legalField: 'Description',
     schema:   'schneiderlg', lookupUrl: 'https://beacon.schneidercorp.com/?site=LaGrangeCountyIN'
   },
 
-  // Steuben County — confirmed: Owners, PIN, Acreage
+  // Steuben County  confirmed: Owners, PIN, Acreage
   steuben: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/SteubenCountyIN_WFS/MapServer/3/query',
     pinField: 'PIN', ownerField: 'Owners', acresField: 'Acreage',
     schema:   'schneiderst', lookupUrl: 'https://beacon.schneidercorp.com/?site=SteubenCountyIN'
   },
 
-  // Wabash County — Schneider WFS
+  // Wabash County  Schneider WFS
   wabash: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/WabashCountyIN_WFS/MapServer/2/query',
     pinField: 'PARCEL_NUM', ownerField: 'OWNER1', addrField: 'PROP_ADDR', acresField: 'ACRES',
     schema:   'schneiderwb', lookupUrl: 'https://beacon.schneidercorp.com/?site=WabashCountyIN'
   },
 
-  // Wells County — Schneider WFS
+  // Wells County  Schneider WFS
   wells: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/WellsCountyIN_WFS/MapServer/2/query',
     pinField: 'PARCEL_NUM', ownerField: 'OWNER1', addrField: 'PROP_ADDR', acresField: 'ACRES',
     schema:   'schneiderwl', lookupUrl: 'https://beacon.schneidercorp.com/?site=WellsCountyIN'
   },
 
-  // Whitley County — Schneider WFS
+  // Whitley County  Schneider WFS
   whitley: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/WhitleyCountyIN_WFS/MapServer/2/query',
     pinField: 'PARCEL_NUM', ownerField: 'OWNER1', addrField: 'PROP_ADDR', acresField: 'ACRES',
     schema:   'schneiderwy', lookupUrl: 'https://beacon.schneidercorp.com/?site=WhitleyCountyIN'
   },
 
-  // Monroe County — Schneider WFS (also in ElevateMaps but this may be more current)
+  // Monroe County  Schneider WFS (also in ElevateMaps but this may be more current)
   // Note: Monroe is in EM_LAYER92 so ElevateMaps takes precedence
 
-  // Morgan County — Schneider WFS — CONFIRMED layer 0 — = LOCKED
+  // Morgan County  Schneider WFS  CONFIRMED layer 0  = LOCKED
   // Verified 2026-04-27: MorganCountyIN_WFS/MapServer/0
   morgan: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/MorganCountyIN_WFS/MapServer/0/query',
@@ -2543,21 +2545,21 @@ const COUNTY_PARCEL_APIS = {
     schema:        'schneidermg',        lookupUrl: 'https://beacon.schneidercorp.com/?site=MorganCountyIN'
   },
 
-  // Rush County — Schneider WFS
+  // Rush County  Schneider WFS
   rush: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/RushCountyIN_WFS/MapServer/2/query',
     pinField: 'PIN', ownerField: 'OWNER1', addrField: 'PROP_ADDR', acresField: 'ACRES',
     schema:   'schneiderrh', lookupUrl: 'https://beacon.schneidercorp.com/?site=RushCountyIN'
   },
 
-  // Tipton County — Schneider WFS
+  // Tipton County  Schneider WFS
   tipton: {
     url:      'https://wfs.schneidercorp.com/arcgis/rest/services/TiptonCountyIN_WFS/MapServer/2/query',
     pinField: 'PARCEL_NUM', ownerField: 'OWNER1', addrField: 'PROP_ADDR', acresField: 'ACRES',
     schema:   'schneidertp', lookupUrl: 'https://beacon.schneidercorp.com/?site=TiptonCountyIN'
   },
 
-  // Miami County — Schneider WFS — CONFIRMED layer 0 — = LOCKED
+  // Miami County  Schneider WFS  CONFIRMED layer 0  = LOCKED
   // Verified 2026-04-27: MiamiCountyIN_WFS/MapServer/0
   miami: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/MiamiCountyIN_WFS/MapServer/0/query',
@@ -2571,7 +2573,7 @@ const COUNTY_PARCEL_APIS = {
     schema:        'schneidermg',        lookupUrl: 'https://beacon.schneidercorp.com/?site=MiamiCountyIN'
   },
 
-  // Monroe County (Bloomington) — Schneider WFS — CONFIRMED layer 0 — = LOCKED
+  // Monroe County (Bloomington)  Schneider WFS  CONFIRMED layer 0  = LOCKED
   // Verified 2026-04-27: MonroeCountyIN_WFS/MapServer/0 (mixed-case fields)
   monroe: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/MonroeCountyIN_WFS/MapServer/0/query',
@@ -2585,7 +2587,7 @@ const COUNTY_PARCEL_APIS = {
     schema:        'schneidermg',        lookupUrl: 'https://beacon.schneidercorp.com/?site=MonroeCountyIN'
   },
 
-  // White County — Schneider WFS — CONFIRMED layer 0 — = LOCKED
+  // White County  Schneider WFS  CONFIRMED layer 0  = LOCKED
   // Verified 2026-04-27: WhiteCountyIN_WFS/MapServer/0
   white: {
     url:           'https://wfs.schneidercorp.com/arcgis/rest/services/WhiteCountyIN_WFS/MapServer/0/query',
@@ -2889,9 +2891,9 @@ function enrichParcelData(p, attr) {
   if (attr.tot_assessed_value != null) p.tv = '$' + Math.round(attr.tot_assessed_value).toLocaleString();
   if (attr.latest_sale_date) {
     const d   = new Date(attr.latest_sale_date);
-    p.txdate  = isNaN(d) ? '—' : d.toLocaleDateString('en-US');
-    p.txprice = attr.latest_sale_price ? '$' + Math.round(attr.latest_sale_price).toLocaleString() : '—';
-    p.deed    = [attr.deedbook, attr.deedpage].filter(Boolean).join('/') || attr.documentnumber || '—';
+    p.txdate  = isNaN(d) ? '' : d.toLocaleDateString('en-US');
+    p.txprice = attr.latest_sale_price ? '$' + Math.round(attr.latest_sale_price).toLocaleString() : '';
+    p.deed    = [attr.deedbook, attr.deedpage].filter(Boolean).join('/') || attr.documentnumber || '';
     p.sales   = [{ dt: p.txdate, price: p.txprice, buyer: p.owner, type: attr.validsale === 'Yes' ? 'Valid Sale' : 'Transfer' }];
   }
   p._enriched = true;
@@ -2959,9 +2961,9 @@ function selectParcelLive(p, layer) {
 }
 
 function buildPopupHTML(p) {
-  const hasOwner = p.owner && p.owner !== '—' && p.owner !== '(see assessor)';
-  const hasTV    = p.tv    && p.tv    !== '—';
-  const hasAcres = p.acres && p.acres !== '—';
+  const hasOwner = p.owner && p.owner !== '' && p.owner !== '(see assessor)';
+  const hasTV    = p.tv    && p.tv    !== '';
+  const hasAcres = p.acres && p.acres !== '';
   const lookupUrl = p.lookupUrl || getParcelLookupUrl(p.pid);
 
   return `
@@ -2980,23 +2982,23 @@ function buildPopupHTML(p) {
       </div>
       <div class="mpop-body">
         <div class="mpop-row"><span class="mpop-k">Parcel ID</span>
-          <span class="mpop-v" style="font-size:10px;font-family:monospace;">${p.pid || '—'}</span></div>
-        ${p.oaddr && p.oaddr !== '—' && hasOwner
+          <span class="mpop-v" style="font-size:10px;font-family:monospace;">${p.pid || ''}</span></div>
+        ${p.oaddr && p.oaddr !== '' && hasOwner
           ? `<div class="mpop-row"><span class="mpop-k">Mailing Addr</span>
              <span class="mpop-v" style="font-size:10px;">${p.oaddr}</span></div>` : ''}
         <div class="mpop-row"><span class="mpop-k">Assessed Value</span>
-          <span class="mpop-v" style="color:#f0a500;font-weight:700;">${hasTV ? p.tv : '—'}</span></div>
-        ${p.lv && p.lv !== '—'
+          <span class="mpop-v" style="color:#f0a500;font-weight:700;">${hasTV ? p.tv : ''}</span></div>
+        ${p.lv && p.lv !== ''
           ? `<div class="mpop-row"><span class="mpop-k">Land / Improvement</span>
-             <span class="mpop-v" style="font-size:10px;">${p.lv} / ${p.iv || '—'}</span></div>` : ''}
+             <span class="mpop-v" style="font-size:10px;">${p.lv} / ${p.iv || ''}</span></div>` : ''}
         <div class="mpop-row"><span class="mpop-k">Property Class</span>
-          <span class="mpop-v">${p.use || '—'}</span></div>
+          <span class="mpop-v">${p.use || ''}</span></div>
         <div class="mpop-row"><span class="mpop-k">Acres</span>
-          <span class="mpop-v">${hasAcres ? p.acres + ' ac' : '—'}</span></div>
-        ${p.txdate && p.txdate !== '—'
+          <span class="mpop-v">${hasAcres ? p.acres + ' ac' : ''}</span></div>
+        ${p.txdate && p.txdate !== ''
           ? `<div class="mpop-row"><span class="mpop-k">Last Sale</span>
-             <span class="mpop-v" style="font-size:10px;">${p.txdate}${p.txprice && p.txprice !== '—' ? ' � ' + p.txprice : ''}</span></div>` : ''}
-        ${p.twp && p.twp !== '—'
+             <span class="mpop-v" style="font-size:10px;">${p.txdate}${p.txprice && p.txprice !== '' ? ' � ' + p.txprice : ''}</span></div>` : ''}
+        ${p.twp && p.twp !== ''
           ? `<div class="mpop-row"><span class="mpop-k">Township</span>
              <span class="mpop-v" style="font-size:10px;">${p.twp}</span></div>` : ''}
       </div>
@@ -3040,9 +3042,9 @@ function loadLiveParcelPanel(p) {
     }
   }
 
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v || '—'; };
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v || ''; };
 
-  // PRC Header — use active county name
+  // PRC Header  use active county name
   const countyName = (activeCounty && activeCounty.name) ? activeCounty.name : 'Indiana';
   set('prc-county-name', countyName);
   set('prc-doc-sub',     `Tax Year 2024 � Pay 2025 � DLGF Official Record`);
@@ -3051,25 +3053,25 @@ function loadLiveParcelPanel(p) {
   set('prc-tv',     p.tv);
   set('prc-tax',    p.tax);
   set('prc-addr',   (p.addr || '') + ', ' + (p.city || '') + ', IN ' + (p.zip || ''));
-  set('prc-acres',  p.acres && p.acres !== '—' ? p.acres + ' ac' : '—');
+  set('prc-acres',  p.acres && p.acres !== '' ? p.acres + ' ac' : '');
   set('prc-zone',   p.zone);
 
   // Tax table
   const tbl = document.getElementById('prc-tax-table');
   if (tbl) tbl.innerHTML = `
     <tr style="border-bottom:1px solid var(--border)"><th style="padding:4px 8px;text-align:left;color:var(--text3);">Field</th><th style="padding:4px 8px;text-align:right;color:var(--text3);">Value</th></tr>
-    <tr><td>Land Assessed Value</td><td style="text-align:right;color:var(--green);">${p.lv||'—'}</td></tr>
-    <tr><td>Improvement AV</td><td style="text-align:right;color:var(--green);">${p.iv||'—'}</td></tr>
-    <tr><td>Total Assessed Value</td><td style="text-align:right;color:var(--accent);font-weight:700;">${p.tv||'—'}</td></tr>
+    <tr><td>Land Assessed Value</td><td style="text-align:right;color:var(--green);">${p.lv||''}</td></tr>
+    <tr><td>Improvement AV</td><td style="text-align:right;color:var(--green);">${p.iv||''}</td></tr>
+    <tr><td>Total Assessed Value</td><td style="text-align:right;color:var(--accent);font-weight:700;">${p.tv||''}</td></tr>
     <tr><td>Parcel ID (PIN 18)</td><td style="text-align:right;font-family:monospace;font-size:10px;">${p.pid}</td></tr>
-    <tr><td>Property Class</td><td style="text-align:right;">${p.use||'—'}</td></tr>
-    <tr><td>Neighborhood</td><td style="text-align:right;">${p.nbhd||'—'}</td></tr>
-    <tr><td>School Corp</td><td style="text-align:right;">${p.school||'—'}</td></tr>
-    <tr><td>Deed Reference</td><td style="text-align:right;font-family:monospace;font-size:10px;">${p.deed||'—'}</td></tr>
+    <tr><td>Property Class</td><td style="text-align:right;">${p.use||''}</td></tr>
+    <tr><td>Neighborhood</td><td style="text-align:right;">${p.nbhd||''}</td></tr>
+    <tr><td>School Corp</td><td style="text-align:right;">${p.school||''}</td></tr>
+    <tr><td>Deed Reference</td><td style="text-align:right;font-family:monospace;font-size:10px;">${p.deed||''}</td></tr>
     <tr><td>Data Source</td><td style="text-align:right;font-size:10px;color:var(--text3);">ElevateMaps / Beacon 2024</td></tr>`;
 
-  // Owner — show name if available (ElevateMaps counties), parcel ID otherwise
-  const hasRealOwner = p.owner && p.owner !== '—' && p.owner !== '(see assessor)';
+  // Owner  show name if available (ElevateMaps counties), parcel ID otherwise
+  const hasRealOwner = p.owner && p.owner !== '' && p.owner !== '(see assessor)';
   const ownerEl = document.getElementById('pi-owner');
   if (ownerEl) {
     if (hasRealOwner) {
@@ -3098,7 +3100,7 @@ function loadLiveParcelPanel(p) {
   set('pi-addr',   p.addr);
   set('pi-citzip', (p.city||'Columbus') + ', IN ' + (p.zip||'47201'));
   set('pi-county', 'Bartholomew');
-  set('pi-latlon',  p.lat && p.lon ? p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) : '—');
+  set('pi-latlon',  p.lat && p.lon ? p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) : '');
   set('pi-twp',    p.twp);
   set('pi-sec',    p.sec);
   set('pi-range',  p.range);
@@ -3111,7 +3113,7 @@ function loadLiveParcelPanel(p) {
   set('pi-bed',    p.bed);
   set('pi-const',  p.const);
   const condEl = document.getElementById('pi-cond');
-  if (condEl) { condEl.textContent = p.cond || '—'; condEl.className = 'pbadge bg-amber'; }
+  if (condEl) { condEl.textContent = p.cond || ''; condEl.className = 'pbadge bg-amber'; }
 
   // Assessment
   set('pi-lv',  p.lv);
@@ -3121,7 +3123,7 @@ function loadLiveParcelPanel(p) {
   set('pi-tax', p.tax);
   set('pi-ty',  p.ty);
   const txstatEl = document.getElementById('pi-txstat');
-  if (txstatEl) { txstatEl.textContent = p.txstat || '—'; txstatEl.className = 'pbadge bg-blue'; }
+  if (txstatEl) { txstatEl.textContent = p.txstat || ''; txstatEl.className = 'pbadge bg-blue'; }
 
   // Sales
   const salesDiv = document.getElementById('pi-sales');
@@ -3131,7 +3133,7 @@ function loadLiveParcelPanel(p) {
         <div class="prow" style="border-bottom:1px solid var(--border);padding:4px 0;">
           <span class="pk">${s.dt}</span>
           <span class="pv" style="color:var(--accent);font-weight:700;">${s.price}</span>
-          <span class="pk" style="margin-top:2px;">${s.buyer||'—'} � ${s.type||'—'}</span>
+          <span class="pk" style="margin-top:2px;">${s.buyer||''} � ${s.type||''}</span>
         </div>`).join('');
     } else {
       salesDiv.innerHTML = `<div class="prow">
@@ -3165,15 +3167,15 @@ function buildLiveReport(p) {
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--accent);">${p.tv||'—'}</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--accent);">${p.tv||''}</div>
         <div style="font-size:10px;color:var(--text3);text-transform:uppercase;">Total AV</div>
       </div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--green);">${p.lv||'—'}</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--green);">${p.lv||''}</div>
         <div style="font-size:10px;color:var(--text3);text-transform:uppercase;">Land AV</div>
       </div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--blue);">${p.acres||'—'} ac</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--blue);">${p.acres||''} ac</div>
         <div style="font-size:10px;color:var(--text3);text-transform:uppercase;">Area</div>
       </div>
     </div>
@@ -3181,29 +3183,29 @@ function buildLiveReport(p) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:14px;">
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:9px;">
         <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Owner</b><br>
-        <span style="color:var(--text);font-weight:600;">${p.owner||'—'}</span><br>
-        <span style="color:var(--text3);font-size:11px;">${p.oaddr||'—'}</span>
+        <span style="color:var(--text);font-weight:600;">${p.owner||''}</span><br>
+        <span style="color:var(--text3);font-size:11px;">${p.oaddr||''}</span>
       </div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:9px;">
         <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Property Class</b><br>
-        <span style="color:var(--text);">${p.use||'—'}</span><br>
-        <span style="color:var(--text3);font-size:11px;">Township: ${p.twp||'—'}</span>
+        <span style="color:var(--text);">${p.use||''}</span><br>
+        <span style="color:var(--text3);font-size:11px;">Township: ${p.twp||''}</span>
       </div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:9px;">
         <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Deed Reference</b><br>
-        <span style="font-family:monospace;font-size:11px;color:var(--text);">${p.deed||'—'}</span><br>
-        <span style="color:var(--text3);font-size:11px;">Transferred: ${p.txdate||'—'} � ${p.txprice||'—'}</span>
+        <span style="font-family:monospace;font-size:11px;color:var(--text);">${p.deed||''}</span><br>
+        <span style="color:var(--text3);font-size:11px;">Transferred: ${p.txdate||''} � ${p.txprice||''}</span>
       </div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:9px;">
         <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Neighborhood</b><br>
-        <span style="color:var(--text);">${p.nbhd||'—'}</span><br>
-        <span style="color:var(--text3);font-size:11px;">School: ${p.school||'—'}</span>
+        <span style="color:var(--text);">${p.nbhd||''}</span><br>
+        <span style="color:var(--text3);font-size:11px;">School: ${p.school||''}</span>
       </div>
     </div>
 
     <div style="margin-bottom:12px;">
       <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Legal Description</b>
-      <div style="font-family:monospace;font-size:11px;color:var(--text2);margin-top:4px;background:var(--panel2);padding:8px;border-radius:4px;border:1px solid var(--border);word-break:break-word;">${p.legal||'—'}</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--text2);margin-top:4px;background:var(--panel2);padding:8px;border-radius:4px;border:1px solid var(--border);word-break:break-word;">${p.legal||''}</div>
     </div>
 
     <div style="margin-bottom:12px;">
@@ -3241,8 +3243,8 @@ function renderParcels() {
   loadParcelsForView();
 }
 
-//    Map event handlers — debounced, no bringToFront thrash                    
-// zoomend always fires before moveend — skip moveend after a zoom
+//    Map event handlers  debounced, no bringToFront thrash                    
+// zoomend always fires before moveend  skip moveend after a zoom
 let _lastZoomTime = 0;
 
 map.on('zoomend', function() {
@@ -3265,7 +3267,7 @@ map.on('moveend', function() {
 
 
 function loadParcelPanel(pid) {
-  // Redirect to live data panel — find parcel in loaded layer
+  // Redirect to live data panel  find parcel in loaded layer
   let found = null;
   parcelLayer.eachLayer(l => {
     if (l.parcelData && (l.parcelData.id === pid || l.parcelData.pid === pid)) found = l.parcelData;
@@ -3277,16 +3279,16 @@ function buildFullReport(p) { buildLiveReport(p); }
 
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  UNIVERSAL GIS LAYER SYSTEM — ALL 92 INDIANA COUNTIES
+//  UNIVERSAL GIS LAYER SYSTEM  ALL 92 INDIANA COUNTIES
 //
 //  Two categories of layers:
 //
-//  A) STATEWIDE — work for every county, sourced from:
-//     " gisdata.in.gov  (IGIO — official Indiana state GIS)
-//     " hazards.fema.gov (FEMA NFHL — national flood hazard)
+//  A) STATEWIDE  work for every county, sourced from:
+//     " gisdata.in.gov  (IGIO  official Indiana state GIS)
+//     " hazards.fema.gov (FEMA NFHL  national flood hazard)
 //     " server.arcgisonline.com (Esri World Imagery)
 //
-//  B) COUNTY-SPECIFIC — sourced from ElevateMaps MapServer
+//  B) COUNTY-SPECIFIC  sourced from ElevateMaps MapServer
 //     Each county has its own MapServer with different layer IDs.
 //     On county switch: query MapServer?f=json, read layer list,
 //     match by name keyword, cache. Then remove+readd active layers.
@@ -3308,14 +3310,14 @@ const IGIO_ADMIN = IGIO_SVC + '/Administrative_Boundaries_of_Indiana_2024/Featur
 //  Architecture:
 //  1. On county switch: fetch MapServer?f=json � get real layer list
 //  2. Build layer panel HTML dynamically from that list  
-//  3. Each checkbox maps directly to its real layer ID — no guessing
+//  3. Each checkbox maps directly to its real layer ID  no guessing
 //  4. Statewide layers (FEMA, imagery) always present
 //  5. County-specific layers only shown when county has them
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 // County ElevateMaps MapServer base URL
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  GIS LAYER SYSTEM — Bartholomew County First, All 92 Dynamic
+//  GIS LAYER SYSTEM  Bartholomew County First, All 92 Dynamic
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 function getActiveDynamicBase() {
@@ -3329,7 +3331,7 @@ function getActiveDynamicBase() {
 const BARTHOLOMEW_LAYERS = [
   // Parcels & Property
   {id:92,  name:'Parcels',                        cat:'parcels'},
-  {id:110, name:'Parcels — Latest Sale',           cat:'parcels'},
+  {id:110, name:'Parcels  Latest Sale',           cat:'parcels'},
   {id:125, name:'BZA Parcels',                    cat:'parcels'},
   {id:93,  name:'Subdivisions / Plats',           cat:'parcels'},
   {id:87,  name:'Lot / Deed Lines',               cat:'parcels'},
@@ -3345,20 +3347,20 @@ const BARTHOLOMEW_LAYERS = [
   {id:95,  name:'Neighborhoods',                  cat:'parcels'},
   {id:96,  name:'Tax Units',                      cat:'parcels'},
   // Parcel Annotations
-  {id:1,   name:'Annotations — Acreage',          cat:'annotations'},
-  {id:7,   name:'Annotations — Lot Numbers',      cat:'annotations'},
-  {id:13,  name:'Annotations — Dimensions',       cat:'annotations'},
+  {id:1,   name:'Annotations  Acreage',          cat:'annotations'},
+  {id:7,   name:'Annotations  Lot Numbers',      cat:'annotations'},
+  {id:13,  name:'Annotations  Dimensions',       cat:'annotations'},
   {id:88,  name:'Property Address Labels',        cat:'annotations'},
   {id:89,  name:'GIS Area Labels',                cat:'annotations'},
   {id:90,  name:'State ID Labels',                cat:'annotations'},
   // Zoning
-  {id:80,  name:'Zoning — Base Districts',        cat:'zoning'},
-  {id:71,  name:'Zoning — Hartsville',            cat:'zoning'},
-  {id:72,  name:'Zoning — Joint Overlay',         cat:'zoning'},
-  {id:74,  name:'Zoning — Wellfield Overlay',     cat:'zoning'},
-  {id:76,  name:'Zoning — Airport Overlay',       cat:'zoning'},
-  {id:127, name:'Zoning — Front Door Overlay',    cat:'zoning'},
-  {id:75,  name:'Zoning — Commitments',           cat:'zoning'},
+  {id:80,  name:'Zoning  Base Districts',        cat:'zoning'},
+  {id:71,  name:'Zoning  Hartsville',            cat:'zoning'},
+  {id:72,  name:'Zoning  Joint Overlay',         cat:'zoning'},
+  {id:74,  name:'Zoning  Wellfield Overlay',     cat:'zoning'},
+  {id:76,  name:'Zoning  Airport Overlay',       cat:'zoning'},
+  {id:127, name:'Zoning  Front Door Overlay',    cat:'zoning'},
+  {id:75,  name:'Zoning  Commitments',           cat:'zoning'},
   {id:70,  name:'TIF Districts',                  cat:'zoning'},
   {id:85,  name:'Planning Jurisdiction',          cat:'zoning'},
   // Hydrology & Flooding
@@ -3411,7 +3413,7 @@ const BARTHOLOMEW_LAYERS = [
   {id:108, name:'Soils (SSURGO)',                 cat:'environment'},
 ];
 
-//    Johnson County Indiana — Complete multi-service ArcGIS layer list         
+//    Johnson County Indiana  Complete multi-service ArcGIS layer list         
 // Server: https://greenwoodgis.greenwood.in.gov/arcgis/rest/services/
 // Confirmed services and layer IDs from live ArcGIS REST endpoints
 // Folders: Airport, BaseMaps, Cityworks, Code_Enforcement, Council, County,
@@ -3421,7 +3423,7 @@ const JC_BASE = 'https://greenwoodgis.greenwood.in.gov/arcgis/rest/services';
 const JOHNSON_LAYERS = [
 
   //    PARCELS & PROPERTY                                                       
-  // County/Land_Records — primary parcel service with all parcel sub-layers
+  // County/Land_Records  primary parcel service with all parcel sub-layers
   {svc:`${JC_BASE}/County/Land_Records/MapServer`,      ids:[0],   name:'Parcels',                          cat:'parcels'},
   {svc:`${JC_BASE}/County/Land_Records/MapServer`,      ids:[1],   name:'Parcel Labels / Annotations',      cat:'annotations'},
   {svc:`${JC_BASE}/County/Land_Records/MapServer`,      ids:[2],   name:'Parcel Text',                      cat:'annotations'},
@@ -3456,14 +3458,14 @@ const JOHNSON_LAYERS = [
   {svc:`${JC_BASE}/Cityworks/Stormwater_Map/MapServer`,     ids:[0,1,2,3,4,5,6,7], name:'Stormwater System (Greenwood)', cat:'hydrology'},
 
   //    TRANSPORTATION                                                           
-  // Street Department — road centerlines, names, intersections
+  // Street Department  road centerlines, names, intersections
   {svc:`${JC_BASE}/Street_Maps/Street_Department/MapServer`,ids:[0],  name:'Roads (Greenwood)',             cat:'transportation'},
   {svc:`${JC_BASE}/Street_Maps/Street_Department/MapServer`,ids:[1],  name:'Road Names',                    cat:'transportation'},
   {svc:`${JC_BASE}/Street_Maps/Street_Department/MapServer`,ids:[2],  name:'Intersections',                 cat:'transportation'},
   {svc:`${JC_BASE}/Street_Maps/Street_Department/MapServer`,ids:[3],  name:'Sidewalks',                     cat:'transportation'},
   {svc:`${JC_BASE}/Street_Maps/Street_Department/MapServer`,ids:[4],  name:'Street Pavement Condition',     cat:'transportation'},
   {svc:`${JC_BASE}/Street_Maps/Street_Department/MapServer`,ids:[5],  name:'Road Construction & Closures',  cat:'transportation'},
-  // Engineering — road repair, crack seals, construction projects
+  // Engineering  road repair, crack seals, construction projects
   {svc:`${JC_BASE}/Engineering/Engineering_On/MapServer`,   ids:[0,1,2,3,4,5,6,7,8,9,10], name:'Engineering Projects',cat:'transportation'},
   // Parks trails & paths network
   {svc:`${JC_BASE}/Parks/TrailsPaths/MapServer`,            ids:[0],  name:'Trails & Paths (Greenwood)',    cat:'transportation'},
@@ -3514,7 +3516,7 @@ const JOHNSON_LAYERS = [
 ];
 
 
-//    Marion County (Indianapolis) — Multi-service ArcGIS layer list            
+//    Marion County (Indianapolis)  Multi-service ArcGIS layer list            
 // Primary server: https://gis.indy.gov/server/rest/services/MapIndy/
 const MC_BASE = 'https://gis.indy.gov/server/rest/services/MapIndy';
 const MARION_LAYERS = [
@@ -3639,12 +3641,12 @@ const HAMILTON_LAYERS = [
   {svc:`${HC_BASE}/HamCoEarlyVoting/MapServer`,               ids:[84],        name:'Early Voting Locations',               cat:'poi'},
 
     // Environment
-  {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[2,3,4,5],   name:'Contours (2024 — 10/5/2/1 ft)',         cat:'environment'},
+  {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[2,3,4,5],   name:'Contours (2024  10/5/2/1 ft)',         cat:'environment'},
   {svc:`${HC_BASE}/HamCoTopo/MapServer`,                      ids:[1],         name:'Spot Elevations (2024)',               cat:'environment'},
   {svc:`${HC_BASE}/Streets_2244/MapServer`,                   ids:[18],        name:'Hillshade',                            cat:'environment'},
   ];
 
-//    Boone County (services1.arcgis.com — boonemapping AGOL org)             
+//    Boone County (services1.arcgis.com  boonemapping AGOL org)             
 const BC_BASE = 'https://services1.arcgis.com/GkTTq9BaSPUnctWP/arcgis/rest/services';
 const BOONE_LAYERS = [
     // Parcels & Property
@@ -3851,17 +3853,17 @@ const CLARK_LAYERS = [
   ];
 
 //    Beacon counties without a public ArcGIS Online layer org (parcel data only via COUNTY_PARCEL_APIS / Beacon link fallback)               
-//   vigo, kosciusko, elkhart, cass, grant, laporte, jackson — no county-hosted ArcGIS REST
+//   vigo, kosciusko, elkhart, cass, grant, laporte, jackson  no county-hosted ArcGIS REST
 //   feature server with rich layer catalog discoverable as of 2026-04-28. They use the Beacon
 //   Schneider HTML viewer for everything beyond the IndianaMap statewide parcels feed.
 //   Re-investigate periodically; new public AGOL orgs may appear over time.
 //    County layer registry                                                      
 
-//    County GIS server registry — CONFIRMED live URLs only                      
+//    County GIS server registry  CONFIRMED live URLs only                      
 // All URLs verified from browser via fetch() before inclusion
 const COUNTY_GIS_SERVERS = {
 
-  //    Hamilton County — gis1.hamiltoncounty.in.gov (verified )               
+  //    Hamilton County  gis1.hamiltoncounty.in.gov (verified )               
   hamilton: [
     {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelsPublic/MapServer',    ids:[0], name:'Parcels',                cat:'parcels'},
     {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoParcelLabels/MapServer',     ids:[0], name:'Parcel Labels',           cat:'annotations'},
@@ -3887,7 +3889,7 @@ const COUNTY_GIS_SERVERS = {
     {svc:'https://gis1.hamiltoncounty.in.gov/arcgis/rest/services/HamCoTopo/MapServer',             ids:[0], name:'Topography / Contours',   cat:'environment'},
   ],
 
-  //    Tippecanoe County — maps.tippecanoe.in.gov (verified )                 
+  //    Tippecanoe County  maps.tippecanoe.in.gov (verified )                 
   tippecanoe: [
     {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[3],  name:'Parcels',                  cat:'parcels'},
     {svc:'https://maps.tippecanoe.in.gov/server/rest/services/GeneralViewer/MapServer', ids:[20], name:'Address Points',           cat:'parcels'},
@@ -4371,7 +4373,7 @@ async function fetchCountyLayers(cKey) {
     return countyLayerCache[cKey];
   }
 
-  // 2. ElevateMaps counties — auto-discover layers from their MapServer
+  // 2. ElevateMaps counties  auto-discover layers from their MapServer
   const base = getActiveDynamicBase();
   if (base) {
     try {
@@ -4387,7 +4389,7 @@ async function fetchCountyLayers(cKey) {
     }
   }
 
-  // 3. No server found — return empty (statewide IGIO parcel still available)
+  // 3. No server found  return empty (statewide IGIO parcel still available)
   countyLayerCache[cKey] = STATEWIDE_FALLBACK_LAYERS;
   return STATEWIDE_FALLBACK_LAYERS;
 }
@@ -4614,7 +4616,7 @@ async function refreshCountyLayers() {
   setTimeout(prefetchOwnershipForView, 1800);
 }
 
-//    Permanent layer registry (statewide — all 92 counties)                    
+//    Permanent layer registry (statewide  all 92 counties)                    
 const gisLayers = {};
 gisLayers['parcels']        = parcelLayer;
 gisLayers['flood']          = (function(){
@@ -4842,7 +4844,7 @@ function toggleLyr(name, cb) {
     layer.addTo(map);
     activeLyrs.add(name);
     if (name !== 'parcels') {
-      // Canvas renderer handles z-order — no manual bringToFront needed
+      // Canvas renderer handles z-order  no manual bringToFront needed
     }
   } else {
     map.removeLayer(layer);
@@ -4860,93 +4862,187 @@ let activeTool = null;
 let measurePts = [];
 let measureTotal = 0;
 let measurePolylines = [];
+let _measurePreviewLine = null;
+let _measureSegLabels = [];
+
+function _getMeasPanel() {
+  let p = document.getElementById('mn-meas-panel');
+  if(!p) {
+    p = document.createElement('div');
+    p.id = 'mn-meas-panel';
+    p.style.cssText = 'position:fixed;top:60px;right:10px;z-index:9999;background:#0e1420;border:1px solid rgba(6,182,212,0.4);border-radius:8px;padding:12px 16px;min-width:220px;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,0.6);display:none;font-family:Barlow,sans-serif;';
+    p.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+      '<span style="font-size:12px;font-weight:700;color:var(--accent,#06b6d4);letter-spacing:.5px;"><i class=\'fas fa-ruler\'></i>&nbsp;Measurement Details</span>' +
+      '<button onclick="clearMeasure()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;padding:0 0 0 12px;line-height:1;" title="Close">&times;</button>' +
+      '</div><div id="mn-meas-body" style="font-size:13px;color:#dde4f0;line-height:1.5;"></div>';
+    document.body.appendChild(p);
+  }
+  return p;
+}
+function _showMeasPanel(html) {
+  _getMeasPanel().style.display = 'block';
+  const b = document.getElementById('mn-meas-body');
+  if(b) b.innerHTML = html;
+}
+function _hideMeasPanel() {
+  const p = document.getElementById('mn-meas-panel');
+  if(p) p.style.display = 'none';
+}
+function _fmtDist(miles) {
+  const ft = miles * 5280;
+  if(ft < 5280) return ft.toFixed(0) + ' ft (' + miles.toFixed(4) + ' mi)';
+  return miles.toFixed(3) + ' mi (' + (miles * 1.60934).toFixed(3) + ' km)';
+}
+function _fmtArea(acres) {
+  const sf = acres * 43560;
+  if(acres < 1) return sf.toFixed(0) + ' sq ft (' + acres.toFixed(4) + ' ac)';
+  return acres.toFixed(3) + ' acres (' + (acres * 0.404686).toFixed(4) + ' ha)';
+}
+function _addSegLabel(pt1, pt2, text) {
+  const mid = [(pt1[0]+pt2[0])/2, (pt1[1]+pt2[1])/2];
+  try {
+    const lbl = L.tooltip({permanent:true,direction:'center',className:'mn-seg-label',offset:[0,0]})
+      .setLatLng(mid).setContent(text).addTo(map);
+    _measureSegLabels.push(lbl);
+  } catch(e) {}
+}
 
 function activateTool(name, btn) {
+  if(activeTool && activeTool !== name) clearMeasure();
   activeTool = name;
   measurePts = [];
   measureTotal = 0;
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
   btn?.classList.add('on');
-  try { var _op=document.querySelector('.leaflet-overlay-pane'); if(_op) _op.style.pointerEvents='none'; } catch(ex){}
-  const msgs={
-    distance:'<i class="fas fa-ruler-horizontal" style="color:var(--accent);margin-right:6px;"></i>Click to add points. Double-click to finish.',
-    area:'<i class="fas fa-draw-polygon" style="color:var(--accent);margin-right:6px;"></i>Click to define polygon. Double-click to close.',
-    bearing:'<i class="fas fa-compass" style="color:var(--accent);margin-right:6px;"></i>Click point 1, then point 2.',
-    coordinate:'<i class="fas fa-crosshairs" style="color:var(--accent);margin-right:6px;"></i>Click any map location for coordinates.',
-    'section-corner':'<i class="fas fa-location-pin" style="color:var(--accent);margin-right:6px;"></i>Click to record a section corner.',
-    'select-rect':'<i class="fas fa-crop-simple" style="color:var(--accent);margin-right:6px;"></i>Box select active — use Leaflet Draw.',
-    'select-poly':'<i class="fas fa-lasso" style="color:var(--accent);margin-right:6px;"></i>Polygon select active.'
+  try{document.querySelector('.leaflet-overlay-pane').style.pointerEvents='none';}catch(e){}
+  try{document.getElementById('map').style.cursor='crosshair';}catch(e){}
+  const hints = {
+    distance: '<span style="color:#8fa3bf;font-size:11px;">Click to place points &middot; Double-click to finish</span>',
+    area: '<span style="color:#8fa3bf;font-size:11px;">Click to place points &middot; Double-click to close</span>',
+    bearing: '<span style="color:#8fa3bf;font-size:11px;">Click point 1, then point 2</span>',
+    coordinate: '<span style="color:#8fa3bf;font-size:11px;">Click any location for coordinates</span>',
+    'section-corner': '<span style="color:#8fa3bf;font-size:11px;">Click to record section corner</span>'
   };
-  document.getElementById('mout').innerHTML = msgs[name]||'Tool active.';
-  var _isDraw = ['polygon','rectangle','circle','polyline','marker','select-rect','select-poly'].includes(name);
-  var _donBtn = document.getElementById('btn-done-measure');
-  var _exitBtn = document.getElementById('btn-exit-tool');
-  if(_donBtn) _donBtn.style.display = _isDraw ? 'none' : 'flex';
-  if(_exitBtn) _exitBtn.style.display = 'flex';
+  _showMeasPanel(hints[name] || '<span style="color:#8fa3bf;font-size:11px;">Tool active</span>');
+  document.getElementById('mout').innerHTML = hints[name] || 'Tool active.';
+  var _donBtn=document.getElementById('btn-done-measure'), _exitBtn=document.getElementById('btn-exit-tool');
+  if(_donBtn) _donBtn.style.display='flex';
+  if(_exitBtn) _exitBtn.style.display='flex';
   notify(name.charAt(0).toUpperCase()+name.slice(1)+' tool activated','fa-check-circle');
 }
 
+map.on('mousemove', function(e) {
+  if(!activeTool || measurePts.length===0) return;
+  if(activeTool!=='distance' && activeTool!=='area' && activeTool!=='bearing') return;
+  const last=measurePts[measurePts.length-1], cur=[e.latlng.lat,e.latlng.lng];
+  if(_measurePreviewLine){try{map.removeLayer(_measurePreviewLine);}catch(er){} _measurePreviewLine=null;}
+  _measurePreviewLine=L.polyline([last,cur],{color:'#f0a500',weight:1.5,dashArray:'6,4',opacity:0.6,interactive:false}).addTo(map);
+  const segDist=calcDist(last,cur);
+  if(activeTool==='distance'){
+    const tot=measureTotal+segDist;
+    _showMeasPanel('<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#8fa3bf;">Segment:</span><span>'+_fmtDist(segDist)+'</span></div><div style="display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);"><span style="color:#8fa3bf;">Total:</span><span style="font-weight:700;color:var(--accent,#06b6d4);">'+_fmtDist(tot)+'</span></div><div style="margin-top:8px;font-size:10px;color:#4a6080;">Click to add &middot; Double-click to finish</div>');
+  } else if(activeTool==='area' && measurePts.length>=2){
+    const a=calcArea([...measurePts,cur]);
+    _showMeasPanel('<div style="display:flex;justify-content:space-between;"><span style="color:#8fa3bf;">Area:</span><span style="font-weight:700;color:var(--accent,#06b6d4);">'+_fmtArea(a)+'</span></div><div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:#8fa3bf;">Points:</span><span>'+(measurePts.length+1)+'</span></div><div style="margin-top:8px;font-size:10px;color:#4a6080;">Click to add &middot; Double-click to close</div>');
+  } else if(activeTool==='bearing'){
+    _showMeasPanel('<div style="display:flex;justify-content:space-between;"><span style="color:#8fa3bf;">Bearing:</span><span>'+calcBearing(last,cur).toFixed(1)+'&deg;</span></div><div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:#8fa3bf;">Distance:</span><span>'+_fmtDist(segDist)+'</span></div>');
+  }
+});
+
 map.on('click', e=>{
-  const {lat,lng} = e.latlng;
+  const {lat,lng}=e.latlng;
   if(!activeTool) return;
   handleToolClick(lat,lng);
 });
 
 function handleToolClick(lat,lng) {
   if(activeTool==='coordinate'){
-    const out=document.getElementById('mout');
-    out.innerHTML=`
-      <div class="mout-row"><span class="mk">Decimal Deg.</span><span class="mv">${lat.toFixed(6)}, ${lng.toFixed(6)}</span></div>
-      <div class="mout-row"><span class="mk">DMS</span><span class="mv">${toDMS(lat,lng)}</span></div>
-      <div class="mout-row"><span class="mk">UTM (approx)</span><span class="mv">${toUTM(lat,lng)}</span></div>`;
-    L.circleMarker([lat,lng],{radius:6,color:'#f0a500',fillColor:'#f0a500',fillOpacity:.9,weight:2}).addTo(map);
+    _showMeasPanel('<div style="margin-bottom:8px;"><div style="color:#8fa3bf;font-size:10px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;">Decimal Degrees</div><div style="font-weight:600;font-size:13px;">'+lat.toFixed(6)+', '+lng.toFixed(6)+'</div></div><div style="margin-bottom:8px;"><div style="color:#8fa3bf;font-size:10px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;">DMS</div><div style="font-size:12px;">'+toDMS(lat,lng)+'</div></div><div><div style="color:#8fa3bf;font-size:10px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;">UTM (approx)</div><div style="font-size:12px;">'+toUTM(lat,lng)+'</div></div>');
+    document.getElementById('mout').innerHTML='<div class="mout-row"><span class="mk">Lat,Lng</span><span class="mv">'+lat.toFixed(6)+', '+lng.toFixed(6)+'</span></div>';
+    const dot=L.circleMarker([lat,lng],{radius:6,color:'#f0a500',fillColor:'#f0a500',fillOpacity:.9,weight:2,interactive:false}).addTo(map);
+    measurePolylines.push(dot);
     return;
   }
   if(activeTool==='section-corner'){
-    notify('Corner recorded: '+lat.toFixed(5)+', '+lng.toFixed(5),'fa-location-pin');
-    L.marker([lat,lng]).addTo(map).bindPopup(`<div class="mpop-body"><b style="color:var(--accent);">Section Corner</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}</div>`).openPopup();
+    notify('Corner: '+lat.toFixed(5)+', '+lng.toFixed(5),'fa-location-pin');
+    const m=L.marker([lat,lng]).addTo(map).bindPopup('<div class="mpop-body"><b style="color:var(--accent);">Section Corner</b><br>'+lat.toFixed(6)+', '+lng.toFixed(6)+'</div>');
+    measurePolylines.push(m);
     return;
   }
   measurePts.push([lat,lng]);
-  L.circleMarker([lat,lng],{radius:4,color:'#f0a500',fillColor:'#f0a500',fillOpacity:.9,weight:1.5}).addTo(map);
+  const dot=L.circleMarker([lat,lng],{radius:5,color:'#f0a500',fillColor:'#f0a500',fillOpacity:1,weight:2,interactive:false}).addTo(map);
+  measurePolylines.push(dot);
 
   if(activeTool==='bearing' && measurePts.length===2){
-    const b=calcBearing(measurePts[0],measurePts[1]);
-    const d=calcDist(measurePts[0],measurePts[1]);
-    const line = L.polyline(measurePts,{color:'#f0a500',weight:2,dashArray:'5,4'}).addTo(map);
+    const b=calcBearing(measurePts[0],measurePts[1]), d=calcDist(measurePts[0],measurePts[1]);
+    const line=L.polyline(measurePts,{color:'#f0a500',weight:2.5,dashArray:'8,4',interactive:false}).addTo(map);
     measurePolylines.push(line);
-    document.getElementById('mout').innerHTML=`
-      <div class="mout-row"><span class="mk">Bearing</span><span class="mv">${b.toFixed(2)}�</span></div>
-      <div class="mout-row"><span class="mk">Distance</span><span class="mv">${(d*5280).toFixed(0)} ft</span></div>
-      <div class="mout-row"><span class="mk">Miles</span><span class="mv">${d.toFixed(4)} mi</span></div>`;
+    _addSegLabel(measurePts[0],measurePts[1],b.toFixed(1)+'&deg; / '+_fmtDist(d));
+    _showMeasPanel('<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#8fa3bf;">Bearing:</span><span style="font-weight:700;font-size:18px;">'+b.toFixed(2)+'&deg;</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#8fa3bf;">Distance:</span><span style="font-weight:600;">'+_fmtDist(d)+'</span></div>');
+    document.getElementById('mout').innerHTML='<div class="mout-row"><span class="mk">Bearing</span><span class="mv">'+b.toFixed(2)+'&deg;</span></div><div class="mout-row"><span class="mk">Distance</span><span class="mv">'+_fmtDist(d)+'</span></div>';
     measurePts=[];
     return;
   }
   if(activeTool==='distance' && measurePts.length>1){
     const d=calcDist(measurePts[measurePts.length-2],measurePts[measurePts.length-1]);
     measureTotal+=d;
-    const line=L.polyline([measurePts[measurePts.length-2],measurePts[measurePts.length-1]],{color:'#f0a500',weight:2}).addTo(map);
+    const line=L.polyline([measurePts[measurePts.length-2],measurePts[measurePts.length-1]],{color:'#f0a500',weight:2.5,interactive:false}).addTo(map);
     measurePolylines.push(line);
-    document.getElementById('mout').innerHTML=`
-      <div class="mout-row"><span class="mk">Last Segment</span><span class="mv">${(d*5280).toFixed(0)} ft</span></div>
-      <div class="mout-row"><span class="mk">Total Distance</span><span class="mv">${(measureTotal*5280).toFixed(0)} ft</span></div>
-      <div class="mout-row"><span class="mk">Total (miles)</span><span class="mv">${measureTotal.toFixed(4)} mi</span></div>`;
+    _addSegLabel(measurePts[measurePts.length-2],measurePts[measurePts.length-1],(d*5280).toFixed(0)+' ft');
+    _showMeasPanel('<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#8fa3bf;">Segment:</span><span>'+_fmtDist(d)+'</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,.08);"><span style="color:#8fa3bf;">Total:</span><span style="font-weight:700;font-size:15px;color:var(--accent,#06b6d4);">'+_fmtDist(measureTotal)+'</span></div><div style="font-size:10px;color:#4a6080;">Click to add &middot; Double-click to finish</div>');
+    document.getElementById('mout').innerHTML='<div class="mout-row"><span class="mk">Total</span><span class="mv">'+_fmtDist(measureTotal)+'</span></div>';
     var _db3=document.getElementById('btn-done-measure'); if(_db3) _db3.style.display='flex';
   }
-  if(activeTool==='area' && measurePts.length>=3){
-    const a=calcArea(measurePts);
-    document.getElementById('mout').innerHTML=`
-      <div class="mout-row"><span class="mk">Area</span><span class="mv">${a.toFixed(3)} acres</span></div>
-      <div class="mout-row"><span class="mk">Square Feet</span><span class="mv">${(a*43560).toFixed(0)} sf</span></div>
-      <div class="mout-row"><span class="mk">Points</span><span class="mv">${measurePts.length}</span></div>`;
-    var _db4=document.getElementById('btn-done-measure'); if(_db4) _db4.style.display='flex';
+  if(activeTool==='area'){
+    if(measurePts.length>=2){
+      const line=L.polyline([measurePts[measurePts.length-2],measurePts[measurePts.length-1]],{color:'#06b6d4',weight:2,interactive:false}).addTo(map);
+      measurePolylines.push(line);
+    }
+    if(measurePts.length>=3){
+      const a=calcArea(measurePts);
+      _showMeasPanel('<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#8fa3bf;">Area:</span><span style="font-weight:700;font-size:15px;color:var(--accent,#06b6d4);">'+_fmtArea(a)+'</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#8fa3bf;">Points:</span><span>'+measurePts.length+'</span></div><div style="margin-top:8px;font-size:10px;color:#4a6080;">Click to add &middot; Double-click to close</div>');
+      document.getElementById('mout').innerHTML='<div class="mout-row"><span class="mk">Area</span><span class="mv">'+_fmtArea(a)+'</span></div>';
+      var _db4=document.getElementById('btn-done-measure'); if(_db4) _db4.style.display='flex';
+    }
   }
 }
 
+function _finishMeasure() {
+  if(_measurePreviewLine){try{map.removeLayer(_measurePreviewLine);}catch(e){} _measurePreviewLine=null;}
+  try{document.getElementById('map').style.cursor='';}catch(e){}
+  try{document.querySelector('.leaflet-overlay-pane').style.pointerEvents='';}catch(e){}
+  activeTool=null;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  var _db=document.getElementById('btn-done-measure'); if(_db) _db.style.display='none';
+  var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='none';
+}
+
+map.on('dblclick', function(e) {
+  L.DomEvent.stop(e);
+  if(activeTool==='distance') {
+    if(measurePts.length>0) measurePts.pop();
+    if(measureTotal>0) {
+      _showMeasPanel('<div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px;"><span style="color:#8fa3bf;">Total Distance:</span><span style="font-weight:700;font-size:16px;color:var(--accent,#06b6d4);">'+_fmtDist(measureTotal)+'</span></div><div style="color:#4ade80;font-size:11px;"><i class=\'fas fa-check-circle\'></i> Complete &mdash; click parcel to view data</div>');
+    }
+    _finishMeasure();
+  } else if(activeTool==='area') {
+    if(measurePts.length>0) measurePts.pop();
+    if(measurePts.length>=3) {
+      const a=calcArea(measurePts);
+      const closeLine=L.polyline([measurePts[measurePts.length-1],measurePts[0]],{color:'#06b6d4',weight:2,interactive:false}).addTo(map);
+      measurePolylines.push(closeLine);
+      const poly=L.polygon(measurePts,{color:'#06b6d4',fillColor:'#06b6d4',fillOpacity:.08,weight:2,interactive:false}).addTo(map);
+      measurePolylines.push(poly);
+      _showMeasPanel('<div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px;"><span style="color:#8fa3bf;">Total Area:</span><span style="font-weight:700;font-size:16px;color:var(--accent,#06b6d4);">'+_fmtArea(a)+'</span></div><div style="color:#4ade80;font-size:11px;"><i class=\'fas fa-check-circle\'></i> Complete &mdash; click parcel to view data</div>');
+    }
+    _finishMeasure();
+  }
+});
+
 function calcDist(a,b){
   const R=3958.8,dL=(b[0]-a[0])*Math.PI/180,dl=(b[1]-a[1])*Math.PI/180;
-  const s=Math.sin(dL/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dl/2)**2;
-  return R*2*Math.asin(Math.sqrt(s));
+  const sv=Math.sin(dL/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dl/2)**2;
+  return R*2*Math.asin(Math.sqrt(sv));
 }
 function calcBearing(a,b){
   const dl=(b[1]-a[1])*Math.PI/180;
@@ -4960,39 +5056,36 @@ function calcArea(pts){
   return Math.abs(a/2)*12321.75;
 }
 function toDMS(lat,lng){
-  const fmt=(v,dirs)=>{
-    const d=Math.floor(Math.abs(v)),m=Math.floor((Math.abs(v)-d)*60),s=((Math.abs(v)-d)*60-m)*60;
-    return `${d}� ${m}' ${s.toFixed(2)}" ${v>=0?dirs[0]:dirs[1]}`;
-  };
-  return `${fmt(lat,['N','S'])}, ${fmt(lng,['E','W'])}`;
+  const fmt=(v,dirs)=>{const d=Math.floor(Math.abs(v)),m=Math.floor((Math.abs(v)-d)*60),sv=((Math.abs(v)-d)*60-m)*60;return d+'&deg; '+m+"' "+sv.toFixed(2)+'" '+(v>=0?dirs[0]:dirs[1]);};
+  return fmt(lat,['N','S'])+', '+fmt(lng,['E','W']);
 }
 function toUTM(lat,lng){
   const zone=Math.floor((lng+180)/6)+1;
-  return `Zone ${zone}N ${Math.abs(Math.round((lng+180)*111320))}E ${Math.round(lat*110540)}N`;
+  return 'Zone '+zone+'N '+Math.abs(Math.round((lng+180)*111320))+'E '+Math.round(lat*110540)+'N';
 }
 function clearMeasure(){
-  measurePts=[];measureTotal=0;activeTool=null; try{var _op2=document.querySelector('.leaflet-overlay-pane');if(_op2)_op2.style.pointerEvents='';}catch(ex){} 
-  measurePolylines.forEach(l=>map.removeLayer(l));
+  measurePts=[];measureTotal=0;activeTool=null;
+  if(_measurePreviewLine){try{map.removeLayer(_measurePreviewLine);}catch(e){} _measurePreviewLine=null;}
+  try{document.querySelector('.leaflet-overlay-pane').style.pointerEvents='';}catch(e){}
+  try{document.getElementById('map').style.cursor='';}catch(e){}
+  measurePolylines.forEach(l=>{try{map.removeLayer(l);}catch(e){}});
   measurePolylines=[];
+  _measureSegLabels.forEach(l=>{try{map.removeLayer(l);}catch(e){}});
+  _measureSegLabels=[];
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('mout').textContent='Click a tool above, then click on the map.';
   var _db=document.getElementById('btn-done-measure'); if(_db) _db.style.display='none';
   var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='none';
-  notify('Measurements cleared','fa-trash-can');
+  _hideMeasPanel();
+  notify('Cleared','fa-trash-can');
 }
-
 function doneMeasure(){
-  var _op3=document.querySelector('.leaflet-overlay-pane'); if(_op3) _op3.style.pointerEvents='';
-  activeTool=null;
-  measurePts=[];
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-  var _db=document.getElementById('btn-done-measure'); if(_db) _db.style.display='none';
-  var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='none';
-  var _mout=document.getElementById('mout');
-  if(_mout && _mout.innerHTML && !_mout.innerHTML.includes('Click a tool')) {
-    _mout.innerHTML += '<div style="margin-top:6px;padding:4px 8px;background:rgba(0,200,100,0.15);border-radius:4px;font-size:11px;color:#4ade80;"><i class="fas fa-check-circle"></i> Done. Click any parcel to view data.</div>';
+  _finishMeasure();
+  var body=document.getElementById('mn-meas-body');
+  if(body && !body.innerHTML.includes('Complete')) {
+    body.innerHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1);color:#4ade80;font-size:11px;"><i class=\'fas fa-check-circle\'></i> Done &mdash; click parcel to view data</div>';
   }
-  notify('Measurement complete — parcel clicks restored','fa-check-circle');
+  notify('Done','fa-check-circle');
 }
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
@@ -5023,7 +5116,7 @@ function activateDraw(type, btn) {
     _currentDrawHandler.enable();
     var _ds=document.getElementById('draw-status'); if(_ds) _ds.style.display='block';
     var _eb=document.getElementById('btn-exit-tool'); if(_eb) _eb.style.display='flex';
-    notify('Draw ' + type + ' — click to place points, double-click to finish','fa-pencil');
+    notify('Draw ' + type + '  click to place points, double-click to finish','fa-pencil');
   } catch(err){
     console.error('Draw error:',err);
     try{var _op2=document.querySelector('.leaflet-overlay-pane');if(_op2)_op2.style.pointerEvents='';}catch(e){}
@@ -5057,7 +5150,7 @@ map.on('draw:created', function(e){
   window._shapeSkip = function(){
     layer.on('contextmenu',function(ev){L.DomEvent.stopPropagation(ev);window._editShapeLayer(layer);});
     map.closePopup();
-    notify('Shape added — right-click to label/recolor','fa-check');
+    notify('Shape added  right-click to label/recolor','fa-check');
   };
   var pHtml = '<div style="min-width:210px;padding:4px;">' +
     '<b style="color:var(--accent);font-size:13px;"><i class=\'fas fa-tag\'></i> Label Shape</b><br>' +
@@ -5391,13 +5484,13 @@ const INDIANA_COUNTIES = {
 
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  PRC PDF — DIRECT COUNTY ENDPOINTS
+//  PRC PDF  DIRECT COUNTY ENDPOINTS
 //  Exhaustively researched. These are all confirmed
 //  public-access direct PDF/report URLs per county.
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  PRC PDF SYSTEM — DIRECT & RELIABLE
+//  PRC PDF SYSTEM  DIRECT & RELIABLE
 //
 //  Sources (in priority order):
 //  1. Marion County  � maps.indy.gov (real PDF server)
@@ -5430,7 +5523,7 @@ const EM_COUNTIES = {
 
 // XSoft Engage counties
 const WTH_GIS = {
-  // MapDotNet-hosted counties — coordinate-based, requires corsproxy.io
+  // MapDotNet-hosted counties  coordinate-based, requires corsproxy.io
   putnam:  { host:'https://putnamin.wthgis.com',      layers:'10739,1933,2965,8288' },
   brown:   { host:'https://brownin.wthgis.com',       layers:'10739,1933,2965,8288' },
   daviess: { host:'https://daviessin.wthgis.com',     layers:'10739,1933,2965,8288' },
@@ -5562,7 +5655,7 @@ function openPRCPanel() {
 }
 
 async function _openPRCForCounty(cKey, p, pin) {
-  //    1. Marion County — real PDF server                                     
+  //    1. Marion County  real PDF server                                     
   if (cKey === 'marion') {
     const num = pin.replace(/[^0-9]/g, '').substring(0, 10);
     if (num) {
@@ -5572,7 +5665,7 @@ async function _openPRCForCounty(cKey, p, pin) {
     }
   }
 
-  //    2. Hamilton County — real property reports server                      
+  //    2. Hamilton County  real property reports server                      
   if (cKey === 'hamilton') {
     const num = pin.replace(/[^0-9]/g, '').padEnd(16, '0').substring(0, 16);
     if (num) {
@@ -5603,24 +5696,24 @@ async function _openPRCForCounty(cKey, p, pin) {
     return;
   }
 
-  //    5. All counties — generate complete PDF from real assessment data       
+  //    5. All counties  generate complete PDF from real assessment data       
   generateLocalPRC(p);
 }
 
 //    Generate a proper PRC PDF in the browser                                   
 // Uses real ownership & assessment data from ElevateMaps Layer 92.
-// Opens in a new window with a "Save as PDF" button — one click to PDF.
+// Opens in a new window with a "Save as PDF" button  one click to PDF.
 function generateLocalPRC(p) {
   const county = (activeCounty && activeCounty.name) || 'Indiana';
   const fips   = (activeCounty && activeCounty.fips)  || '';
   const now    = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-  const v = x => (x && x !== '—' && x !== 'null' && x !== 'undefined') ? x : '—';
+  const v = x => (x && x !== '' && x !== 'null' && x !== 'undefined') ? x : '';
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Property Record Card — ${v(p.addr)}</title>
+<title>Property Record Card  ${v(p.addr)}</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -5674,7 +5767,7 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
 <div class="page">
 
 <div class="print-btn">
-  <span>Property Record Card — ${v(p.addr)}, ${county}<br>Assessment Year 2024 � Pay 2025 � DLGF Official Record</span>
+  <span>Property Record Card  ${v(p.addr)}, ${county}<br>Assessment Year 2024 � Pay 2025 � DLGF Official Record</span>
   <button onclick="window.print()"> Save as PDF / Print</button>
 </div>
 
@@ -5714,7 +5807,7 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
       <div class="cell"><div class="lbl">School Corporation</div><div class="val">${v(p.school)}</div></div>
       <div class="cell"><div class="lbl">Legal Acreage</div><div class="val">${v(p.acres)} acres</div></div>
       <div class="cell"><div class="lbl">Property Class</div><div class="val">${v(p.use)}</div></div>
-      <div class="cell"><div class="lbl">Coordinates (lat, lon)</div><div class="val mono">${p.lat ? p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) : '—'}</div></div>
+      <div class="cell"><div class="lbl">Coordinates (lat, lon)</div><div class="val mono">${p.lat ? p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) : ''}</div></div>
     </div>
   </div>
 </div>
@@ -5724,7 +5817,7 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
   <div class="sec-body">
     <div class="grid">
       <div class="cell s2"><div class="lbl">Owner Name</div><div class="val accent" style="font-size:13px;">${
-        p.owner && p.owner !== '(see assessor)' && p.owner !== '—'
+        p.owner && p.owner !== '(see assessor)' && p.owner !== ''
           ? v(p.owner)
           : `<span style="color:var(--text3);font-size:11px;">See county assessor records</span>`
       }</div></div>
@@ -5757,7 +5850,7 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
     <table>
       <tr><th>Date</th><th class="right">Sale Price</th><th>Buyer</th><th>Deed Reference</th><th>Type</th></tr>
       ${p.sales && p.sales.length
-        ? p.sales.map(s => `<tr><td>${s.dt||'—'}</td><td class="money">${s.price||'—'}</td><td>${s.buyer||v(p.owner)}</td><td class="mono" style="font-size:9px;">${v(p.deed)}</td><td>${s.type||'Transfer'}</td></tr>`).join('')
+        ? p.sales.map(s => `<tr><td>${s.dt||''}</td><td class="money">${s.price||''}</td><td>${s.buyer||v(p.owner)}</td><td class="mono" style="font-size:9px;">${v(p.deed)}</td><td>${s.type||'Transfer'}</td></tr>`).join('')
         : '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:8px;">No sales recorded � Contact county recorder for deed history</td></tr>'
       }
     </table>
@@ -5782,9 +5875,9 @@ table td.money{color:#b45309;font-weight:700;text-align:right;}
   const blobUrl = URL.createObjectURL(blob);
   const win    = window.open(blobUrl, '_blank', 'noopener,width=1020,height=780,scrollbars=yes');
   if (!win) {
-    notify('Allow popups to view the PRC — check your browser bar', 'fa-triangle-exclamation');
+    notify('Allow popups to view the PRC  check your browser bar', 'fa-triangle-exclamation');
   } else {
-    notify('PRC opened — click "Save as PDF / Print" button', 'fa-file-pdf');
+    notify('PRC opened  click "Save as PDF / Print" button', 'fa-file-pdf');
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
   }
 }
@@ -5806,7 +5899,7 @@ document.getElementById('county-sel').addEventListener('change', function() {
     document.body.classList.remove('mn-county-selected');
     try { localStorage.removeItem('mn_active_county'); localStorage.removeItem('mn_active_county_coords'); } catch(e){}
     const cd = document.getElementById('county-disp');
-    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i> No Location ';
     return;
   }
   const c = INDIANA_COUNTIES[key];
@@ -5840,7 +5933,7 @@ document.getElementById('county-sel').addEventListener('change', function() {
   Object.keys(ownerCache).forEach(k => delete ownerCache[k]);
   // Pre-warm new county's ownership after parcels load
   setTimeout(prefetchOwnershipForView, 2500);
-  notify('Switched to ' + c.name + ' — loading live data&', 'fa-map');
+  notify('Switched to ' + c.name + '  loading live data&', 'fa-map');
   // Persist last-active county to localStorage (profile sync hooks in later)
   try {
     localStorage.setItem('mn_active_county', this.value);
@@ -5848,12 +5941,12 @@ document.getElementById('county-sel').addEventListener('change', function() {
   } catch(e){}
 });
 
-// State selector handler — switching state changes — populate or clear county dropdown based on selected state
+// State selector handler  switching state changes  populate or clear county dropdown based on selected state
 // State -> counties mapping
 const STATE_COUNTIES = {
-  indiana: "\n      <option value=\"\" selected>— Select County —</option>\n    <option value=\"all\">< All Indiana</option>\n    <optgroup label=\"   Central   \">\n    <option value=\"bartholomew\">Bartholomew</option>\n    <option value=\"boone\">Boone</option>\n    <option value=\"hamilton\">Hamilton</option>\n    <option value=\"hancock\">Hancock</option>\n    <option value=\"hendricks\">Hendricks</option>\n    <option value=\"johnson\">Johnson</option>\n    <option value=\"madison\">Madison</option>\n    <option value=\"marion\">Marion</option>\n    <option value=\"morgan\">Morgan</option>\n    <option value=\"shelby\">Shelby</option>\n    </optgroup>\n    <optgroup label=\"   North   \">\n    <option value=\"allen\">Allen</option>\n    <option value=\"cass\">Cass</option>\n    <option value=\"dekalb\">DeKalb</option>\n    <option value=\"elkhart\">Elkhart</option>\n    <option value=\"fulton\">Fulton</option>\n    <option value=\"howard\">Howard</option>\n    <option value=\"huntington\">Huntington</option>\n    <option value=\"jasper\">Jasper</option>\n    <option value=\"kosciusko\">Kosciusko</option>\n    <option value=\"lagrange\">LaGrange</option>\n    <option value=\"lake\">Lake</option>\n    <option value=\"laporte\">LaPorte</option>\n    <option value=\"marshall\">Marshall</option>\n    <option value=\"miami\">Miami</option>\n    <option value=\"newton\">Newton</option>\n    <option value=\"noble\">Noble</option>\n    <option value=\"porter\">Porter</option>\n    <option value=\"pulaski\">Pulaski</option>\n    <option value=\"starke\">Starke</option>\n    <option value=\"stjoseph\">St. Joseph</option>\n    <option value=\"steuben\">Steuben</option>\n    <option value=\"tippecanoe\">Tippecanoe</option>\n    <option value=\"tipton\">Tipton</option>\n    <option value=\"wabash\">Wabash</option>\n    <option value=\"wells\">Wells</option>\n    <option value=\"white\">White</option>\n    <option value=\"whitley\">Whitley</option>\n    </optgroup>\n    <optgroup label=\"   East   \">\n    <option value=\"adams\">Adams</option>\n    <option value=\"blackford\">Blackford</option>\n    <option value=\"carroll\">Carroll</option>\n    <option value=\"clinton\">Clinton</option>\n    <option value=\"delaware\">Delaware</option>\n    <option value=\"fayette\">Fayette</option>\n    <option value=\"fountain\">Fountain</option>\n    <option value=\"grant\">Grant</option>\n    <option value=\"henry\">Henry</option>\n    <option value=\"jay\">Jay</option>\n    <option value=\"montgomery\">Montgomery</option>\n    <option value=\"randolph\">Randolph</option>\n    <option value=\"rush\">Rush</option>\n    <option value=\"union\">Union</option>\n    <option value=\"wayne\">Wayne</option>\n    </optgroup>\n    <optgroup label=\"   Southeast   \">\n    <option value=\"brown\">Brown</option>\n    <option value=\"clark\">Clark</option>\n    <option value=\"dearborn\">Dearborn</option>\n    <option value=\"decatur\">Decatur</option>\n    <option value=\"floyd\">Floyd</option>\n    <option value=\"franklin\">Franklin</option>\n    <option value=\"jackson\">Jackson</option>\n    <option value=\"jefferson\">Jefferson</option>\n    <option value=\"jennings\">Jennings</option>\n    <option value=\"ohio\">Ohio</option>\n    <option value=\"ripley\">Ripley</option>\n    <option value=\"scott\">Scott</option>\n    <option value=\"switzerland\">Switzerland</option>\n    </optgroup>\n    <optgroup label=\"   South   \">\n    <option value=\"crawford\">Crawford</option>\n    <option value=\"daviess\">Daviess</option>\n    <option value=\"dubois\">Dubois</option>\n    <option value=\"gibson\">Gibson</option>\n    <option value=\"greene\">Greene</option>\n    <option value=\"harrison\">Harrison</option>\n    <option value=\"knox\">Knox</option>\n    <option value=\"lawrence\">Lawrence</option>\n    <option value=\"martin\">Martin</option>\n    <option value=\"monroe\">Monroe</option>\n    <option value=\"orange\">Orange</option>\n    <option value=\"owen\">Owen</option>\n    <option value=\"perry\">Perry</option>\n    <option value=\"pike\">Pike</option>\n    <option value=\"posey\">Posey</option>\n    <option value=\"spencer\">Spencer</option>\n    <option value=\"sullivan\">Sullivan</option>\n    <option value=\"vanderburgh\">Vanderburgh</option>\n    <option value=\"warrick\">Warrick</option>\n    <option value=\"washington\">Washington</option>\n    </optgroup>\n    <optgroup label=\"   West   \">\n    <option value=\"benton\">Benton</option>\n    <option value=\"clay\">Clay</option>\n    <option value=\"parke\">Parke</option>\n    <option value=\"putnam\">Putnam</option>\n    <option value=\"vermillion\">Vermillion</option>\n    <option value=\"vigo\">Vigo</option>\n    <option value=\"warren\">Warren</option>\n    </optgroup>\n    "
+  indiana: "\n      <option value=\"\" selected> Select County </option>\n    <option value=\"all\">< All Indiana</option>\n    <optgroup label=\"   Central   \">\n    <option value=\"bartholomew\">Bartholomew</option>\n    <option value=\"boone\">Boone</option>\n    <option value=\"hamilton\">Hamilton</option>\n    <option value=\"hancock\">Hancock</option>\n    <option value=\"hendricks\">Hendricks</option>\n    <option value=\"johnson\">Johnson</option>\n    <option value=\"madison\">Madison</option>\n    <option value=\"marion\">Marion</option>\n    <option value=\"morgan\">Morgan</option>\n    <option value=\"shelby\">Shelby</option>\n    </optgroup>\n    <optgroup label=\"   North   \">\n    <option value=\"allen\">Allen</option>\n    <option value=\"cass\">Cass</option>\n    <option value=\"dekalb\">DeKalb</option>\n    <option value=\"elkhart\">Elkhart</option>\n    <option value=\"fulton\">Fulton</option>\n    <option value=\"howard\">Howard</option>\n    <option value=\"huntington\">Huntington</option>\n    <option value=\"jasper\">Jasper</option>\n    <option value=\"kosciusko\">Kosciusko</option>\n    <option value=\"lagrange\">LaGrange</option>\n    <option value=\"lake\">Lake</option>\n    <option value=\"laporte\">LaPorte</option>\n    <option value=\"marshall\">Marshall</option>\n    <option value=\"miami\">Miami</option>\n    <option value=\"newton\">Newton</option>\n    <option value=\"noble\">Noble</option>\n    <option value=\"porter\">Porter</option>\n    <option value=\"pulaski\">Pulaski</option>\n    <option value=\"starke\">Starke</option>\n    <option value=\"stjoseph\">St. Joseph</option>\n    <option value=\"steuben\">Steuben</option>\n    <option value=\"tippecanoe\">Tippecanoe</option>\n    <option value=\"tipton\">Tipton</option>\n    <option value=\"wabash\">Wabash</option>\n    <option value=\"wells\">Wells</option>\n    <option value=\"white\">White</option>\n    <option value=\"whitley\">Whitley</option>\n    </optgroup>\n    <optgroup label=\"   East   \">\n    <option value=\"adams\">Adams</option>\n    <option value=\"blackford\">Blackford</option>\n    <option value=\"carroll\">Carroll</option>\n    <option value=\"clinton\">Clinton</option>\n    <option value=\"delaware\">Delaware</option>\n    <option value=\"fayette\">Fayette</option>\n    <option value=\"fountain\">Fountain</option>\n    <option value=\"grant\">Grant</option>\n    <option value=\"henry\">Henry</option>\n    <option value=\"jay\">Jay</option>\n    <option value=\"montgomery\">Montgomery</option>\n    <option value=\"randolph\">Randolph</option>\n    <option value=\"rush\">Rush</option>\n    <option value=\"union\">Union</option>\n    <option value=\"wayne\">Wayne</option>\n    </optgroup>\n    <optgroup label=\"   Southeast   \">\n    <option value=\"brown\">Brown</option>\n    <option value=\"clark\">Clark</option>\n    <option value=\"dearborn\">Dearborn</option>\n    <option value=\"decatur\">Decatur</option>\n    <option value=\"floyd\">Floyd</option>\n    <option value=\"franklin\">Franklin</option>\n    <option value=\"jackson\">Jackson</option>\n    <option value=\"jefferson\">Jefferson</option>\n    <option value=\"jennings\">Jennings</option>\n    <option value=\"ohio\">Ohio</option>\n    <option value=\"ripley\">Ripley</option>\n    <option value=\"scott\">Scott</option>\n    <option value=\"switzerland\">Switzerland</option>\n    </optgroup>\n    <optgroup label=\"   South   \">\n    <option value=\"crawford\">Crawford</option>\n    <option value=\"daviess\">Daviess</option>\n    <option value=\"dubois\">Dubois</option>\n    <option value=\"gibson\">Gibson</option>\n    <option value=\"greene\">Greene</option>\n    <option value=\"harrison\">Harrison</option>\n    <option value=\"knox\">Knox</option>\n    <option value=\"lawrence\">Lawrence</option>\n    <option value=\"martin\">Martin</option>\n    <option value=\"monroe\">Monroe</option>\n    <option value=\"orange\">Orange</option>\n    <option value=\"owen\">Owen</option>\n    <option value=\"perry\">Perry</option>\n    <option value=\"pike\">Pike</option>\n    <option value=\"posey\">Posey</option>\n    <option value=\"spencer\">Spencer</option>\n    <option value=\"sullivan\">Sullivan</option>\n    <option value=\"vanderburgh\">Vanderburgh</option>\n    <option value=\"warrick\">Warrick</option>\n    <option value=\"washington\">Washington</option>\n    </optgroup>\n    <optgroup label=\"   West   \">\n    <option value=\"benton\">Benton</option>\n    <option value=\"clay\">Clay</option>\n    <option value=\"parke\">Parke</option>\n    <option value=\"putnam\">Putnam</option>\n    <option value=\"vermillion\">Vermillion</option>\n    <option value=\"vigo\">Vigo</option>\n    <option value=\"warren\">Warren</option>\n    </optgroup>\n    "
 };
-const __mnEmptyCountyHTML = '<option value="" selected>— Select State first —</option>';
+const __mnEmptyCountyHTML = '<option value="" selected> Select State first </option>';
 const stateSelEl = document.getElementById('state-sel');
 if (stateSelEl) {
   stateSelEl.addEventListener('change', function(){
@@ -5875,7 +5968,7 @@ if (stateSelEl) {
       cs.value = '';
       cs.dispatchEvent(new Event('change'));
     } else {
-      cs.innerHTML = '<option value="" selected>— No counties available —</option>';
+      cs.innerHTML = '<option value="" selected> No counties available </option>';
       cs.disabled = true;
       cs.title = 'No counties available for this state';
       cs.value = '';
@@ -5884,7 +5977,7 @@ if (stateSelEl) {
   });
 }
 
-// Country selector handler — any change OR re-click resets state/county and pulls view to full country
+// Country selector handler  any change OR re-click resets state/county and pulls view to full country
 const countrySelEl = document.getElementById('country-sel');
 function __mnResetToCountry(countryVal){
   const ss = document.getElementById('state-sel');
@@ -5901,7 +5994,7 @@ function __mnResetToCountry(countryVal){
   } catch(e){}
   try {
     const cd = document.getElementById('county-disp');
-    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i> No Location ';
   } catch(e){}
 }
 if (countrySelEl) {
@@ -5921,7 +6014,7 @@ if (countrySelEl) {
   });
 }
 
-// On load — if there's a saved county in localStorage, sync the dropdown selection
+// On load  if there's a saved county in localStorage, sync the dropdown selection
 // Per-county stats (2020 Census + IGIO/IBRC). assessed values in billions of USD.
 const COUNTY_STATS = {
   adams:{pop:35777,area:339,parcels:16800,assessed:2.1}, allen:{pop:385410,area:657,parcels:162000,assessed:28.4},
@@ -5999,7 +6092,7 @@ window.updateCountyAnalytics = updateCountyAnalytics;
     if (csyEl) csyEl.value = "";
     document.body.classList.remove("mn-county-selected");
     const cd = document.getElementById("county-disp");
-    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
+    if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i> No Location ';
     return;
   }
   const key = Object.keys(INDIANA_COUNTIES).find(k => INDIANA_COUNTIES[k] === activeCounty);
@@ -6156,7 +6249,7 @@ window.addEventListener('load', async () => {
   setTimeout(prefetchOwnershipForView, 2500);
 
   updateLegend();
-  setTimeout(() => notify('Mapnova — Live data loading&', 'fa-map-location-dot'), 700);
+  setTimeout(() => notify('Mapnova  Live data loading&', 'fa-map-location-dot'), 700);
 });
 window.addEventListener('resize',()=>map.invalidateSize());
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
@@ -6295,10 +6388,10 @@ function updateLayerBadge() {
   if (badge) badge.textContent = activeLyrs.size;
 }
 
-// Parcels always visible — no zoom gating
+// Parcels always visible  no zoom gating
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  BUFFER ANALYSIS — draws real circle on map
+//  BUFFER ANALYSIS  draws real circle on map
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 let bufferLayer = null;
 
@@ -6361,7 +6454,7 @@ function runBuffer() {
   res.innerHTML = `
     <div style="font-weight:700;color:var(--accent);margin-bottom:6px;"><i class="fas fa-circle-check" style="margin-right:6px;"></i>${within.length} parcels found within ${dist} ${unit}</div>
     ${within.map(p=>`<div style="padding:3px 0;border-bottom:1px solid rgba(240,165,0,.1);color:var(--text2);">
-      <span style="font-weight:600;color:var(--text);">${p.addr}</span> — ${p.tv} � ${p.acres} ac
+      <span style="font-weight:600;color:var(--text);">${p.addr}</span>  ${p.tv} � ${p.acres} ac
     </div>`).join('')}
   `;
 
@@ -6387,7 +6480,7 @@ function clearBuffer() {
 }
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  ATTRIBUTE QUERY — real filter on parcel data
+//  ATTRIBUTE QUERY  real filter on parcel data
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 let queryHighlightLayer = null;
 
@@ -6527,7 +6620,7 @@ window.selectParcel = function(p, layer) {
 };
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  ENHANCED ANALYTICS — live parcel count
+//  ENHANCED ANALYTICS  live parcel count
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 function updateAnalytics() {
   // Count loaded parcel polygons in current map bounds
@@ -6579,7 +6672,7 @@ function runProximity() {
   res.innerHTML = `
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">
       <i class="fas fa-circle-check" style="color:var(--accent);margin-right:6px;"></i>
-      Proximity Report — ${radius} ${unit} from ${center.label}
+      Proximity Report  ${radius} ${unit} from ${center.label}
     </div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">${nearby.length} parcel${nearby.length!==1?'s':''} found within radius</div>
     ${nearby.length === 0 ? '<div style="color:var(--text3);font-size:12px;">No parcels found within this radius.</div>' :
@@ -6840,11 +6933,11 @@ window.selectParcel = function(p, layer) {
   };
   MapNovaAuth.openHistory = async function(){ if(window.MNHistory) return MNHistory.open();
     const { data } = await sb.from('user_history').select('*').order('created_at',{ascending:false}).limit(50);
-    alert('Recent History (' + (data||[]).length + ' events):\n\n' + (data||[]).map(h => new Date(h.created_at).toLocaleString() + ' — ' + h.event_type + (h.county?' ('+h.county+')':'') + (h.parcel_id?' parcel '+h.parcel_id:'')).join('\n'));
+    alert('Recent History (' + (data||[]).length + ' events):\n\n' + (data||[]).map(h => new Date(h.created_at).toLocaleString() + '  ' + h.event_type + (h.county?' ('+h.county+')':'') + (h.parcel_id?' parcel '+h.parcel_id:'')).join('\n'));
   };
   MapNovaAuth.openBookmarks = async function(){ if(window.MNBookmarks) return MNBookmarks.open();
     const { data } = await sb.from('bookmarks').select('*').order('created_at',{ascending:false});
-    alert('Bookmarks (' + (data||[]).length + '):\n\n' + (data||[]).map(b => b.label + (b.county?' — '+b.county:'')).join('\n'));
+    alert('Bookmarks (' + (data||[]).length + '):\n\n' + (data||[]).map(b => b.label + (b.county?'  '+b.county:'')).join('\n'));
   };
     // Dedicated supabase client for account overlay
   const __mnAccClient = window.supabase.createClient("https://pcalrousicyuyiyoppqt.supabase.co", "sb_publishable_mFKL1y755kJphEu231y8AA_KgV3W6xe");
@@ -6855,7 +6948,7 @@ window.selectParcel = function(p, layer) {
     await renderMnAccountBody();
   };
   function escHtml(s){ if(s===null||s===undefined)return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\x22/g,"&quot;").replace(/\x27/g,"&#39;"); }
-  function fmtDateMn(ts){ if(!ts) return "—"; return new Date(ts).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+  function fmtDateMn(ts){ if(!ts) return ""; return new Date(ts).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
   function getMnInitials(p,u){ const n=(p&&(p.display_name||p.full_name))||(u&&u.email)||"?"; const parts=n.trim().split(/\s+/); if(parts.length>=2)return (parts[0][0]+parts[1][0]).toUpperCase(); return n.substring(0,2).toUpperCase(); }
   function mnAccToast(msg,type){ const el=document.getElementById("mn-acc-toast"); if(!el)return; el.textContent=msg; el.className="mn-acc-toast show "+(type||""); setTimeout(()=>el.classList.remove("show"),3000); }
   async function renderMnAccountBody(){
@@ -7152,7 +7245,7 @@ window.selectParcel = function(p, layer) {
 </div>
 
 <div id="mn-active-project">
-  <span><i class="fas fa-folder-open"></i> Active: <span id="mn-active-project-name">—</span></span>
+  <span><i class="fas fa-folder-open"></i> Active: <span id="mn-active-project-name"></span></span>
   <button onclick="MNProjects.openCurrent()">View</button>
   <button onclick="MNProjects.deactivate()">Close</button>
 </div>
@@ -7223,7 +7316,7 @@ window.selectParcel = function(p, layer) {
       try {
         const { data, error } = await sbc().from('user_history').select('*').eq('user_id', u.id).order('created_at',{ascending:false}).limit(100);
         if(error) throw error;
-        if(!data || data.length === 0){ $('mn-history-body').innerHTML = '<div class="mn-empty">No activity yet. Start exploring counties and parcels — your history will appear here.</div>'; return; }
+        if(!data || data.length === 0){ $('mn-history-body').innerHTML = '<div class="mn-empty">No activity yet. Start exploring counties and parcels  your history will appear here.</div>'; return; }
         const rows = data.map(h => {
           const icon = h.event_type==='login'?'fa-sign-in-alt':h.event_type==='view_county'?'fa-map':h.event_type==='view_parcel'?'fa-home':h.event_type==='session_start'?'fa-power-off':'fa-circle';
           const sub = (h.county? h.county+' " ':'') + fmtDate(h.created_at);
@@ -7372,7 +7465,7 @@ window.selectParcel = function(p, layer) {
           '</div>'+
           '<div class="mn-label">Features ('+(feats?feats.length:0)+')</div>'+
           '<div style="margin-top:6px;">'+featsHtml+'</div>'+
-          (isOwner ? '<div class="mn-label" style="margin-top:18px;">Add Features</div><div style="font-size:12px;color:#9ca8bd;margin-top:4px;">After activating, use the toolbar above the map to draw shapes, measure distances, or select parcels — they\'ll auto-save to this project.</div>' : '');
+          (isOwner ? '<div class="mn-label" style="margin-top:18px;">Add Features</div><div style="font-size:12px;color:#9ca8bd;margin-top:4px;">After activating, use the toolbar above the map to draw shapes, measure distances, or select parcels  they\'ll auto-save to this project.</div>' : '');
       } catch(e){
         $('mn-projects-body').innerHTML = '<div class="mn-empty" style="color:#fca5a5;">Error: '+esc(e.message||e)+'</div>';
       }
