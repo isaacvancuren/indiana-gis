@@ -269,6 +269,24 @@ NH: {
         countyField: "Source",
         countyMatch: "name",
         fields: { parcel_id:"PIN", state_parcel_id:"PIN", prop_add:null, prop_city:null, prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
+      },
+      AZ: {
+        type: "esri",
+        url: "https://azgeo.az.gov/arcgis/rest/services/TerraSystems/AZParcel_Cache/FeatureServer/0/query",
+        outFields: "OBJECTID,Source,AZ_PlaceName,AZ_APN,AZ_Address",
+        whereTpl: "1=1",
+        countyField: "Source",
+        countyMatch: "name",
+        fields: { parcel_id:"AZ_APN", state_parcel_id:"AZ_APN", prop_add:"AZ_Address", prop_city:"AZ_PlaceName", prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
+      },
+      RI: {
+        type: "esri",
+        url: "https://risegis.ri.gov/hosting/rest/services/RIDEM/Tax_Parcels/MapServer/0/query",
+        outFields: "OBJECTID,PlatLot,Acres,E911,TownCode,E911Desc",
+        whereTpl: "1=1",
+        countyField: null,
+        countyMatch: null,
+        fields: { parcel_id:"PlatLot", state_parcel_id:"PlatLot", prop_add:"E911", prop_city:"TownCode", prop_zip:null, owner:null, class_code:"E911Desc", latitude:null, longitude:null }
       }
     };
 
