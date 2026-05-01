@@ -45,7 +45,7 @@
       NC: {
         type: "esri",
         url:  "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query",
-        outFields: "parno,altparno,ownname,siteadd,scity,szip,parval,landval,improvval,deedacres,COUNTY",
+        outFields: "parno,altparno,ownname,siteadd,scity,szip,parval,landval,improvval,gisacres,cntyname",
         whereTpl: "1=1",
         fields: { parcel_id:"parno", state_parcel_id:"altparno", prop_add:"siteadd", prop_city:"scity", prop_zip:"szip", owner:"ownname", class_code:null, latitude:null, longitude:null }
       }
