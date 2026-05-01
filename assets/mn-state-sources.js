@@ -224,6 +224,42 @@ NH: {
         countyField: null,
         countyMatch: null,
         fields: { parcel_id:"Parcel_ID", state_parcel_id:"Parcel_ID", prop_add:null, prop_city:null, prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
+      },
+      WV: {
+        type: "esri",
+        url: "https://services.wvgis.wvu.edu/arcgis/rest/services/Planning_Cadastre/WV_Parcels/MapServer/0/query",
+        outFields: "OBJECTID,CleanParcelID,FullOwnerName,FullOwnerAddress,FullPhysicalAddress,Acres_C,CountyID",
+        whereTpl: "1=1",
+        countyField: null,
+        countyMatch: null,
+        fields: { parcel_id:"CleanParcelID", state_parcel_id:"CleanParcelID", prop_add:"FullPhysicalAddress", prop_city:null, prop_zip:null, owner:"FullOwnerName", class_code:null, latitude:null, longitude:null }
+      },
+      MT: {
+        type: "esri",
+        url: "https://gisservicemt.gov/arcgis/rest/services/MSDI_Framework/Parcels/MapServer/0/query",
+        outFields: "OBJECTID,PARCELID,COUNTYCD,CountyName,AddressLine1,CityStateZip,OwnerName,OwnerAddress1,OwnerCity,OwnerZipCode,PropType,LegalDescriptionShort,TotalAcres",
+        whereTpl: "1=1",
+        countyField: "CountyName",
+        countyMatch: "name",
+        fields: { parcel_id:"PARCELID", state_parcel_id:"PARCELID", prop_add:"AddressLine1", prop_city:"CityStateZip", prop_zip:null, owner:"OwnerName", class_code:"PropType", latitude:null, longitude:null }
+      },
+      WY: {
+        type: "esri",
+        url: "https://gis2.statelands.wyo.gov/arcgis/rest/services/oslisde/Parcels2025/MapServer/0/query",
+        outFields: "OBJECTID,parcelnb,accountno,jurisdicti,ownername1,mailaddres,mailcity,mailstate,mailzipcod,locationad,landgrossa",
+        whereTpl: "1=1",
+        countyField: "jurisdicti",
+        countyMatch: "name",
+        fields: { parcel_id:"parcelnb", state_parcel_id:"accountno", prop_add:"locationad", prop_city:"mailcity", prop_zip:"mailzipcod", owner:"ownername1", class_code:null, latitude:null, longitude:null }
+      },
+      CO: {
+        type: "esri",
+        url: "https://gis.colorado.gov/public/rest/services/Address_and_Parcel/Colorado_Public_Parcels/FeatureServer/0/query",
+        outFields: "OBJECTID,parcel_id,account,situsAdd,sitAddCty,sitAddZip,owner,countyName,countyFips,landUseDsc,zoningCode",
+        whereTpl: "1=1",
+        countyField: "countyFips",
+        countyMatch: "fips3",
+        fields: { parcel_id:"parcel_id", state_parcel_id:"account", prop_add:"situsAdd", prop_city:"sitAddCty", prop_zip:"sitAddZip", owner:"owner", class_code:"landUseDsc", latitude:null, longitude:null }
       }
     };
 
