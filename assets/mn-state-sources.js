@@ -48,6 +48,55 @@
         outFields: "parno,altparno,ownname,siteadd,scity,szip,parval,landval,improvval,gisacres,cntyname",
         whereTpl: "1=1",
         fields: { parcel_id:"parno", state_parcel_id:"altparno", prop_add:"siteadd", prop_city:"scity", prop_zip:"szip", owner:"ownname", class_code:null, latitude:null, longitude:null }
+      },
+      MA: {
+        type: "esri",
+        url:  "https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/L3Parcels_feature_service/FeatureServer/0/query",
+        outFields: "MAP_PAR_ID,LOC_ID,PROP_ID,SITE_ADDR,CITY,ZIP,OWNER1,OWN_ADDR,OWN_CITY,OWN_STATE,OWN_ZIP,USE_CODE,LOT_SIZE,TOTAL_VAL",
+        whereTpl: "1=1",
+        fields: { parcel_id:"MAP_PAR_ID", state_parcel_id:"LOC_ID", prop_add:"SITE_ADDR", prop_city:"CITY", prop_zip:"ZIP", owner:"OWNER1", class_code:"USE_CODE", latitude:null, longitude:null }
+      },
+      CT: {
+        type: "esri",
+        url:  "https://services3.arcgis.com/3FL1kr7L4LvwA2Kb/arcgis/rest/services/Connecticut_State_Parcel_Layer_2023/FeatureServer/0/query",
+        outFields: "Town_Name,Link,Owner,Co_Owner,Location,Mailing_Address,Mailing_City,Mailing_State,Assessed_Total,Zone,Sale_Price,Sale_Date",
+        whereTpl: "1=1",
+        fields: { parcel_id:"Link", state_parcel_id:"Link", prop_add:"Location", prop_city:"Town_Name", prop_zip:null, owner:"Owner", class_code:"Zone", latitude:null, longitude:null }
+      },
+      MD: {
+        type: "esri",
+        url:  "https://mdgeodata.md.gov/imap/rest/services/PlanningCadastre/MD_ParcelBoundaries/MapServer/0/query",
+        outFields: "ACCTID,JURSCODE,ADDRESS,CITY,ZIPCODE,OWNADD1,OWNCITY,OWNSTATE,OWNERZIP,LEGAL1,SUBDIVSN",
+        whereTpl: "1=1",
+        fields: { parcel_id:"ACCTID", state_parcel_id:"ACCTID", prop_add:"ADDRESS", prop_city:"CITY", prop_zip:"ZIPCODE", owner:null, class_code:"JURSCODE", latitude:null, longitude:null }
+      },
+      VA: {
+        type: "esri",
+        url:  "https://vginmaps.vdem.virginia.gov/arcgis/rest/services/VA_Base_Layers/VA_Parcels/FeatureServer/0/query",
+        outFields: "VGIN_QPID,FIPS,LOCALITY,PARCELID,PTM_ID",
+        whereTpl: "1=1",
+        fields: { parcel_id:"PARCELID", state_parcel_id:"VGIN_QPID", prop_add:null, prop_city:"LOCALITY", prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
+      },
+      VT: {
+        type: "esri",
+        url:  "https://services1.arcgis.com/BkFxaEFNwHqX3tAw/arcgis/rest/services/FS_VCGI_VTPARCELS_WM_NOCACHE_v2/FeatureServer/0/query",
+        outFields: "STATUS,PARENTSPAN,SPAN,MAPID,PROPTYPE,YEAR,TOWN",
+        whereTpl: "1=1",
+        fields: { parcel_id:"SPAN", state_parcel_id:"PARENTSPAN", prop_add:null, prop_city:"TOWN", prop_zip:null, owner:null, class_code:"PROPTYPE", latitude:null, longitude:null }
+      },
+      NJ: {
+        type: "esri",
+        url:  "https://maps.nj.gov/arcgis/rest/services/Framework/Cadastral/MapServer/0/query",
+        outFields: "PAMS_PIN,PCL_MUN,COUNTY,MUN_NAME,PROP_CLASS,PROP_LOC,OWNER_NAME,ST_ADDRESS,CITY_STATE,ZIP_CODE,LAND_VAL,NET_VALUE,CALC_ACRE",
+        whereTpl: "1=1",
+        fields: { parcel_id:"PAMS_PIN", state_parcel_id:"PAMS_PIN", prop_add:"PROP_LOC", prop_city:"MUN_NAME", prop_zip:"ZIP_CODE", owner:"OWNER_NAME", class_code:"PROP_CLASS", latitude:null, longitude:null }
+      },
+      NH: {
+        type: "esri",
+        url:  "https://nhgeodata.unh.edu/hosting/rest/services/Hosted/CAD_ParcelMosaic/FeatureServer/1/query",
+        outFields: "parceloid,nh_gis_id,pid,town,countyid,sluc,streetaddress,name",
+        whereTpl: "1=1",
+        fields: { parcel_id:"pid", state_parcel_id:"nh_gis_id", prop_add:"streetaddress", prop_city:"town", prop_zip:null, owner:"name", class_code:"sluc", latitude:null, longitude:null }
       }
     };
 
