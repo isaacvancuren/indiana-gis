@@ -287,6 +287,15 @@ NH: {
         countyField: null,
         countyMatch: null,
         fields: { parcel_id:"PlatLot", state_parcel_id:"PlatLot", prop_add:"E911", prop_city:"TownCode", prop_zip:null, owner:null, class_code:"E911Desc", latitude:null, longitude:null }
+      },
+      NV: {
+        type: "esri",
+        url: "https://arcgis.water.nv.gov/arcgis/rest/services/BaseLayers/County_Parcels_in_Nevada/MapServer/0/query",
+        outFields: "OBJECTID,APN,SiteCity,Acres,County,PIN",
+        whereTpl: "1=1",
+        countyField: "County",
+        countyMatch: "name",
+        fields: { parcel_id:"APN", state_parcel_id:"PIN", prop_add:null, prop_city:"SiteCity", prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
       }
     };
 
