@@ -150,26 +150,60 @@
     return origFetch(input, init);
   };
 
-  function _rewriteUrl(origUrl, src, stateCode){
-    // Parse query string from original
-    var u = new URL(origUrl);
-    var qp = u.searchParams;
-    // Build new URL with the source endpoint, copying geometry/spatialRel from original
-    var nu = new URL(src.url);
-    var np = nu.searchParams;
-    np.set("geometry",     qp.get("geometry") || "");
-    np.set("geometryType", qp.get("geometryType") || "esriGeometryEnvelope");
-    np.set("inSR",         qp.get("inSR") || "4326");
-    np.set("spatialRel",   qp.get("spatialRel") || "esriSpatialRelIntersects");
-    np.set("outFields",    src.outFields || "*");
-    np.set("returnGeometry","true");
-    np.set("outSR",        "4326");
-    np.set("resultRecordCount", qp.get("resultRecordCount") || "2000");
-    np.set("f",            "geojson");
-    np.set("where",        src.whereTpl ? src.whereTpl.replace("{fips}","1=1") : "1=1");
-    return nu.toString();
+  function _getActiveCountyAttrs(){
+    try {
+      var cs = document.getElementById("county-sel");
+      if (!cs || !cs.value || cs.value === "all") return null;
+      var opt = cs.options[cs.selectedIndex];
+      if (!opt) return null;
+      return {
+        fips: opt.getAttribute("data-fips"),
+        lat: opt.getAttribute("data-lat"),
+        lng: opt.getAttribute("data-lng"),
+        text: opt.textContent
+      };
+    } catch(e){ return null; }
   }
 
+  function _buildCountyWhere(src, countyAttrs){
+    if (!countyAttrs || !src.countyField || !src.countyMatch) return null;
+    var f = src.countyField;
+    var fips5 = countyAttrs.fips; // e.g. "06077"
+    var basename = (countyAttrs.text || "").replace(/\s*County\s*$/i,"").replace(/\s*Borough\s*$/i,"").replace(/\s*Census Area\s*$/i,"").trim();
+    switch (src.countyMatch) {
+      case "fips5": return f + "='" + fips5 + "'";
+      case "fips5num": return f + "=" + parseInt(fips5,10);
+      case "fips3": return f + "='" + fips5.substring(2) + "'";
+      case "fips3num": return f + "=" + parseInt(fips5.substring(2),10);
+      case "name": return "UPPER(" + f + ") LIKE '%" + basename.toUpperCase().replace(/'/g,"''") + "%'";
+      default: return null;
+    }
+  }
+
+  function _rewriteUrl(origUrl, src, stateCode){
+    var u = new URL(origUrl);
+    var qp = u.searchParams;
+    var nu = new URL(src.url);
+    var np = nu.searchParams;
+    np.set("geometry", qp.get("geometry") || "");
+    np.set("geometryType", qp.get("geometryType") || "esriGeometryEnvelope");
+    np.set("inSR", qp.get("inSR") || "4326");
+    np.set("spatialRel", qp.get("spatialRel") || "esriSpatialRelIntersects");
+    np.set("outFields", src.outFields || "*");
+    np.set("returnGeometry","true");
+    np.set("outSR", "4326");
+    np.set("resultRecordCount", qp.get("resultRecordCount") || "2000");
+    np.set("f", "geojson");
+    // County filter: prefer county WHERE if a county is selected, otherwise default whereTpl
+    var countyAttrs = _getActiveCountyAttrs();
+    var countyWhere = _buildCountyWhere(src, countyAttrs);
+    if (countyWhere) {
+      np.set("where", countyWhere);
+    } else {
+      np.set("where", src.whereTpl ? src.whereTpl.replace("{fips}","1=1") : "1=1");
+    }
+    return nu.toString();
+  }
   function _normalizeFeatures(data, src, stateCode){
     if (!data || !data.features) return {type:"FeatureCollection", features:[]};
     if (!src.fields) return data;
@@ -249,6 +283,24 @@
     SOURCES[code] = src;
     document.dispatchEvent(new CustomEvent("mn:sourceAdded",{detail:{code:code}}));
   };
+  // County change -> trigger parcel reload for non-IN states
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(function(){
+      var cs = document.getElementById("county-sel");
+      if (!cs || cs.__mnStatesCountyHook) return;
+      cs.__mnStatesCountyHook = true;
+      cs.addEventListener("change", function(){
+        var active = getActive();
+        if (active === "IN") return;
+        try { if (window.parcelTileCache && window.parcelTileCache.clear) window.parcelTileCache.clear(); } catch(e){}
+        try { if (window.loadedParcelIds && window.loadedParcelIds.clear) window.loadedParcelIds.clear(); } catch(e){}
+        try { if (window.parcelLayer && window.parcelLayer.clearLayers) window.parcelLayer.clearLayers(); } catch(e){}
+        setTimeout(function(){
+          if (typeof window.loadParcelsForView === "function") window.loadParcelsForView();
+        }, 800);
+      });
+    }, 1500);
+  });
   // bootstrap initial active
   window.__activeState = getActive();
   console.log("[mn-states] loaded; active=", window.__activeState, "; sources=", Object.keys(SOURCES));
