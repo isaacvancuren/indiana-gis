@@ -260,6 +260,15 @@ NH: {
         countyField: "countyFips",
         countyMatch: "fips3",
         fields: { parcel_id:"parcel_id", state_parcel_id:"account", prop_add:"situsAdd", prop_city:"sitAddCty", prop_zip:"sitAddZip", owner:"owner", class_code:"landUseDsc", latitude:null, longitude:null }
+      },
+      PA: {
+        type: "esri",
+        url: "https://imagery.pasda.psu.edu/arcgis/rest/services/PA_Parcels/MapServer/1/query",
+        outFields: "OBJECTID,PIN,Source,Date",
+        whereTpl: "1=1",
+        countyField: "Source",
+        countyMatch: "name",
+        fields: { parcel_id:"PIN", state_parcel_id:"PIN", prop_add:null, prop_city:null, prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
       }
     };
 
