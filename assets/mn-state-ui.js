@@ -30,10 +30,13 @@
       var code = lcToCode(opt.value);
       if(!code) return;
       var hasSrc = srcs[code] && srcs[code].type === "esri";
+      var hasCountyFb = window.MN_COUNTY_PARCELS && window.MN_COUNTY_PARCELS[code] && window.MN_COUNTY_PARCELS[code].length > 0;
+      var available = hasSrc || hasCountyFb;
       var name = window.MNStates.list[code].n;
-      opt.textContent = hasSrc ? name : (name + " (coming soon)");
-      opt.disabled = !hasSrc;
-      if(hasSrc) opt.removeAttribute("disabled");
+      var suffix = hasSrc ? "" : (hasCountyFb ? " — county data" : " (coming soon)");
+      opt.textContent = name + suffix;
+      opt.disabled = !available;
+      if(available) opt.removeAttribute("disabled");
     });
   }
   function bindHandler(){
