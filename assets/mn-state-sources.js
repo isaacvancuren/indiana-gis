@@ -91,7 +91,21 @@
         whereTpl: "1=1",
         fields: { parcel_id:"PAMS_PIN", state_parcel_id:"PAMS_PIN", prop_add:"PROP_LOC", prop_city:"MUN_NAME", prop_zip:"ZIP_CODE", owner:"OWNER_NAME", class_code:"PROP_CLASS", latitude:null, longitude:null }
       },
-                              CA: {
+                                    AK: {
+      type: "esri",
+      url:  "https://services1.arcgis.com/7HDiw78fcUiM2BWn/arcgis/rest/services/AK_Parcels/FeatureServer/0/query",
+      outFields: "parcel_id,owner,property_type,property_use,land_value,total_value,local_gov",
+      whereTpl: "1=1",
+      fields: { parcel_id:"parcel_id", state_parcel_id:"parcel_id", prop_add:null, prop_city:"local_gov", prop_zip:null, owner:"owner", class_code:"property_type", latitude:null, longitude:null }
+      },
+      ND: {
+      type: "esri",
+      url:  "https://services1.arcgis.com/GOcSXpzwBHyk2nog/arcgis/rest/services/NDGISHUB_Parcels/FeatureServer/0/query",
+      outFields: "GISID,UniqueGISID,CountyName,CountyFIPS,Lot,Block,SubdivisionPlat,SectionNumber,TownshipName,CalculatedAcres,Ownership",
+      whereTpl: "1=1",
+      fields: { parcel_id:"GISID", state_parcel_id:"UniqueGISID", prop_add:null, prop_city:"CountyName", prop_zip:null, owner:"Ownership", class_code:null, latitude:null, longitude:null }
+      },
+CA: {
       type: "esri",
       url:  "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/CA_Statewide_Parcels_Public_view/FeatureServer/0/query",
       outFields: "PARCEL_APN,FIPS_CODE,COUNTYNAME,SITE_ADDR,SITE_CITY,SITE_STATE,SITE_ZIP,FullStreetAddress",
