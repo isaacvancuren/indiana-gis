@@ -119,14 +119,14 @@
   <div class="hsep"></div>
   <div id="loc-sel-wrap" class="loc-sel-wrap">
     <select id="country-sel" class="loc-sel" title="Select Country">
-      <option value="" selected> Select Country </option>
-      <option value="usa"><�<� United States</option>
-      <option value="canada" disabled><�<� Canada (coming soon)</option>
-      <option value="mexico" disabled><�<� Mexico (coming soon)</option>
-      <option value="intl" disabled>< International (coming soon)</option>
+      <option value="" selected>— Select Country —</option>
+      <option value="usa">🇺🇸 United States</option>
+      <option value="canada" disabled>🇨🇦 Canada (coming soon)</option>
+      <option value="mexico" disabled>🇲🇽 Mexico (coming soon)</option>
+      <option value="intl" disabled>🌐 International (coming soon)</option>
     </select>
     <select id="state-sel" class="loc-sel" title="Select State">
-      <option value="" selected> Select State </option>
+      <option value="" selected>— Select State —</option>
       <option value="indiana">Indiana</option>
       <option value="alabama" disabled>Alabama (coming soon)</option>
       <option value="alaska" disabled>Alaska (coming soon)</option>
@@ -179,7 +179,7 @@
       <option value="wyoming" disabled>Wyoming (coming soon)</option>
     </select>
     <select id="county-sel" class="loc-sel" title="Select State first" disabled>
-      <option value="" selected> Select State first </option>
+      <option value="" selected>— Select state first —</option>
     </select>
   </div>
 
@@ -793,7 +793,7 @@
   </div>
   <div id="rpbody">
     <div class="rcard">
-      <div class="rcard-title"><i class="fas fa-map-pin"></i> <span id="rp-county-name"> No County Selected </span> <span id="visible-parcel-count" style="float:right;font-size:10px;font-weight:400;color:var(--text3);font-family:'Barlow',sans-serif;"></span></div>
+      <div class="rcard-title"><i class="fas fa-map-pin"></i> <span id="rp-county-name">— No county selected —</span> <span id="visible-parcel-count" style="float:right;font-size:10px;font-weight:400;color:var(--text3);font-family:'Barlow',sans-serif;"></span></div>
       <div class="rgrid">
         <div class="rstat"><div class="rstat-val" id="rp-total-parcels"></div><div class="rstat-lbl">Total Parcels</div></div>
         <div class="rstat"><div class="rstat-val" id="rp-total-area"></div><div class="rstat-lbl">Total Area</div></div>
@@ -4006,7 +4006,7 @@ document.getElementById('county-sel').addEventListener('change', function() {
 const STATE_COUNTIES = {
   indiana: "\n      <option value=\"\" selected> Select County </option>\n    <option value=\"all\">< All Indiana</option>\n    <optgroup label=\"   Central   \">\n    <option value=\"bartholomew\">Bartholomew</option>\n    <option value=\"boone\">Boone</option>\n    <option value=\"hamilton\">Hamilton</option>\n    <option value=\"hancock\">Hancock</option>\n    <option value=\"hendricks\">Hendricks</option>\n    <option value=\"johnson\">Johnson</option>\n    <option value=\"madison\">Madison</option>\n    <option value=\"marion\">Marion</option>\n    <option value=\"morgan\">Morgan</option>\n    <option value=\"shelby\">Shelby</option>\n    </optgroup>\n    <optgroup label=\"   North   \">\n    <option value=\"allen\">Allen</option>\n    <option value=\"cass\">Cass</option>\n    <option value=\"dekalb\">DeKalb</option>\n    <option value=\"elkhart\">Elkhart</option>\n    <option value=\"fulton\">Fulton</option>\n    <option value=\"howard\">Howard</option>\n    <option value=\"huntington\">Huntington</option>\n    <option value=\"jasper\">Jasper</option>\n    <option value=\"kosciusko\">Kosciusko</option>\n    <option value=\"lagrange\">LaGrange</option>\n    <option value=\"lake\">Lake</option>\n    <option value=\"laporte\">LaPorte</option>\n    <option value=\"marshall\">Marshall</option>\n    <option value=\"miami\">Miami</option>\n    <option value=\"newton\">Newton</option>\n    <option value=\"noble\">Noble</option>\n    <option value=\"porter\">Porter</option>\n    <option value=\"pulaski\">Pulaski</option>\n    <option value=\"starke\">Starke</option>\n    <option value=\"stjoseph\">St. Joseph</option>\n    <option value=\"steuben\">Steuben</option>\n    <option value=\"tippecanoe\">Tippecanoe</option>\n    <option value=\"tipton\">Tipton</option>\n    <option value=\"wabash\">Wabash</option>\n    <option value=\"wells\">Wells</option>\n    <option value=\"white\">White</option>\n    <option value=\"whitley\">Whitley</option>\n    </optgroup>\n    <optgroup label=\"   East   \">\n    <option value=\"adams\">Adams</option>\n    <option value=\"blackford\">Blackford</option>\n    <option value=\"carroll\">Carroll</option>\n    <option value=\"clinton\">Clinton</option>\n    <option value=\"delaware\">Delaware</option>\n    <option value=\"fayette\">Fayette</option>\n    <option value=\"fountain\">Fountain</option>\n    <option value=\"grant\">Grant</option>\n    <option value=\"henry\">Henry</option>\n    <option value=\"jay\">Jay</option>\n    <option value=\"montgomery\">Montgomery</option>\n    <option value=\"randolph\">Randolph</option>\n    <option value=\"rush\">Rush</option>\n    <option value=\"union\">Union</option>\n    <option value=\"wayne\">Wayne</option>\n    </optgroup>\n    <optgroup label=\"   Southeast   \">\n    <option value=\"brown\">Brown</option>\n    <option value=\"clark\">Clark</option>\n    <option value=\"dearborn\">Dearborn</option>\n    <option value=\"decatur\">Decatur</option>\n    <option value=\"floyd\">Floyd</option>\n    <option value=\"franklin\">Franklin</option>\n    <option value=\"jackson\">Jackson</option>\n    <option value=\"jefferson\">Jefferson</option>\n    <option value=\"jennings\">Jennings</option>\n    <option value=\"ohio\">Ohio</option>\n    <option value=\"ripley\">Ripley</option>\n    <option value=\"scott\">Scott</option>\n    <option value=\"switzerland\">Switzerland</option>\n    </optgroup>\n    <optgroup label=\"   South   \">\n    <option value=\"crawford\">Crawford</option>\n    <option value=\"daviess\">Daviess</option>\n    <option value=\"dubois\">Dubois</option>\n    <option value=\"gibson\">Gibson</option>\n    <option value=\"greene\">Greene</option>\n    <option value=\"harrison\">Harrison</option>\n    <option value=\"knox\">Knox</option>\n    <option value=\"lawrence\">Lawrence</option>\n    <option value=\"martin\">Martin</option>\n    <option value=\"monroe\">Monroe</option>\n    <option value=\"orange\">Orange</option>\n    <option value=\"owen\">Owen</option>\n    <option value=\"perry\">Perry</option>\n    <option value=\"pike\">Pike</option>\n    <option value=\"posey\">Posey</option>\n    <option value=\"spencer\">Spencer</option>\n    <option value=\"sullivan\">Sullivan</option>\n    <option value=\"vanderburgh\">Vanderburgh</option>\n    <option value=\"warrick\">Warrick</option>\n    <option value=\"washington\">Washington</option>\n    </optgroup>\n    <optgroup label=\"   West   \">\n    <option value=\"benton\">Benton</option>\n    <option value=\"clay\">Clay</option>\n    <option value=\"parke\">Parke</option>\n    <option value=\"putnam\">Putnam</option>\n    <option value=\"vermillion\">Vermillion</option>\n    <option value=\"vigo\">Vigo</option>\n    <option value=\"warren\">Warren</option>\n    </optgroup>\n    "
 };
-const __mnEmptyCountyHTML = '<option value="" selected> Select State first </option>';
+const __mnEmptyCountyHTML = '<option value="" selected>— Select state first —</option>';
 const stateSelEl = document.getElementById('state-sel');
 if (stateSelEl) {
   stateSelEl.addEventListener('change', function(){
