@@ -3695,32 +3695,8 @@ async function getVenturiPDF(em, pin) {
 
   const prcPageUrl = `https://${em.host}/prc.html?pin=${encodeURIComponent(pin)}&appId=${em.appId}`;
 
-  try {
-    // Use Claude API with web_search to fetch the ElevateMaps PRC page
-    // server-side and extract the Venturi blob URL (no CORS restriction)
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 512,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        system: `You are a URL extractor. Use web_search to fetch the given URL. Look through the entire page source and JavaScript for any URL containing "venturi.blob.core.windows.net/fd-${em.folderId}". Return ONLY the complete URL including the full query string starting with ?sv=. If not found, return exactly: NOT_FOUND`,
-        messages: [{ role: 'user', content: `Fetch this page and find the Venturi blob PDF URL: ${prcPageUrl}` }]
-      })
-    });
-
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-    const match = text.match(/https:\/\/venturi\.blob\.core\.windows\.net\/fd-\d+\/[^\s"'<>]+sig=[^\s"'<>]+/);
-    if (match && match[0].includes('sig=')) {
-      console.log('Got Venturi URL via Claude proxy');
-      return match[0];
-    }
-  } catch(e) {
-    console.warn('Claude Venturi proxy failed:', e.message);
-  }
+  // Note: Removed broken client-side Anthropic API call (no auth shipped to client).
+  // PRC PDF retrieval relies on the ArcGIS attachment fallback below.
 
   // Fallback: Try the ElevateMaps ArcGIS queryAttachments endpoint directly
   // This works because elb.elevatemaps.io allows CORS for ArcGIS REST
