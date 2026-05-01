@@ -176,16 +176,18 @@
     var fmap = src.fields;
     var out = data.features.map(function(f){
       var p = f.properties || {};
+      function S(v){ return v == null ? "" : String(v); }
+      function N(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
       var np = {
-        parcel_id: p[fmap.parcel_id] || p.parcel_id || "",
-        state_parcel_id: p[fmap.state_parcel_id] || p.state_parcel_id || p[fmap.parcel_id] || "",
-        prop_add: p[fmap.prop_add] || p.prop_add || "",
-        prop_city: p[fmap.prop_city] || p.prop_city || "",
-        prop_zip: p[fmap.prop_zip] || p.prop_zip || "",
-        dlgf_prop_class_code: p[fmap.class_code] || p.dlgf_prop_class_code || "",
-        owner: p[fmap.owner] || p.owner || "",
-        latitude: p[fmap.latitude] || p.latitude || 0,
-        longitude: p[fmap.longitude] || p.longitude || 0,
+        parcel_id: S(p[fmap.parcel_id] || p.parcel_id),
+        state_parcel_id: S(p[fmap.state_parcel_id] || p.state_parcel_id || p[fmap.parcel_id]),
+        prop_add: S(p[fmap.prop_add] || p.prop_add),
+        prop_city: S(p[fmap.prop_city] || p.prop_city),
+        prop_zip: S(p[fmap.prop_zip] || p.prop_zip),
+        dlgf_prop_class_code: S(p[fmap.class_code] || p.dlgf_prop_class_code),
+        owner: S(p[fmap.owner] || p.owner),
+        latitude: N(p[fmap.latitude] || p.latitude),
+        longitude: N(p[fmap.longitude] || p.longitude),
         _state: stateCode,
         _src: p
       };
