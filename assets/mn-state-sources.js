@@ -140,6 +140,61 @@ NH: {
         whereTpl: "1=1",
         fields: { parcel_id:"pid", state_parcel_id:"nh_gis_id", prop_add:"streetaddress", prop_city:"town", prop_zip:null, owner:"name", class_code:"sluc", latitude:null, longitude:null }
       }
+    ,
+      WA: {
+        type: "esri",
+        url: "https://services.arcgis.com/jsIt88o09Q0r1j8h/arcgis/rest/services/Current_Parcels/FeatureServer/0/query",
+        outFields: "FIPS_NR,COUNTY_NM,PARCEL_ID_NR,ORIG_PARCEL_ID,SITUS_ADDRESS,SITUS_CITY_NM,SITUS_ZIP_NR,LANDUSE_CD,VALUE_LAND,VALUE_BLDG",
+        whereTpl: "1=1",
+        countyField: "FIPS_NR",
+        countyMatch: "fips5",
+        fields: { parcel_id:"PARCEL_ID_NR", state_parcel_id:"ORIG_PARCEL_ID", prop_add:"SITUS_ADDRESS", prop_city:"SITUS_CITY_NM", prop_zip:"SITUS_ZIP_NR", owner:null, class_code:"LANDUSE_CD", latitude:null, longitude:null }
+      },
+      IA: {
+        type: "esri",
+        url: "https://services3.arcgis.com/kd9gaiUExYqUbnoq/arcgis/rest/services/Iowa_Parcels_2017/FeatureServer/0/query",
+        outFields: "OBJECTID,COUNTYNAME,STATEPARID,UNPARCELID,PARCELNUMB,PARCELCLAS,DEEDHOLDER",
+        whereTpl: "1=1",
+        countyField: "COUNTYNAME",
+        countyMatch: "name",
+        fields: { parcel_id:"PARCELNUMB", state_parcel_id:"STATEPARID", prop_add:null, prop_city:"COUNTYNAME", prop_zip:null, owner:"DEEDHOLDER", class_code:"PARCELCLAS", latitude:null, longitude:null }
+      },
+      AR: {
+        type: "esri",
+        url: "https://gis.arkansas.gov/arcgis/rest/services/FEATURESERVICES/Planning_Cadastre/MapServer/6/query",
+        outFields: "objectid,countyfips,parcelid,parcellgl,ownername,adrlabel,adrcity,adrzip5,parceltype,assessvalue,totalvalue,subdivision",
+        whereTpl: "1=1",
+        countyField: "countyfips",
+        countyMatch: "fips5",
+        fields: { parcel_id:"parcelid", state_parcel_id:"parcelid", prop_add:"adrlabel", prop_city:"adrcity", prop_zip:"adrzip5", owner:"ownername", class_code:"parceltype", latitude:null, longitude:null }
+      },
+      MS: {
+        type: "esri",
+        url: "https://gis.waggonereng.com/server/rest/services/Hosted/Mississippi_Parcels_Staewide/FeatureServer/3/query",
+        outFields: "objectid,parno,altparno,ownname,siteadd,scity,szip,cntyname,cntyfips,stcntyfips,landval,totval,total_ac,zoning",
+        whereTpl: "1=1",
+        countyField: "stcntyfips",
+        countyMatch: "fips5",
+        fields: { parcel_id:"parno", state_parcel_id:"altparno", prop_add:"siteadd", prop_city:"scity", prop_zip:"szip", owner:"ownname", class_code:"zoning", latitude:null, longitude:null }
+      },
+      ID: {
+        type: "esri",
+        url: "https://services1.arcgis.com/CNPdEkvnGl65jCX8/arcgis/rest/services/Public_Idaho_Parcels_/FeatureServer/7/query",
+        outFields: "OBJECTID,PARCEL_ID,County,FIPS,ASR_ACRES,OWNER1,OWNER2,MAIL_ADD1,MAIL_CITY,MAIL_STATE,MAIL_ZIP",
+        whereTpl: "1=1",
+        countyField: "FIPS",
+        countyMatch: "fips5",
+        fields: { parcel_id:"PARCEL_ID", state_parcel_id:"PARCEL_ID", prop_add:"MAIL_ADD1", prop_city:"MAIL_CITY", prop_zip:"MAIL_ZIP", owner:"OWNER1", class_code:null, latitude:null, longitude:null }
+      },
+      ME: {
+        type: "esri",
+        url: "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/arcgis/rest/services/Parcels/FeatureServer/38/query",
+        outFields: "OBJECTID,Parcel_ID",
+        whereTpl: "1=1",
+        countyField: null,
+        countyMatch: null,
+        fields: { parcel_id:"Parcel_ID", state_parcel_id:"Parcel_ID", prop_add:null, prop_city:null, prop_zip:null, owner:null, class_code:null, latitude:null, longitude:null }
+      }
     };
 
     Object.keys(SOURCES).forEach(function(code){
