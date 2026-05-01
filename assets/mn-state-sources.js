@@ -91,7 +91,14 @@
         whereTpl: "1=1",
         fields: { parcel_id:"PAMS_PIN", state_parcel_id:"PAMS_PIN", prop_add:"PROP_LOC", prop_city:"MUN_NAME", prop_zip:"ZIP_CODE", owner:"OWNER_NAME", class_code:"PROP_CLASS", latitude:null, longitude:null }
       },
-            HI: {
+                  UT: {
+      type: "esri",
+      url:  "https://services1.arcgis.com/99lidPhWCzftIe9K/arcgis/rest/services/UtahStatewideParcels/FeatureServer/0/query",
+      outFields: "PARCEL_ID,PARCEL_ADD,PARCEL_CITY,PARCEL_ZIP,County,RECORDER",
+      whereTpl: "1=1",
+      fields: { parcel_id:"PARCEL_ID", state_parcel_id:"PARCEL_ID", prop_add:"PARCEL_ADD", prop_city:"PARCEL_CITY", prop_zip:"PARCEL_ZIP", owner:null, class_code:null, latitude:null, longitude:null }
+      },
+HI: {
         type: "esri",
         url:  "https://geodata.hawaii.gov/arcgis/rest/services/ParcelsZoning/MapServer/25/query",
         outFields: "tmk,tmk_txt,county,island,zone,section,plat,parcel,gisacres",
