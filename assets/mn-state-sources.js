@@ -91,7 +91,14 @@
         whereTpl: "1=1",
         fields: { parcel_id:"PAMS_PIN", state_parcel_id:"PAMS_PIN", prop_add:"PROP_LOC", prop_city:"MUN_NAME", prop_zip:"ZIP_CODE", owner:"OWNER_NAME", class_code:"PROP_CLASS", latitude:null, longitude:null }
       },
-      NH: {
+            HI: {
+        type: "esri",
+        url:  "https://geodata.hawaii.gov/arcgis/rest/services/ParcelsZoning/MapServer/25/query",
+        outFields: "tmk,tmk_txt,county,island,zone,section,plat,parcel,gisacres",
+        whereTpl: "1=1",
+        fields: { parcel_id:"tmk_txt", state_parcel_id:"tmk", prop_add:null, prop_city:"county", prop_zip:null, owner:null, class_code:"zone", latitude:null, longitude:null }
+      },
+NH: {
         type: "esri",
         url:  "https://nhgeodata.unh.edu/hosting/rest/services/Hosted/CAD_ParcelMosaic/FeatureServer/1/query",
         outFields: "parceloid,nh_gis_id,pid,town,countyid,sluc,streetaddress,name",
