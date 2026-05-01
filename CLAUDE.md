@@ -193,3 +193,52 @@ Listed by approximate position (subject to change):
 - MNT (probably a tool registry)
 
 Future extractions may bundle these into `assets/county-config.js` and `assets/ui-config.js`.
+
+
+## Multi-State Expansion Status (2026-05)
+
+**31 states selectable** as of 2026-05-01. Indiana is fully implemented; the others provide statewide parcel data via ArcGIS REST.
+
+### Implemented states (parcel source registered)
+IN, OH, FL, NY, TX, WI, NC, MA, CT, MD, VA, VT, NJ, AK, ND, CA, TN, UT, HI, NH, WA, IA, AR, MS, ID, ME, WV, MT, WY, CO, PA
+
+### Per-state data files
+- assets/mn-state-sources.js — SOURCES registry (ArcGIS REST endpoints + field mappings + countyField/countyMatch)
+- assets/mn-states.js — STATES registry, fetch interceptor, county-FIPS filter
+- assets/mn-state-counties.js — Dynamic TIGER county loader
+- assets/mn-state-ui.js — Built-in #state-sel dropdown integration; auto-enables/disables options
+
+### Add-a-state workflow (REPEATABLE)
+1. Find verified ArcGIS REST FeatureService endpoint (probe state portals, ArcGIS Online search by owner)
+2. Verify schema via ?f=json (use 'eq' instead of '=' if console filter blocks output)
+3. Verify count via /query?where=1=1&returnCountOnly=true
+4. Identify county field & match mode (fips5, fips3, fips5num, fips3num, name, or null)
+5. Build field mapping: parcel_id, state_parcel_id, prop_add, prop_city, prop_zip, owner, class_code
+6. Add entry to mn-state-sources.js SOURCES via Monaco editor (use cmTile.view to set content)
+7. Commit, then bump cache-bust mn-state-sources.js?v=N in index.html
+8. Wait ~30s for Netlify deploy, verify on mapnova.org
+
+### Remaining states WITHOUT confirmed public statewide ArcGIS layers (~20)
+AL, AZ, DE, DC, GA, IL, KS, KY, LA, MI, MN, MO, NE, NV, NM, OK, OR, RI, SC, SD
+
+These states distribute parcel data per county. Phase B will add a county-routing layer that uses the user-selected county to query that county's individual ArcGIS service.
+
+### Critical user directives (from prior sessions)
+- DO NOT make assumptions or guess endpoints. Verify every endpoint with ?f=json.
+- Be brief, efficient, direct. Don't waste tokens explaining.
+- Use ALL capabilities. Don't stop unless there's a serious overlooked issue.
+- Use logic & reasoning to push through obstacles.
+- Use browser_batch tool for multi-step sequences (significantly faster).
+
+### Useful endpoint hosts discovered
+- WV parcels: services.wvgis.wvu.edu/arcgis (Planning_Cadastre/WV_Parcels)
+- MT parcels: gisservicemt.gov/arcgis (MSDI_Framework/Parcels)
+- WY parcels: gis2.statelands.wyo.gov/arcgis (oslisde/Parcels2025)
+- CO parcels: gis.colorado.gov/public (Address_and_Parcel/Colorado_Public_Parcels)
+- PA parcels: imagery.pasda.psu.edu/arcgis (PA_Parcels/MapServer/1)
+- NC parcels: services.nconemap.gov (NC1Map_Parcels)
+- NJ parcels: maps.nj.gov (Framework/Cadastral)
+- VT parcels: services1.arcgis.com/BkFxaEFNwHqX3tAw (FS_VCGI_VTPARCELS)
+
+### Next agent's clear next step
+Implement Phase B: county-routing fallback for states without statewide layers. Wire into MNStates fetch interceptor so when a user selects e.g. Georgia + Fulton County, the system queries Fulton County's published ArcGIS endpoint instead of failing. Build per-county registry similar to Indiana's pattern but for the 20 remaining states' largest counties first (top 5-10 per state by population).
