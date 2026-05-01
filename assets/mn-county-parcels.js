@@ -48,6 +48,17 @@
         byState[st] = byState[st] || [];
         byState[st].push({ c: key, n: county, u: item.url });
       });
+      // Static overrides: counties not in GDIT catalog
+      const STATIC_OVERRIDES = {
+        OK: [
+          { c: "oklahoma", n: "Oklahoma County", u: "https://services8.arcgis.com/euhkr1dAJeQBIjV0/arcgis/rest/services/TaxParcelsPublics_view/FeatureServer/0" },
+          { c: "canadian", n: "Canadian County",  u: "https://services2.arcgis.com/0NjdXxmJp53hZWPd/arcgis/rest/services/ParcelDataService_2_view/FeatureServer/0" },
+          { c: "comanche", n: "Comanche County",  u: "https://services6.arcgis.com/eNPJk90aMrXNOKF8/arcgis/rest/services/Comanche_Parcels/FeatureServer/0" }
+        ]
+      };
+      Object.keys(STATIC_OVERRIDES).forEach(function(st){
+        byState[st] = (byState[st]||[]).concat(STATIC_OVERRIDES[st]);
+      });
       _catalog = byState;
       window.MN_COUNTY_PARCELS = byState;
       console.log("[mn-county-parcels] loaded", Object.keys(byState).length, "states,",
