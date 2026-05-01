@@ -91,7 +91,14 @@
         whereTpl: "1=1",
         fields: { parcel_id:"PAMS_PIN", state_parcel_id:"PAMS_PIN", prop_add:"PROP_LOC", prop_city:"MUN_NAME", prop_zip:"ZIP_CODE", owner:"OWNER_NAME", class_code:"PROP_CLASS", latitude:null, longitude:null }
       },
-                        TN: {
+                              CA: {
+      type: "esri",
+      url:  "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/CA_Statewide_Parcels_Public_view/FeatureServer/0/query",
+      outFields: "PARCEL_APN,FIPS_CODE,COUNTYNAME,SITE_ADDR,SITE_CITY,SITE_STATE,SITE_ZIP,FullStreetAddress",
+      whereTpl: "1=1",
+      fields: { parcel_id:"PARCEL_APN", state_parcel_id:"PARCEL_APN", prop_add:"SITE_ADDR", prop_city:"SITE_CITY", prop_zip:"SITE_ZIP", owner:null, class_code:null, latitude:null, longitude:null }
+      },
+TN: {
       type: "esri",
       url:  "https://services1.arcgis.com/YuVBSS7Y1of2Qud1/arcgis/rest/services/Tennessee_Property_Boundaries_Public_Use/FeatureServer/0/query",
       outFields: "PARCELID,GISLINK,ADDRESS,OWNER,OWNER2,COUNTY_NAME,DEEDAC,SUBDIV,LOT",
