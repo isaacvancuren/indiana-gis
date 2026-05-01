@@ -91,7 +91,14 @@
         whereTpl: "1=1",
         fields: { parcel_id:"PAMS_PIN", state_parcel_id:"PAMS_PIN", prop_add:"PROP_LOC", prop_city:"MUN_NAME", prop_zip:"ZIP_CODE", owner:"OWNER_NAME", class_code:"PROP_CLASS", latitude:null, longitude:null }
       },
-                  UT: {
+                        TN: {
+      type: "esri",
+      url:  "https://services1.arcgis.com/YuVBSS7Y1of2Qud1/arcgis/rest/services/Tennessee_Property_Boundaries_Public_Use/FeatureServer/0/query",
+      outFields: "PARCELID,GISLINK,ADDRESS,OWNER,OWNER2,COUNTY_NAME,DEEDAC,SUBDIV,LOT",
+      whereTpl: "1=1",
+      fields: { parcel_id:"PARCELID", state_parcel_id:"GISLINK", prop_add:"ADDRESS", prop_city:"COUNTY_NAME", prop_zip:null, owner:"OWNER", class_code:null, latitude:null, longitude:null }
+      },
+UT: {
       type: "esri",
       url:  "https://services1.arcgis.com/99lidPhWCzftIe9K/arcgis/rest/services/UtahStatewideParcels/FeatureServer/0/query",
       outFields: "PARCEL_ID,PARCEL_ADD,PARCEL_CITY,PARCEL_ZIP,County,RECORDER",
