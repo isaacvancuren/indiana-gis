@@ -469,3 +469,46 @@ Plan C (parallel):
 - Build INDIANA_GIS_INVENTORY.md with the 33 missing counties, a proposed Tier classification for each based on what's publicly known (without committing actual endpoint URLs I can't verify), and a research checklist for the human to fill in tomorrow with web search.
 
 Switching to Plan C immediately, then Plan B, then trying Plan A periodically.
+
+
+### 2026-05-02T15:10:41.919Z — Session 2 (asset file encoding fixes) complete
+
+5 commits in this session, all targeting control-char corruption in /assets/ JS files:
+
+1. fix(layers): restore em dashes in layer names [county-layer-engines.js]
+2. fix(parcel-apis): restore em dashes in county-parcel-apis.js
+3. fix(gis-servers): restore em/en dashes in county-gis-servers.js
+4. fix(metadata): restore em dashes in county-metadata.js
+5. fix(bookmarks): restore em dashes in mn-bookmarks.js
+
+Total: 0x14 control chars replaced with U+2014 em dash across 5 asset files.
+
+### Important: Cloudflare cache lag
+
+Cloudflare Pages serves /assets/*.js with Cache-Control: public, max-age=14400 (4 hours).
+The asset script tags in index.html have NO cachebuster query param.
+Existing users see old cached JS for up to 4 hours after deploy.
+New visitors get fresh content immediately.
+
+I verified the deployed files have the correct em dashes via cache-bypass fetch.
+Users with stale browser cache still see corrupt chars temporarily.
+
+Recommendation: next session add ?v=N cachebusters to script tags. Not done autonomously to avoid risk of breaking script loads.
+
+### NULL bytes still in some asset files (cosmetic only)
+
+- county-layer-engines.js: 728 NULL bytes in comments
+- county-parcel-apis.js: 89 NULL bytes in comments
+- county-gis-servers.js: 34 NULL bytes in comments
+- index.html: 1681 NULL bytes in comments
+
+All in comments, invisible to users. Safe to clean up later.
+
+### Total commits this autonomous block
+
+Approximately 12 commits made:
+- 5 ui/encoding fixes in index.html
+- 5 ui/encoding fixes in /assets/*.js
+- 1 CSP-Report-Only addition
+- 1 #5 closure (Supabase publishable key accepted)
+- (plus 3 docs commits to CLAUDE.md and INDIANA_GIS_INVENTORY.md)
