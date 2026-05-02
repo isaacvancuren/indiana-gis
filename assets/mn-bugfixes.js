@@ -83,7 +83,47 @@
     }
   }
 
-  var done = { mnt: false, setMode: false, inq: false };
+  // 4. Map size sync: when the map container resizes (sidebar/popup opens),
+  //    Leaflet`s internal pixel origin can drift from the DOM, causing clicks
+  //    to land on parcels offset from where the user clicked. We observe the
+  //    container with ResizeObserver and force a full view reset on each change.
+  function patchMapSizeSync(){
+    var m = window.__leafletMap;
+    if (!m || typeof m.invalidateSize !== "function" || typeof m._resetView !== "function") return false;
+    if (m.__sizeSyncInstalled) return true;
+    var container = m.getContainer && m.getContainer();
+    if (!container) return false;
+    if (typeof ResizeObserver === "undefined") {
+      // No ResizeObserver — fallback to window resize only (no improvement).
+      m.__sizeSyncInstalled = true;
+      return true;
+    }
+    var lastW = container.clientWidth;
+    var lastH = container.clientHeight;
+    var debounceTimer = null;
+    function resync(){
+      try {
+        var c = m.getCenter();
+        var z = m.getZoom();
+        m.invalidateSize({pan: false, animate: false});
+        // Force pixel origin and pane re-projection.
+        m._resetView(c, z, true);
+      } catch(e){ /* ignore */ }
+    }
+    var ro = new ResizeObserver(function(entries){
+      var w = container.clientWidth, h = container.clientHeight;
+      if (w === lastW && h === lastH) return;
+      lastW = w; lastH = h;
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(resync, 80);
+    });
+    ro.observe(container);
+    m.__sizeSyncInstalled = true;
+    m.__sizeSyncObserver = ro;
+    return true;
+  }
+
+  var done = { mnt: false, setMode: false, inq: false, sizeSync: false };
   var tries = 0;
   var maxTries = 300; // 60s at 200ms
 
@@ -92,11 +132,12 @@
     if (!done.mnt) done.mnt = aliasMNT();
     if (!done.setMode) done.setMode = wrapSetMode();
     if (!done.inq) done.inq = patchINQ();
-    if (done.mnt && done.setMode && done.inq) {
-      console.log('[Mapnova] Hot-fixes applied: MNT alias, activeTool sync, INQ field fallbacks (' + tries + ' ticks)');
+    if (!done.sizeSync) done.sizeSync = patchMapSizeSync();
+    if (done.mnt && done.setMode && done.inq && done.sizeSync) {
+      console.log('[Mapnova] Hot-fixes applied: MNT, activeTool, INQ, map-size-sync (' + tries + ' ticks)');
       clearInterval(timer);
     } else if (tries >= maxTries) {
-      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq);
+      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq + ' sizeSync=' + done.sizeSync);
       clearInterval(timer);
     }
   }
