@@ -1,9 +1,9 @@
-/* Mapnova Click Precision Patch v5
- * Replaces canvas DOM click listener with strict point-in-polygon picker.
- * Falls back to closest-centroid when click is in a gap (no strict hit). */
+/* Mapnova Click Precision Patch v6
+ * Capture-phase click listener with stopImmediatePropagation, strict point-in-polygon picker,
+ * and closest-centroid fallback for clicks in gaps. */
 (function() {
-  if (window.__mnPreciseClickfixVersion === 5) return;
-  window.__mnPreciseClickfixVersion = 5;
+  if (window.__mnPreciseClickfixVersion === 6) return;
+  window.__mnPreciseClickfixVersion = 6;
 
   function ringContainsLatLng(ring, lat, lng) {
     var inside = false;
@@ -49,9 +49,9 @@
   }
 
   function makeListener(renderer) {
-    var map = renderer._map;
     return function(t) {
       try {
+        var map = renderer._map;
         if (!map || !renderer._drawFirst) return;
         var containerPt = map.mouseEventToContainerPoint(t);
         var layerPt = map.containerPointToLayerPoint(containerPt);
@@ -93,6 +93,8 @@
           }
           chosen = bestL;
         }
+        // Stop original Leaflet click handler from also firing
+        if (t.stopImmediatePropagation) t.stopImmediatePropagation();
         if (t.type === 'click' || t.type === 'preclick') {
           renderer._fireEvent(chosen ? [chosen] : false, t);
         }
@@ -102,24 +104,19 @@
 
   function patchRenderer(renderer) {
     if (!renderer || !renderer._container || !renderer._ctx) return false;
-    if (renderer.__mnPreciseClickPatched === 5) return false;
+    if (renderer.__mnPreciseClickPatched === 6) return false;
     var canvas = renderer._container;
     if (renderer.__mnPreciseListener) {
-      try { canvas.removeEventListener('click', renderer.__mnPreciseListener); } catch(_e){}
-    }
-    if (renderer.__mnOriginalClickRemoved !== true) {
       try {
-        var old = renderer._onClick;
-        if (old && typeof old === 'function') {
-          canvas.removeEventListener('click', old);
-        }
+        canvas.removeEventListener('click', renderer.__mnPreciseListener, true);
+        canvas.removeEventListener('click', renderer.__mnPreciseListener, false);
       } catch(_e){}
-      renderer.__mnOriginalClickRemoved = true;
     }
     var fn = makeListener(renderer);
-    canvas.addEventListener('click', fn, false);
+    // CAPTURE phase, stops immediate propagation so original Leaflet handler is bypassed
+    canvas.addEventListener('click', fn, true);
     renderer.__mnPreciseListener = fn;
-    renderer.__mnPreciseClickPatched = 5;
+    renderer.__mnPreciseClickPatched = 6;
     return true;
   }
 
@@ -127,12 +124,6 @@
     try {
       var maps = [];
       if (window.__leafletMap) maps.push(window.__leafletMap);
-      for (var k in window) {
-        try {
-          var v = window[k];
-          if (v && v._renderer && v._renderer._ctx && v.eachLayer) maps.push(v);
-        } catch(_e){}
-      }
       var seenR = new Set();
       for (var i=0; i<maps.length; i++) {
         var m = maps[i];
