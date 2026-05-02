@@ -83,7 +83,53 @@
     }
   }
 
-  var done = { mnt: false, setMode: false, inq: false };
+  // 4. Map size sync: when the map container resizes (sidebar/popup opens),
+  //    Leaflet`s internal size cache stays at the old dimensions, causing
+  //    click coordinates to be projected with the wrong scale and clicks
+  //    to land on the wrong parcels. We observe the container and call
+  //    invalidateSize on every change. (No _resetView — that drops basemap.)
+  function patchMapSizeSync(){
+    var m = window.__leafletMap;
+    if (!m || typeof m.invalidateSize !== "function") return false;
+    if (m.__sizeSyncInstalled) return true;
+    var container = m.getContainer && m.getContainer();
+    if (!container) return false;
+    function sync(){
+      try { m.invalidateSize({pan: false, animate: false, debounceMoveend: true}); } catch(e){}
+    }
+    // Install ResizeObserver if available.
+    if (typeof ResizeObserver !== "undefined") {
+      var lastW = container.clientWidth, lastH = container.clientHeight;
+      var debounceTimer = null;
+      var ro = new ResizeObserver(function(){
+        var w = container.clientWidth, h = container.clientHeight;
+        if (w === lastW && h === lastH) return;
+        lastW = w; lastH = h;
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(sync, 80);
+      });
+      ro.observe(container);
+      m.__sizeSyncObserver = ro;
+    }
+    // Also a polling drift watchdog for the first 60s (handles edge cases
+    // where ResizeObserver missed a transition before our patch installed).
+    var driftTicks = 0;
+    var driftTimer = setInterval(function(){
+      driftTicks++;
+      try {
+        var w = container.clientWidth, h = container.clientHeight;
+        var sz = m.getSize();
+        if (w > 0 && h > 0 && (Math.abs(sz.x - w) > 1 || Math.abs(sz.y - h) > 1)) {
+          sync();
+        }
+      } catch(e){}
+      if (driftTicks >= 120) clearInterval(driftTimer);
+    }, 500);
+    m.__sizeSyncInstalled = true;
+    return true;
+  }
+
+  var done = { mnt: false, setMode: false, inq: false, sizeSync: false };
   var tries = 0;
   var maxTries = 300; // 60s at 200ms
 
@@ -92,11 +138,12 @@
     if (!done.mnt) done.mnt = aliasMNT();
     if (!done.setMode) done.setMode = wrapSetMode();
     if (!done.inq) done.inq = patchINQ();
-    if (done.mnt && done.setMode && done.inq) {
-      console.log('[Mapnova] Hot-fixes applied: MNT alias, activeTool sync, INQ field fallbacks (' + tries + ' ticks)');
+    if (!done.sizeSync) done.sizeSync = patchMapSizeSync();
+    if (done.mnt && done.setMode && done.inq && done.sizeSync) {
+      console.log('[Mapnova] Hot-fixes applied: MNT, activeTool, INQ, map-size-sync (' + tries + ' ticks)');
       clearInterval(timer);
     } else if (tries >= maxTries) {
-      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq);
+      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq + ' sizeSync=' + done.sizeSync);
       clearInterval(timer);
     }
   }
