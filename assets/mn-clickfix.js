@@ -1,33 +1,34 @@
 /* =================================================================
- * Mapnova Click Precision Patch (map-event-level)
+ * Mapnova Click Precision Patch (canvas-renderer level)
  * -------------------------------------------------------------------
  * Fixes the long-standing bug where clicking near a shared parcel
  * boundary selects the wrong parcel.
  *
- * Root cause (real this time): The map-level click handler installed
- * by index.html does a coarse bounding-box hit test:
+ * Selection pipeline (verified in DevTools):
+ *   1. User clicks on canvas
+ *   2. Canvas DOM 'click' listener calls Leaflet's renderer._onClick
+ *   3. _onClick iterates _drawFirst list and uses _containsPoint
+ *      (a 4 px tolerance buffer) to pick a layer. LAST hit wins.
+ *   4. _onClick fires 'click' on that layer
+ *   5. Layer's click handler calls window.selectParcelLive(props, layer)
  *
- *   layer.eachLayer(function(f){
- *     if (f.getBounds().contains(clickPt)) hitFeature = f;
- *   });
+ * The bug is at step 3: at any shared border two adjacent parcels
+ * BOTH pass the tolerance test, so the last drawn one wins, which is
+ * rarely the parcel under the cursor. Bounding-box checks elsewhere
+ * (in the map-level click handler) cannot fix it because by then
+ * 'click' has already fired on the wrong layer.
  *
- * Because parcel bounding boxes overlap heavily, this picks whichever
- * parcel is iterated first whose bbox contains the click — almost
- * never the one the user is pointing at near boundaries.
- *
- * Fix: Replace that handler with one that does strict point-in-polygon
- * testing. Among multiple strict matches (overlapping polygons) it
- * prefers the smallest area. If no strict match (point exactly on
- * shared edge) it falls back to the bbox candidate whose nearest
- * vertex is closest to the click point.
- *
- * Earlier patches operated on the canvas-renderer DOM click — which
- * is NOT in the active selection pipeline. That work was ineffective.
- * This patch targets the actual handler that selects parcels.
+ * Fix: replace the canvas DOM click listener with one that uses
+ * strict point-in-polygon to pick the layer:
+ *   - Strict matches (point inside polygon, no tolerance)
+ *   - Among multiple strict matches, prefer smallest polygon area
+ *   - If no strict match (point exactly on an edge), fall back to
+ *     the last tolerance-hit layer (Leaflet's default behavior)
+ * Then fire the 'click' event on the chosen layer (so the existing
+ * layer handler runs and selectParcelLive is invoked normally).
  * ================================================================= */
 (function () {
   'use strict';
-  if (window.__mnPreciseMapClickInstalled) return;
 
   function ringContainsLatLng(ring, lat, lng) {
     var inside = false;
@@ -50,7 +51,6 @@
     var first = ll[0];
     if (!Array.isArray(first) || !first.length) return false;
     if (typeof first[0].lat === 'number') {
-      // Single polygon (possibly with holes): ll = [outerRing, hole1, ...]
       var inside = false;
       for (var i = 0; i < ll.length; i++) {
         var ring = ll[i];
@@ -60,18 +60,17 @@
       }
       return inside;
     }
-    // Multi-polygon: ll = [[outer, hole...], [outer, hole...]]
     for (var p = 0; p < ll.length; p++) {
       var poly = ll[p];
       if (!Array.isArray(poly)) continue;
-      var pInside = false;
+      var pIn = false;
       for (var q = 0; q < poly.length; q++) {
         var r = poly[q];
         if (Array.isArray(r) && r.length && typeof r[0].lat === 'number') {
-          if (ringContainsLatLng(r, latlng.lat, latlng.lng)) pInside = !pInside;
+          if (ringContainsLatLng(r, latlng.lat, latlng.lng)) pIn = !pIn;
         }
       }
-      if (pInside) return true;
+      if (pIn) return true;
     }
     return false;
   }
@@ -96,109 +95,109 @@
     return Math.abs(a / 2);
   }
 
-  function nearestVertexDistSq(layer, latlng) {
-    var ring = getOuterRing(layer);
-    if (!ring) return Infinity;
-    var best = Infinity;
-    for (var i = 0; i < ring.length; i++) {
-      var dy = ring[i].lat - latlng.lat;
-      var dx = ring[i].lng - latlng.lng;
-      var d = dy * dy + dx * dx;
-      if (d < best) best = d;
-    }
-    return best;
-  }
-
-  function makePreciseHandler(map) {
-    return function preciseClickHandler(e) {
+  function makePreciseHandler(renderer) {
+    return function preciseOnClick(t) {
       try {
-        if (window.activeTool) {
-          if (typeof window.handleToolClick === 'function') {
-            window.handleToolClick(e.latlng.lat, e.latlng.lng);
-          }
-          return;
-        }
-        var click = e.latlng;
+        var map = renderer._map;
+        if (!map) return;
+        var layerPoint = map.mouseEventToLayerPoint(t);
+        var latlng = map.layerPointToLatLng(layerPoint);
+        var tolHits = [];
         var strictHits = [];
-        var bboxHits = [];
-        map.eachLayer(function (layer) {
-          if (!layer || !layer._layers || typeof layer.eachLayer !== 'function') return;
-          layer.eachLayer(function (f) {
-            if (!f || typeof f.getBounds !== 'function') return;
+        var node = renderer._drawFirst;
+        while (node) {
+          var layer = node.layer;
+          if (layer && layer.options && layer.options.interactive &&
+              typeof layer._containsPoint === 'function') {
             try {
-              var hasData = (f.feature && f.feature.properties) || f.parcelData;
-              if (!hasData) return;
-              var b = f.getBounds();
-              if (!b.contains(click)) return;
-              bboxHits.push(f);
-              if (strictContainsLatLng(f, click)) strictHits.push(f);
+              if (layer._containsPoint(layerPoint)) {
+                if ((t.type === 'click' || t.type === 'preclick') &&
+                    map._draggableMoved && map._draggableMoved(layer)) {
+                  // dragged — skip
+                } else {
+                  tolHits.push(layer);
+                  if (strictContainsLatLng(layer, latlng)) strictHits.push(layer);
+                }
+              }
             } catch (_e) {}
-          });
-        });
-
-        var hit = null;
+          }
+          node = node.next;
+        }
+        var chosen = null;
         if (strictHits.length) {
-          hit = strictHits[0];
-          var bestArea = approxArea(hit);
-          for (var i = 1; i < strictHits.length; i++) {
-            var a = approxArea(strictHits[i]);
-            if (a < bestArea) { hit = strictHits[i]; bestArea = a; }
+          chosen = strictHits[0];
+          var bestA = approxArea(chosen);
+          for (var k = 1; k < strictHits.length; k++) {
+            var a = approxArea(strictHits[k]);
+            if (a < bestA) { chosen = strictHits[k]; bestA = a; }
           }
-        } else if (bboxHits.length) {
-          hit = bboxHits[0];
-          var bestD = nearestVertexDistSq(hit, click);
-          for (var j = 1; j < bboxHits.length; j++) {
-            var d = nearestVertexDistSq(bboxHits[j], click);
-            if (d < bestD) { hit = bboxHits[j]; bestD = d; }
-          }
+        } else if (tolHits.length) {
+          chosen = tolHits[tolHits.length - 1];
         }
-
-        if (hit && typeof window.selectParcelLive === 'function') {
-          var p = (hit.feature && hit.feature.properties) || hit.parcelData || {};
-          hit.parcelData = p;
-          window.selectParcelLive(p, hit);
-        }
+        renderer._fireEvent(chosen ? [chosen] : false, t);
       } catch (_err) {}
     };
   }
 
-  function tryInstall() {
+  function patchRenderer(renderer) {
+    if (!renderer || renderer.__mnPreciseClickPatched) return false;
+    var canvas = renderer._container;
+    if (!canvas || canvas.tagName !== 'CANVAS' || !canvas._leaflet_events) return false;
+    var evs = canvas._leaflet_events;
+    var clickKey = null;
+    for (var k in evs) {
+      if (k.indexOf('click') === 0) { clickKey = k; break; }
+    }
+    if (!clickKey) return false;
+    var oldHandler = evs[clickKey];
+    var newHandler = makePreciseHandler(renderer);
+    try {
+      canvas.removeEventListener('click', oldHandler, false);
+    } catch (_e) {}
+    delete evs[clickKey];
+    canvas.addEventListener('click', newHandler, false);
+    renderer.__mnPreciseClickPatched = true;
+    renderer.__mnPreciseClickHandler = newHandler;
+    return true;
+  }
+
+  function patchAllRenderers() {
     var map = window.__leafletMap || window.map;
-    if (!map || !map._events || !Array.isArray(map._events.click)) return false;
-    var handlers = map._events.click;
-    var replaced = 0;
-    for (var i = 0; i < handlers.length; i++) {
-      var src = '';
-      try { src = (handlers[i].fn || function () {}).toString(); } catch (_e) {}
-      if (src.indexOf('getBounds().contains(clickPt)') !== -1 ||
-          src.indexOf('getBounds().contains(click') !== -1) {
-        handlers[i].fn = makePreciseHandler(map);
-        replaced++;
+    if (!map || typeof map.eachLayer !== 'function') return 0;
+    var count = 0;
+    map.eachLayer(function (layer) {
+      if (layer && layer._container && layer._container.tagName === 'CANVAS') {
+        if (patchRenderer(layer)) count++;
       }
+    });
+    if (map.options && map.options.renderer) {
+      if (patchRenderer(map.options.renderer)) count++;
     }
-    if (replaced > 0) {
-      window.__mnPreciseMapClickInstalled = true;
-      window.__mnPreciseMapClickCount = replaced;
-      return true;
-    }
-    return false;
+    return count;
   }
 
-  // Try immediately, then poll for up to 4 minutes (handlers may register late).
-  if (!tryInstall()) {
-    var ticks = 0;
-    var iv = setInterval(function () {
-      ticks++;
-      if (tryInstall() || ticks > 480) clearInterval(iv);
-    }, 500);
-  }
+  // Initial patch attempt
+  patchAllRenderers();
 
-  // Also re-check on every map load/layer add in case the handler is
-  // re-bound by some downstream code.
-  function rebindCheck() {
-    if (window.__mnPreciseMapClickInstalled) return;
-    tryInstall();
+  // Poll for late-loading renderers (county layers can take a while)
+  var ticks = 0;
+  var iv = setInterval(function () {
+    ticks++;
+    var map = window.__leafletMap || window.map;
+    if (map) patchAllRenderers();
+    if (ticks > 480) clearInterval(iv);
+  }, 500);
+
+  // Patch new renderers as they appear
+  function bindLayerAdd() {
+    var map = window.__leafletMap || window.map;
+    if (!map || typeof map.on !== 'function') return;
+    if (map.__mnPreciseLayerAddBound) return;
+    map.__mnPreciseLayerAddBound = true;
+    map.on('layeradd', function () { setTimeout(patchAllRenderers, 0); });
   }
-  document.addEventListener('DOMContentLoaded', rebindCheck);
-  window.addEventListener('load', rebindCheck);
+  bindLayerAdd();
+  setInterval(bindLayerAdd, 1000);
+
+  window.__mnPreciseClickfixVersion = 4;
 })();
