@@ -104,13 +104,13 @@ const INDIANA_COUNTIES = {
 
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  PRC PDF  DIRECT COUNTY ENDPOINTS
+//  PRC PDF — DIRECT COUNTY ENDPOINTS
 //  Exhaustively researched. These are all confirmed
 //  public-access direct PDF/report URLs per county.
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//  PRC PDF SYSTEM  DIRECT & RELIABLE
+//  PRC PDF SYSTEM — DIRECT & RELIABLE
 //
 //  Sources (in priority order):
 //  1. Marion County  � maps.indy.gov (real PDF server)
@@ -143,7 +143,7 @@ const EM_COUNTIES = {
 
 // XSoft Engage counties
 const WTH_GIS = {
-  // MapDotNet-hosted counties  coordinate-based, requires corsproxy.io
+  // MapDotNet-hosted counties — coordinate-based, requires corsproxy.io
   putnam:  { host:'https://putnamin.wthgis.com',      layers:'10739,1933,2965,8288' },
   brown:   { host:'https://brownin.wthgis.com',       layers:'10739,1933,2965,8288' },
   daviess: { host:'https://daviessin.wthgis.com',     layers:'10739,1933,2965,8288' },
