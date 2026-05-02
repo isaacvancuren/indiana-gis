@@ -86,11 +86,13 @@
   // 4. Canvas hit-test: prefer smallest parcel when multiple match a click.
   //    Fixes "click selects nearby parcel" caused by overlapping/adjacent
   //    polygons in shared canvas renderer (Leaflet picks last-drawn by default).
-  function patchCanvasHitTest(){
-    if (typeof canvasRenderer === "undefined" || !canvasRenderer) return false;
-    if (canvasRenderer.__hitTestPatched) return true;
+  //    Reaches renderers via window.__leafletMap since canvasRenderer is const-scoped.
+  function patchOneRenderer(r){
+    if (!r || r.__hitTestPatched) return false;
+    if (typeof r._onClick !== "function") return false;
+    if (typeof r._fireEvent !== "function") return false;
     try {
-      canvasRenderer._onClick = function(t){
+      r._onClick = function(t){
         var n = this._map.mouseEventToLayerPoint(t);
         var matches = [];
         for (var o = this._drawFirst; o; o = o.next){
@@ -104,7 +106,6 @@
         if (matches.length === 1) {
           winner = matches[0];
         } else if (matches.length > 1) {
-          // Pick smallest bbox area = most specific parcel (inner lot vs outer parent).
           var bestArea = Infinity;
           for (var i = 0; i < matches.length; i++){
             var b = matches[i].getBounds();
@@ -114,12 +115,24 @@
         }
         this._fireEvent(!!winner && [winner], t);
       };
-      canvasRenderer.__hitTestPatched = true;
+      r.__hitTestPatched = true;
       return true;
-    } catch(e){
-      console.warn("[mn-bugfixes] canvas hit-test patch failed:", e);
-      return false;
-    }
+    } catch(e){ return false; }
+  }
+  function patchCanvasHitTest(){
+    var m = window.__leafletMap;
+    if (!m || typeof m.eachLayer !== "function") return false;
+    var found = 0, patched = 0;
+    m.eachLayer(function(l){
+      var r = l.options && l.options.renderer;
+      if (r && r._onClick) {
+        found++;
+        if (!r.__hitTestPatched && patchOneRenderer(r)) patched++;
+        else if (r.__hitTestPatched) patched++;
+      }
+    });
+    // Done only once we have actually patched at least one renderer.
+    return found > 0 && patched >= found;
   }
 
   var done = { mnt: false, setMode: false, inq: false, canvas: false };
