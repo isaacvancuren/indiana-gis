@@ -619,3 +619,29 @@ Either is worse than the current state. The next agent (or human in the morning)
 5. If user wants to continue UX polish: take docs/DROPDOWN_AUDIT.md issues 1-3 in order
 
 End of autonomous run.
+
+## Parcel-click bug fix (post-handoff)
+
+Symptom: clicks on a parcel sometimes selected an adjacent/parent parcel instead.
+
+Root cause: the canvas renderer is shared by all ~5,600 parcel polygons. Leaflet`s
+L.Canvas._onClick walks the renderer`s _drawFirst linked list and picks the LAST
+layer whose _containsPoint() matches. At polygon boundaries (and where outer/parent
+parcels overlap inner ones), the larger/last-drawn parcel wins by default.
+Empirical sample at z17 in Hancock County: ~3% of viewport points have multiple
+matches, and ~half of those resolve to the wrong (outer) parcel under vanilla Leaflet.
+
+Fix: `assets/mn-bugfixes.js` now wraps `_onClick` on every canvas renderer attached
+to `window.__leafletMap`. When multiple layers contain the click point, it picks
+the smallest bounding-box area (most specific parcel). Single-match behavior is
+unchanged.
+
+Implementation note: `canvasRenderer` is `const`-scoped in index.html and not on
+`window`. The patch reaches it via `window.__leafletMap.eachLayer` and a `layeradd`
+event listener so renderers created AFTER the 60s polling window also get patched.
+
+Cachebuster `?v=3` was needed on the mn-bugfixes script tag because Cloudflare`s
+edge had `?v=2` pinned with the old content.
+
+Commits: 14eebfd (initial fail-soft), 9af0d4f (window.__leafletMap), cf2f375
+(layeradd listener), b46acad (cachebuster bump).
