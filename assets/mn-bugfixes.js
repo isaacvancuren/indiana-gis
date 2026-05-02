@@ -117,6 +117,24 @@
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(resync, 80);
     });
+        // Run an initial resync — handles the case where Leaflet`s internal size
+    // has already drifted from DOM before this patch installed.
+    function checkAndResync(){
+      var w = container.clientWidth, h = container.clientHeight;
+      var sz = m.getSize();
+      if (w > 0 && h > 0 && (Math.abs(sz.x - w) > 1 || Math.abs(sz.y - h) > 1)) {
+        resync();
+      }
+    }
+    checkAndResync();
+    // Also re-check periodically as a safety net for the first 30s after install,
+    // since some app code may resize without our observer firing (e.g. mid-frame).
+    var driftTicks = 0;
+    var driftTimer = setInterval(function(){
+      driftTicks++;
+      checkAndResync();
+      if (driftTicks >= 60) clearInterval(driftTimer);
+    }, 500);
     ro.observe(container);
     m.__sizeSyncInstalled = true;
     m.__sizeSyncObserver = ro;
