@@ -83,7 +83,46 @@
     }
   }
 
-  var done = { mnt: false, setMode: false, inq: false };
+  // 4. Canvas hit-test: prefer smallest parcel when multiple match a click.
+  //    Fixes "click selects nearby parcel" caused by overlapping/adjacent
+  //    polygons in shared canvas renderer (Leaflet picks last-drawn by default).
+  function patchCanvasHitTest(){
+    if (typeof canvasRenderer === "undefined" || !canvasRenderer) return false;
+    if (canvasRenderer.__hitTestPatched) return true;
+    try {
+      canvasRenderer._onClick = function(t){
+        var n = this._map.mouseEventToLayerPoint(t);
+        var matches = [];
+        for (var o = this._drawFirst; o; o = o.next){
+          var e = o.layer;
+          if (e.options.interactive && e._containsPoint(n)){
+            if (("click" === t.type || "preclick" === t.type) && this._map._draggableMoved(e)) continue;
+            matches.push(e);
+          }
+        }
+        var winner = null;
+        if (matches.length === 1) {
+          winner = matches[0];
+        } else if (matches.length > 1) {
+          // Pick smallest bbox area = most specific parcel (inner lot vs outer parent).
+          var bestArea = Infinity;
+          for (var i = 0; i < matches.length; i++){
+            var b = matches[i].getBounds();
+            var a = (b.getNorth()-b.getSouth()) * (b.getEast()-b.getWest());
+            if (a < bestArea){ bestArea = a; winner = matches[i]; }
+          }
+        }
+        this._fireEvent(!!winner && [winner], t);
+      };
+      canvasRenderer.__hitTestPatched = true;
+      return true;
+    } catch(e){
+      console.warn("[mn-bugfixes] canvas hit-test patch failed:", e);
+      return false;
+    }
+  }
+
+  var done = { mnt: false, setMode: false, inq: false, canvas: false };
   var tries = 0;
   var maxTries = 300; // 60s at 200ms
 
@@ -92,11 +131,12 @@
     if (!done.mnt) done.mnt = aliasMNT();
     if (!done.setMode) done.setMode = wrapSetMode();
     if (!done.inq) done.inq = patchINQ();
-    if (done.mnt && done.setMode && done.inq) {
-      console.log('[Mapnova] Hot-fixes applied: MNT alias, activeTool sync, INQ field fallbacks (' + tries + ' ticks)');
+    if (!done.canvas) done.canvas = patchCanvasHitTest();
+    if (done.mnt && done.setMode && done.inq && done.canvas) {
+      console.log('[Mapnova] Hot-fixes applied: MNT, activeTool, INQ, canvas hit-test (' + tries + ' ticks)');
       clearInterval(timer);
     } else if (tries >= maxTries) {
-      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq);
+      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq + ' canvas=' + done.canvas);
       clearInterval(timer);
     }
   }
