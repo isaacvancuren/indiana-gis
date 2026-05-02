@@ -86,7 +86,8 @@
   // 4. Canvas hit-test: prefer smallest parcel when multiple match a click.
   //    Fixes "click selects nearby parcel" caused by overlapping/adjacent
   //    polygons in shared canvas renderer (Leaflet picks last-drawn by default).
-  //    Reaches renderers via window.__leafletMap since canvasRenderer is const-scoped.
+  //    Reaches renderers via window.__leafletMap and listens for new ones via layeradd
+  //    (parcels often load AFTER the 60s polling window expires).
   function patchOneRenderer(r){
     if (!r || r.__hitTestPatched) return false;
     if (typeof r._onClick !== "function") return false;
@@ -121,18 +122,21 @@
   }
   function patchCanvasHitTest(){
     var m = window.__leafletMap;
-    if (!m || typeof m.eachLayer !== "function") return false;
-    var found = 0, patched = 0;
+    if (!m || typeof m.eachLayer !== "function" || typeof m.on !== "function") return false;
+    if (m.__hitTestListenerInstalled) return true;
+    // Patch any renderers already on the map.
     m.eachLayer(function(l){
       var r = l.options && l.options.renderer;
-      if (r && r._onClick) {
-        found++;
-        if (!r.__hitTestPatched && patchOneRenderer(r)) patched++;
-        else if (r.__hitTestPatched) patched++;
-      }
+      if (r) patchOneRenderer(r);
     });
-    // Done only once we have actually patched at least one renderer.
-    return found > 0 && patched >= found;
+    // Patch any future renderers as layers are added.
+    m.on("layeradd", function(ev){
+      var l = ev && ev.layer;
+      var r = l && l.options && l.options.renderer;
+      if (r) patchOneRenderer(r);
+    });
+    m.__hitTestListenerInstalled = true;
+    return true;
   }
 
   var done = { mnt: false, setMode: false, inq: false, canvas: false };
