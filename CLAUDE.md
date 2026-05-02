@@ -403,3 +403,25 @@ Step 6: append progress to CLAUDE.md every ~30 min so morning agent has continuo
 If anything I find requires a code change to live, I will write it up as a proposed diff in CLAUDE.md, NOT commit it. Human decides in the morning.
 
 ---
+
+
+## Autonomous run — starting 2026-05-02T06:31:38.969Z
+
+User authorized 8-hour autonomous work block with these explicit directives:
+1. Supabase env var: option C (accept as designed, document RLS as security control, close #5)
+2. Enable CSP-Report-Only
+3. Add IN county configs, one PR per county, max 5 per session, smoke-test each
+4. Don't expand beyond Indiana until all 92 IN counties shipped
+
+### Decision 1 RESOLVED: Supabase publishable key — accepted as designed (option C)
+Status: #5 of original 5-step security plan is now CLOSED.
+Rationale: Supabase publishable keys (formerly anon keys) are designed to be embedded in client-side code. They identify the Supabase project but grant no privileged access. Data security is enforced by Row Level Security (RLS) policies on every table. RLS audit performed earlier this session confirmed:
+- All 7 user-data tables have RLS enabled (bookmarks, layer_preferences, profiles, project_features, project_shares, projects, user_history)
+- All policies tied to auth.uid() — users can only read/write their own rows
+- Anonymous (logged-out) requests blocked at the table level
+- Verified by direct fetch with publishable key against /rest/v1/<table> — returned 0 rows or 401 as expected
+
+Therefore: no env-var migration needed. The publishable key in index.html is correct architecture per Supabase guidance.
+
+Action items closed:
+- [x] Original 5-step plan complete (#1-5 all resolved)
