@@ -647,12 +647,12 @@
         <div>
           <label class="sfl">Search By</label>
           <select class="sfs" id="stype" onchange="updateSearchUI()">
-            <option value="address">=� Street Address</option>
-            <option value="parcel">=" Parcel Number</option>
-            <option value="owner">=d Owner Name</option>
-            <option value="coords">< Lat / Lon Coordinates</option>
-            <option value="section">=� Section-Township-Range</option>
-            <option value="subdivision"><� Subdivision Name</option>
+            <option value="address">🏠 Street Address</option>
+            <option value="parcel">🔢 Parcel Number</option>
+            <option value="owner">👤 Owner Name</option>
+            <option value="coords">🗺 Lat / Lon Coordinates</option>
+            <option value="section">📍 Section-Township-Range</option>
+            <option value="subdivision">🏘 Subdivision Name</option>
           </select>
         </div>
         <div>
@@ -3581,7 +3581,7 @@ function selectFromSearch(pid){
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 function updateSearchUI(){
   const t=document.getElementById('stype').value;
-  const lbls={address:'Street Address',parcel:'Parcel Number',owner:'Owner Name',coords:'Coordinates (Lat, Lon)',section:'Section � Township � Range',subdivision:'Subdivision Name'};
+  const lbls={address:'Street Address',parcel:'Parcel Number',owner:'Owner Name',coords:'Coordinates (Lat, Lon)',section:'Section — Township — Range',subdivision:'Subdivision Name'};
   const phs={address:'e.g. 440 3rd Street, Columbus IN',parcel:'03-01-14-400-001.000-003',owner:'Last, First or Company Name',coords:'39.2015, -85.9210',section:'Sec 14, T11N, R5E',subdivision:'Autumn Ridge'};
   document.getElementById('sflabel').textContent=lbls[t]||'Query';
   document.getElementById('sfield').placeholder=phs[t]||'';
