@@ -83,63 +83,7 @@
     }
   }
 
-  // 4. Canvas hit-test: prefer smallest parcel when multiple match a click.
-  //    Fixes "click selects nearby parcel" caused by overlapping/adjacent
-  //    polygons in shared canvas renderer (Leaflet picks last-drawn by default).
-  //    Reaches renderers via window.__leafletMap and listens for new ones via layeradd
-  //    (parcels often load AFTER the 60s polling window expires).
-  function patchOneRenderer(r){
-    if (!r || r.__hitTestPatched) return false;
-    if (typeof r._onClick !== "function") return false;
-    if (typeof r._fireEvent !== "function") return false;
-    try {
-      r._onClick = function(t){
-        var n = this._map.mouseEventToLayerPoint(t);
-        var matches = [];
-        for (var o = this._drawFirst; o; o = o.next){
-          var e = o.layer;
-          if (e.options.interactive && e._containsPoint(n)){
-            if (("click" === t.type || "preclick" === t.type) && this._map._draggableMoved(e)) continue;
-            matches.push(e);
-          }
-        }
-        var winner = null;
-        if (matches.length === 1) {
-          winner = matches[0];
-        } else if (matches.length > 1) {
-          var bestArea = Infinity;
-          for (var i = 0; i < matches.length; i++){
-            var b = matches[i].getBounds();
-            var a = (b.getNorth()-b.getSouth()) * (b.getEast()-b.getWest());
-            if (a < bestArea){ bestArea = a; winner = matches[i]; }
-          }
-        }
-        this._fireEvent(!!winner && [winner], t);
-      };
-      r.__hitTestPatched = true;
-      return true;
-    } catch(e){ return false; }
-  }
-  function patchCanvasHitTest(){
-    var m = window.__leafletMap;
-    if (!m || typeof m.eachLayer !== "function" || typeof m.on !== "function") return false;
-    if (m.__hitTestListenerInstalled) return true;
-    // Patch any renderers already on the map.
-    m.eachLayer(function(l){
-      var r = l.options && l.options.renderer;
-      if (r) patchOneRenderer(r);
-    });
-    // Patch any future renderers as layers are added.
-    m.on("layeradd", function(ev){
-      var l = ev && ev.layer;
-      var r = l && l.options && l.options.renderer;
-      if (r) patchOneRenderer(r);
-    });
-    m.__hitTestListenerInstalled = true;
-    return true;
-  }
-
-  var done = { mnt: false, setMode: false, inq: false, canvas: false };
+  var done = { mnt: false, setMode: false, inq: false };
   var tries = 0;
   var maxTries = 300; // 60s at 200ms
 
@@ -148,12 +92,11 @@
     if (!done.mnt) done.mnt = aliasMNT();
     if (!done.setMode) done.setMode = wrapSetMode();
     if (!done.inq) done.inq = patchINQ();
-    if (!done.canvas) done.canvas = patchCanvasHitTest();
-    if (done.mnt && done.setMode && done.inq && done.canvas) {
-      console.log('[Mapnova] Hot-fixes applied: MNT, activeTool, INQ, canvas hit-test (' + tries + ' ticks)');
+    if (done.mnt && done.setMode && done.inq) {
+      console.log('[Mapnova] Hot-fixes applied: MNT alias, activeTool sync, INQ field fallbacks (' + tries + ' ticks)');
       clearInterval(timer);
     } else if (tries >= maxTries) {
-      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq + ' canvas=' + done.canvas);
+      console.warn('[Mapnova] Hot-fixes timeout. State: mnt=' + done.mnt + ' setMode=' + done.setMode + ' inq=' + done.inq);
       clearInterval(timer);
     }
   }
