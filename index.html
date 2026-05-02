@@ -326,11 +326,11 @@
               <div class="prc-seal-icon"><i class="fas fa-star-of-life"></i></div>
               <div class="prc-seal-text">
                 <div class="prc-county" id="prc-county-name">Bartholomew County</div>
-                <div class="prc-state">State of Indiana � Assessor's Office</div>
+                <div class="prc-state">State of Indiana — Assessor's Office</div>
               </div>
             </div>
             <div class="prc-doc-title">Property Record Card (PRC)</div>
-            <div class="prc-doc-sub" id="prc-doc-sub">Tax Year 2024 � Official Assessment Record</div>
+            <div class="prc-doc-sub" id="prc-doc-sub">Tax Year 2024 — Official Assessment Record</div>
           </div>
           <div id="prc-body">
             <!-- Property photo placeholder -->
@@ -766,7 +766,7 @@
     <span class="sbar-sep"></span>
     <span id="county-disp"><i class="fas fa-map" style="margin-right:4px;"></i>All Indiana</span>
     <span id="sel-info"></span>
-    <span style="margin-left:auto;font-size:10px;color:var(--text3);">Mapnova v10.0 � 57 counties with owner data � All 92 Indiana Counties</span>
+    <span style="margin-left:auto;font-size:10px;color:var(--text3);">Mapnova v10.0 — 57 counties with owner data — All 92 Indiana Counties</span>
   </div>
 
   <!-- Loading -->
@@ -839,7 +839,7 @@
     <div class="rcard">
       <div class="rcard-title"><i class="fas fa-chart-line"></i> Assessment Trend</div>
       <canvas id="trend-cvs" width="250" height="90"></canvas>
-      <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:3px;">2013 � 2024</div>
+      <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:3px;">2013 — 2024</div>
     </div>
 
     <div class="rcard">
@@ -955,7 +955,7 @@
   <div class="mhdr"><div class="mhdr-icon"><i class="fas fa-print"></i></div><div class="mhdr-title">Print Map</div><button class="mclose" onclick="closeModal('print-modal')"><i class="fas fa-xmark"></i></button></div>
   <div class="mbody">
     <div class="fg">
-      <div><label class="fl">Page Size</label><select class="fsel"><option>Letter 8.5�11</option><option>Legal 8.5�14</option><option>Tabloid 11�17</option><option>ARCH D 24�36</option></select></div>
+      <div><label class="fl">Page Size</label><select class="fsel"><option>Letter 8.5×11</option><option>Legal 8.5×14</option><option>Tabloid 11×17</option><option>ARCH D 24×36</option></select></div>
       <div><label class="fl">Orientation</label><select class="fsel"><option>Landscape</option><option>Portrait</option></select></div>
       <div><label class="fl">Scale</label><select class="fsel"><option>Auto Fit</option><option>1:1,000</option><option>1:2,400</option><option>1:4,800</option><option>1:12,000</option><option>1:24,000</option></select></div>
       <div><label class="fl">Print DPI</label><select class="fsel"><option>96 dpi (screen)</option><option>150 dpi</option><option>300 dpi (press)</option></select></div>
@@ -1182,9 +1182,9 @@
       <button class="mbtn" onclick="addBM()"><i class="fas fa-plus"></i> Save</button>
     </div>
     <div id="bm-list">
-      <div class="scard" onclick="goBM(39.20,-85.91,13);closeModal('bookmarks-modal')"><div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>Columbus City Center</div><div class="sc-sub">Lat 39.20 � Lon -85.91 � Zoom 13</div></div>
-      <div class="scard" onclick="goBM(39.76,-86.15,11);closeModal('bookmarks-modal')"><div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>Indianapolis Metro</div><div class="sc-sub">Lat 39.76 � Lon -86.15 � Zoom 11</div></div>
-      <div class="scard" onclick="goBM(39.77,-86.15,7);closeModal('bookmarks-modal')"><div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>Indiana Statewide</div><div class="sc-sub">Lat 39.77 � Lon -86.15 � Zoom 7</div></div>
+      <div class="scard" onclick="goBM(39.20,-85.91,13);closeModal('bookmarks-modal')"><div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>Columbus City Center</div><div class="sc-sub">Lat 39.20 — Lon -85.91 — Zoom 13</div></div>
+      <div class="scard" onclick="goBM(39.76,-86.15,11);closeModal('bookmarks-modal')"><div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>Indianapolis Metro</div><div class="sc-sub">Lat 39.76 — Lon -86.15 — Zoom 11</div></div>
+      <div class="scard" onclick="goBM(39.77,-86.15,7);closeModal('bookmarks-modal')"><div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>Indiana Statewide</div><div class="sc-sub">Lat 39.77 — Lon -86.15 — Zoom 7</div></div>
     </div>
   </div>
   <div class="mftr"><button class="mbtn-o" onclick="closeModal('bookmarks-modal')">Close</button></div>
@@ -1238,30 +1238,30 @@ const map = L.map('map',{
 const basemaps = {
   // CARTO Voyager  clean street map, no referer required
   streets: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
-    maxZoom:19, attribution:'� <a href="https://carto.com/">CARTO</a> � OpenStreetMap contributors',
+    maxZoom:19, attribution:'© <a href="https://carto.com/">CARTO</a> © OpenStreetMap contributors',
     subdomains:'abcd'
   }),
   // Esri World Imagery  free, no referer required
   satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
-    maxZoom:19, attribution:'� Esri, Maxar, Earthstar Geographics'
+    maxZoom:19, attribution:'© Esri, Maxar, Earthstar Geographics'
   }),
   // Esri World Topo  no referer required
   topo: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{
-    maxZoom:19, attribution:'� Esri, HERE, Garmin, FAO, NOAA, USGS'
+    maxZoom:19, attribution:'© Esri, HERE, Garmin, FAO, NOAA, USGS'
   }),
   // CARTO Dark Matter  no referer required (was already working)
   dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-    maxZoom:19, attribution:'� <a href="https://carto.com/">CARTO</a> � OpenStreetMap contributors',
+    maxZoom:19, attribution:'© <a href="https://carto.com/">CARTO</a> © OpenStreetMap contributors',
     subdomains:'abcd'
   }),
   // CARTO Positron Light  no referer required
   light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-    maxZoom:19, attribution:'� <a href="https://carto.com/">CARTO</a> � OpenStreetMap contributors',
+    maxZoom:19, attribution:'© <a href="https://carto.com/">CARTO</a> © OpenStreetMap contributors',
     subdomains:'abcd'
   }),
   // Esri World Street Map  extra fallback
   esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{
-    maxZoom:19, attribution:'� Esri, HERE, Garmin'
+    maxZoom:19, attribution:'© Esri, HERE, Garmin'
   })
 };
 let curBM = 'dark';
@@ -2706,9 +2706,9 @@ gisLayers['flood']          = (function(){
     });
   })();
 gisLayers['imagery']        = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  {maxZoom:20,attribution:'� Esri, Maxar',opacity:0.85});
+  {maxZoom:20,attribution:'© Esri, Maxar',opacity:0.85});
 gisLayers['imagery-labels'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-  {maxZoom:20,attribution:'� Esri',opacity:0.80});
+  {maxZoom:20,attribution:'© Esri',opacity:0.80});
 
   // ==================================================================
   //  UNIVERSAL / NATIONAL / GLOBAL LAYERS
@@ -3814,7 +3814,7 @@ function generateLocalPRC(p) {
   </div>
   <div class="hdr-main">
     <h1>${county}</h1>
-    <p>State of Indiana � Assessor's Office${fips ? ' � FIPS ' + fips : ''}</p>
+    <p>State of Indiana — Assessor's Office${fips ? ' � FIPS ' + fips : ''}</p>
   </div>
   <div class="hdr-right">
     <div class="doc">Property Record Card</div>
@@ -4231,7 +4231,7 @@ function addBM(){
   const c=map.getCenter();
   const card=document.createElement('div');
   card.className='scard';
-  card.innerHTML=`<div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>${name}</div><div class="sc-sub">Lat ${c.lat.toFixed(4)} � Lon ${c.lng.toFixed(4)} � Zoom ${map.getZoom()}</div>`;
+  card.innerHTML=`<div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>${name}</div><div class="sc-sub">Lat ${c.lat.toFixed(4)} — Lon ${c.lng.toFixed(4)} — Zoom ${map.getZoom()}</div>`;
   card.onclick=()=>goBM(c.lat,c.lng,map.getZoom());
   document.getElementById('bm-list').prepend(card);
   document.getElementById('bm-name').value='';
