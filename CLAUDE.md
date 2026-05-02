@@ -425,3 +425,47 @@ Therefore: no env-var migration needed. The publishable key in index.html is cor
 
 Action items closed:
 - [x] Original 5-step plan complete (#1-5 all resolved)
+
+
+## Autonomous run progress log
+
+### 2026-05-02T06:37:07.188Z — Step 1 done
+Closed #5 of security plan: Supabase publishable key accepted as designed (option C). RLS confirmed as security control. All 5 original security items now resolved.
+
+### 2026-05-02T06:37:07.188Z — Step 2 done
+Added Content-Security-Policy-Report-Only to _headers. Permissive but instrumented (default-src 'self', explicit allow-list for known CDNs, https: wildcard for tile/connect to avoid breaking the long tail of map services). App smoke-tested on mapnova.org/?fresh=2 — loads cleanly with no visible regressions. Browser console will now log any unexpected resource loads.
+
+### 2026-05-02T06:37:07.188Z — Step 3 in progress: IN county coverage analysis
+Inventory of js/app.js:
+- Tier 1 (ElevateMaps direct): 17 counties — bartholomew, cass, monroe, morgan, floyd, grant, harrison, jay, lawrence, martin, miami, orange, benton, elkhart, laporte, owen, white
+- Tier 2 (county ArcGIS REST): 25 counties — marion, hamilton, adams, dearborn, allen, lake, stjoseph, vanderburgh, tippecanoe, johnson, hancock, decatur, lagrange, steuben, wabash, wells, whitley, morgan, rush, tipton, miami, monroe, white, hendricks, madison
+- Tier 3 (WTH / wthgis.com): 21 counties — putnam, brown, daviess, dubois, henry, jackson, jasper, jefferson, jennings, newton, noble, parke, perry, pike, pulaski, scott, starke, sullivan, union, vermillion, warren
+
+Total: 59 of 92 IN counties have parcel coverage (some counties appear in multiple tiers).
+
+### Counties remaining (33):
+blackford, boone, carroll, clark, clay, clinton, crawford, dekalb, delaware, fayette, fountain, franklin, fulton, gibson, greene, howard, huntington, knox, kosciusko, marshall, montgomery, ohio, porter, posey, randolph, ripley, shelby, spencer, switzerland, vigo, warrick, washington, wayne
+
+### 2026-05-02T06:37:07.188Z — Blocker encountered, replanning
+Attempted to discover GIS endpoints for the 33 remaining counties by probing common URL patterns. Hit a structural limitation:
+1. No web search available to discover each county's hosting choice
+2. CORS blocks me from probing arbitrary URLs from any origin I control
+3. Many small Indiana counties use Beacon (Schneider Geospatial) viewers, not ArcGIS REST — those have no machine-readable API
+4. Many use ESRI hosted services with org IDs I can't enumerate
+
+Verdict: Adding county configs blind would require guessing endpoints. Each wrong guess = a commit that auto-deploys a broken config to live mapnova.org. Risk is too high for unattended work.
+
+### 2026-05-02T06:37:07.188Z — Pivot to high-value, low-risk work for the rest of the autonomous block
+Plan A (continue if I find a path):
+- Probe IndianaMap / IGIO statewide aggregate parcel endpoints. If any has multi-county coverage that's not yet wired up, that's a single PR adding many counties at once.
+
+Plan B (the bulk of the night):
+- Audit dropdowns and fix obvious typos / casing inconsistencies / missing options (read code, find issues, fix safely)
+- Fix small UI bugs visible in the rendered DOM
+- Tighten code paths that have known TODOs or fragile error handling
+- Each change: smoke-test on mapnova.org, commit, document. Max 5 changes per session, then summary.
+
+Plan C (parallel):
+- Build INDIANA_GIS_INVENTORY.md with the 33 missing counties, a proposed Tier classification for each based on what's publicly known (without committing actual endpoint URLs I can't verify), and a research checklist for the human to fill in tomorrow with web search.
+
+Switching to Plan C immediately, then Plan B, then trying Plan A periodically.
