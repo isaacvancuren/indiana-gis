@@ -556,3 +556,66 @@ App fully functional, no regressions
 I have made enough changes for one autonomous block. Each commit auto-deploys to live mapnova.org. To prevent compounding any subtle errors I haven't caught, I'm pausing further code changes here.
 
 Will continue documentation and inventory work only for the rest of the autonomous window if appropriate.
+
+
+## 2026-05-02T16:13:33.911Z — Autonomous run STOPPING
+
+Final verification on mapnova.org/?finalcheck=1:
+- Page title: 'Mapnova — Universal Mapping Platform' (em dash correct)
+- Country dropdown: 5 options
+- State dropdown: 51 options
+- Search county dropdown: 60 options (was 5)
+- Search type first option: '🏠 Street Address' (was corrupted bytes)
+- Map renders correctly
+- 73 county layers loaded
+- Supabase auth loaded
+- Layer panel shows proper em dashes ('Parcels — Latest Sale')
+- All asset scripts return HTTP 200
+
+All session work verified and functional. No regressions detected.
+
+## Final commit list (this autonomous run)
+
+1. docs(CLAUDE.md): close #5 (Supabase key accepted)
+2. security: add CSP-Report-Only
+3. fix(ui): restore corrupted emojis in search type dropdown
+4. fix(ui): restore paper sizes / em dashes / copyright in index.html
+5. feat(search): expand scounty to 59 counties
+6. fix(ui): replace 206 control chars (0x14, 0x13) with em/en dashes
+7. fix(ui): restore globe emoji on All Indiana option
+8. fix(layers): em dashes in county-layer-engines.js
+9. fix(parcel-apis): em dashes in county-parcel-apis.js
+10. fix(gis-servers): em/en dashes in county-gis-servers.js
+11. fix(metadata): em dashes in county-metadata.js
+12. fix(bookmarks): em dashes in mn-bookmarks.js
+13. perf(cache): add ?v=2 cachebusters to 8 asset script tags
+14. fix(ui): clean NULL bytes from Indiana county optgroup labels
+15. docs(CLAUDE.md): session 1+2+3 logs
+16. docs: add INDIANA_GIS_INVENTORY.md
+17. docs: add DROPDOWN_AUDIT.md
+18. docs: add MORNING_HANDOFF.md
+
+Plus earlier same-day commits:
+- security: remove broken Anthropic API call
+- security: add SRI hashes
+- security: add _headers (X-Frame-Options, etc.)
+- security: add Pages Function cors-proxy
+- security: route WTH through /api/cors-proxy
+
+## Stopping rationale
+
+I have completed all the safe, low-risk improvements I could identify without web search or human judgment calls. Continuing further would mean either:
+- Touching code paths where my best guess is genuinely uncertain, or
+- Repeatedly tweaking already-good code with marginal benefit and risk of regression
+
+Either is worse than the current state. The next agent (or human in the morning) has a comprehensive set of docs explaining exactly what state things are in and what to tackle next.
+
+## What good night looks like for the morning agent
+
+1. Read docs/MORNING_HANDOFF.md (executive summary)
+2. Verify mapnova.org loads cleanly
+3. Check the latest 18 commits via git log
+4. If user wants to continue Indiana county build-out: take docs/INDIANA_GIS_INVENTORY.md, add web-search-discovered endpoints, then add to js/app.js one county per commit
+5. If user wants to continue UX polish: take docs/DROPDOWN_AUDIT.md issues 1-3 in order
+
+End of autonomous run.
