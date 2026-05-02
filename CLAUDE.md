@@ -645,3 +645,29 @@ edge had `?v=2` pinned with the old content.
 
 Commits: 14eebfd (initial fail-soft), 9af0d4f (window.__leafletMap), cf2f375
 (layeradd listener), b46acad (cachebuster bump).
+
+## Parcel-click misalignment fix (real root cause this time)
+
+Symptom: clicking on a parcel selects an adjacent parcel instead, often
+shifted vertically or horizontally. Reported across IN counties.
+
+Real root cause: when the analytics/inquiry side panels open, the map
+container resizes from ~1206px to ~916px wide. Browsers fire a CSS reflow
+but Leaflet does NOT auto-detect container resizes — it only listens to
+`window.resize`. Result: Leaflet`s internal `_size` cache stays at the old
+width while the container is the new width. Click projection uses the stale
+size and projects clicks at the wrong scale, so clicks land on parcels
+offset from where the user clicked.
+
+Fix: `assets/mn-bugfixes.js` installs a ResizeObserver on the map container
+and calls `m.invalidateSize` whenever the container changes size, plus a
+60s drift watchdog as a safety net for the initial drift state. Crucially:
+`invalidateSize` only — NO `_resetView`, which we tried first and which
+caused the basemap to disappear (regression).
+
+Earlier failed attempts in this session (commits reverted):
+- 14eebfd / 9af0d4f / cf2f375 / b46acad — canvas hit-test "smallest polygon"
+  patch. Wrong target — overlap was rare, not the actual cause.
+- (earlier today) Size-sync with `_resetView` — caused basemap to disappear.
+
+Verified working live (5 clicks Hancock, 1 Marion, 1 Hamilton, all matched).
