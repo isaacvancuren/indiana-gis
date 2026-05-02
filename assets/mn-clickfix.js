@@ -1,216 +1,204 @@
 /* =================================================================
- * Mapnova Click Precision Patch (DOM-level)
+ * Mapnova Click Precision Patch (map-event-level)
  * -------------------------------------------------------------------
  * Fixes the long-standing bug where clicking near a shared parcel
  * boundary selects the wrong parcel.
  *
- * Root cause: Leaflet's canvas renderer uses a 4 px tolerance buffer
- * when hit-testing polygons. At any shared border two adjacent parcels
- * BOTH pass the tolerance test, and the LAST one in the draw list
- * wins, which is rarely the parcel the user is actually pointing at.
+ * Root cause (real this time): The map-level click handler installed
+ * by index.html does a coarse bounding-box hit test:
  *
- * Fix: replace the canvas DOM `click` handler with a precise picker
- * that:
- *   1. Collects all candidate layers (tolerance buffer + draw order).
- *   2. Prefers the one whose polygon STRICTLY contains the click
- *      (point-in-polygon, no tolerance).
- *   3. Among multiple strict matches (overlapping parcels) prefers
- *      the smallest area — the more specific selection.
- *   4. If no parcel strictly contains the click, falls back to the
- *      tolerance candidate whose nearest edge is closest to the
- *      click — the parcel the cursor is sitting on the boundary of.
+ *   layer.eachLayer(function(f){
+ *     if (f.getBounds().contains(clickPt)) hitFeature = f;
+ *   });
  *
- * The DOM-level binding is intentional. `renderer._onClick` is bound
- * once at `_initContainer` time as a DOM event listener, so simply
- * reassigning `renderer._onClick` does NOT change the active handler.
- * We must remove the original DOM listener and install our own.
+ * Because parcel bounding boxes overlap heavily, this picks whichever
+ * parcel is iterated first whose bbox contains the click — almost
+ * never the one the user is pointing at near boundaries.
  *
- * Idempotent: every renderer carries a __mnPreciseClickHooked flag
- * so the patch is applied at most once per renderer instance.
+ * Fix: Replace that handler with one that does strict point-in-polygon
+ * testing. Among multiple strict matches (overlapping polygons) it
+ * prefers the smallest area. If no strict match (point exactly on
+ * shared edge) it falls back to the bbox candidate whose nearest
+ * vertex is closest to the click point.
+ *
+ * Earlier patches operated on the canvas-renderer DOM click — which
+ * is NOT in the active selection pipeline. That work was ineffective.
+ * This patch targets the actual handler that selects parcels.
  * ================================================================= */
 (function () {
   'use strict';
+  if (window.__mnPreciseMapClickInstalled) return;
 
-  function pointInRing(point, ring) {
-    var inside = false, x = point.x, y = point.y;
-    for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      var xi = ring[i].x, yi = ring[i].y;
-      var xj = ring[j].x, yj = ring[j].y;
-      var denom = (yj - yi) || 1e-12;
-      var intersect = ((yi > y) !== (yj > y)) &&
-        (x < (xj - xi) * (y - yi) / denom + xi);
-      if (intersect) inside = !inside;
-    }
-    return inside;
-  }
-
-  function strictContains(layer, lp) {
-    if (!layer || !layer._parts || !layer._parts.length) return false;
+  function ringContainsLatLng(ring, lat, lng) {
     var inside = false;
-    for (var i = 0; i < layer._parts.length; i++) {
-      if (pointInRing(lp, layer._parts[i])) inside = !inside;
+    var prev = ring[ring.length - 1];
+    for (var i = 0; i < ring.length; i++) {
+      var cur = ring[i];
+      if (((cur.lat > lat) !== (prev.lat > lat)) &&
+          (lng < (prev.lng - cur.lng) * (lat - cur.lat) / (prev.lat - cur.lat) + cur.lng)) {
+        inside = !inside;
+      }
+      prev = cur;
     }
     return inside;
   }
 
-  function polyArea(layer) {
-    if (!layer || !layer._parts || !layer._parts[0]) return Infinity;
-    var ring = layer._parts[0], a = 0;
+  function strictContainsLatLng(layer, latlng) {
+    if (!layer || !layer._latlngs) return false;
+    var ll = layer._latlngs;
+    if (!Array.isArray(ll) || !ll.length) return false;
+    var first = ll[0];
+    if (!Array.isArray(first) || !first.length) return false;
+    if (typeof first[0].lat === 'number') {
+      // Single polygon (possibly with holes): ll = [outerRing, hole1, ...]
+      var inside = false;
+      for (var i = 0; i < ll.length; i++) {
+        var ring = ll[i];
+        if (Array.isArray(ring) && ring.length && typeof ring[0].lat === 'number') {
+          if (ringContainsLatLng(ring, latlng.lat, latlng.lng)) inside = !inside;
+        }
+      }
+      return inside;
+    }
+    // Multi-polygon: ll = [[outer, hole...], [outer, hole...]]
+    for (var p = 0; p < ll.length; p++) {
+      var poly = ll[p];
+      if (!Array.isArray(poly)) continue;
+      var pInside = false;
+      for (var q = 0; q < poly.length; q++) {
+        var r = poly[q];
+        if (Array.isArray(r) && r.length && typeof r[0].lat === 'number') {
+          if (ringContainsLatLng(r, latlng.lat, latlng.lng)) pInside = !pInside;
+        }
+      }
+      if (pInside) return true;
+    }
+    return false;
+  }
+
+  function getOuterRing(layer) {
+    var ll = layer && layer._latlngs;
+    if (!Array.isArray(ll) || !ll.length) return null;
+    var first = ll[0];
+    if (!Array.isArray(first) || !first.length) return null;
+    if (typeof first[0].lat === 'number') return first;
+    if (Array.isArray(first[0]) && first[0].length && typeof first[0][0].lat === 'number') return first[0];
+    return null;
+  }
+
+  function approxArea(layer) {
+    var ring = getOuterRing(layer);
+    if (!ring) return Infinity;
+    var a = 0;
     for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      a += (ring[j].x + ring[i].x) * (ring[j].y - ring[i].y);
+      a += (ring[j].lng + ring[i].lng) * (ring[j].lat - ring[i].lat);
     }
     return Math.abs(a / 2);
   }
 
-  function distSqToSegment(px, py, x1, y1, x2, y2) {
-    var dx = x2 - x1, dy = y2 - y1;
-    var len2 = dx * dx + dy * dy;
-    var t = len2 ? ((px - x1) * dx + (py - y1) * dy) / len2 : 0;
-    if (t < 0) t = 0; else if (t > 1) t = 1;
-    var ex = x1 + t * dx, ey = y1 + t * dy;
-    var ddx = px - ex, ddy = py - ey;
-    return ddx * ddx + ddy * ddy;
-  }
-
-  function nearestEdgeDistSq(layer, lp) {
-    if (!layer || !layer._parts || !layer._parts.length) return Infinity;
+  function nearestVertexDistSq(layer, latlng) {
+    var ring = getOuterRing(layer);
+    if (!ring) return Infinity;
     var best = Infinity;
-    for (var k = 0; k < layer._parts.length; k++) {
-      var ring = layer._parts[k];
-      for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-        var d = distSqToSegment(lp.x, lp.y,
-          ring[j].x, ring[j].y, ring[i].x, ring[i].y);
-        if (d < best) best = d;
-      }
+    for (var i = 0; i < ring.length; i++) {
+      var dy = ring[i].lat - latlng.lat;
+      var dx = ring[i].lng - latlng.lng;
+      var d = dy * dy + dx * dx;
+      if (d < best) best = d;
     }
     return best;
   }
 
-  function pickBestLayer(renderer, lp) {
-    var strict = [], tol = [];
-    var node = renderer._drawFirst;
-    while (node) {
-      var layer = node.layer;
-      if (layer && layer.options && layer.options.interactive &&
-          typeof layer._containsPoint === 'function') {
-        try {
-          if (layer._containsPoint(lp)) {
-            tol.push(layer);
-            if (strictContains(layer, lp)) strict.push(layer);
-          }
-        } catch (e) {}
-      }
-      node = node.next;
-    }
-    if (strict.length === 1) return strict[0];
-    if (strict.length > 1) {
-      var bestS = strict[0], bestA = polyArea(bestS);
-      for (var i = 1; i < strict.length; i++) {
-        var a = polyArea(strict[i]);
-        if (a < bestA) { bestS = strict[i]; bestA = a; }
-      }
-      return bestS;
-    }
-    if (tol.length === 1) return tol[0];
-    if (tol.length > 1) {
-      var bestT = tol[0], bestD = nearestEdgeDistSq(bestT, lp);
-      for (var k = 1; k < tol.length; k++) {
-        var d = nearestEdgeDistSq(tol[k], lp);
-        if (d < bestD) { bestT = tol[k]; bestD = d; }
-      }
-      return bestT;
-    }
-    return null;
-  }
-
-  function makeHandler(renderer) {
-    return function (e) {
+  function makePreciseHandler(map) {
+    return function preciseClickHandler(e) {
       try {
-        var map = renderer._map;
-        if (!map) return;
-        var lp = map.mouseEventToLayerPoint(e);
-        var picked = pickBestLayer(renderer, lp);
-        if (picked && typeof renderer._fireEvent === 'function') {
-          renderer._fireEvent([picked], e);
+        if (window.activeTool) {
+          if (typeof window.handleToolClick === 'function') {
+            window.handleToolClick(e.latlng.lat, e.latlng.lng);
+          }
+          return;
         }
-        // If nothing matches, do not fire — the click was on the map
-        // background and Leaflet's other handlers (map click) will run.
-      } catch (err) {
-        try { console.warn('[Mapnova] precise click failed:', err); } catch (_) {}
-      }
+        var click = e.latlng;
+        var strictHits = [];
+        var bboxHits = [];
+        map.eachLayer(function (layer) {
+          if (!layer || !layer._layers || typeof layer.eachLayer !== 'function') return;
+          layer.eachLayer(function (f) {
+            if (!f || typeof f.getBounds !== 'function') return;
+            try {
+              var hasData = (f.feature && f.feature.properties) || f.parcelData;
+              if (!hasData) return;
+              var b = f.getBounds();
+              if (!b.contains(click)) return;
+              bboxHits.push(f);
+              if (strictContainsLatLng(f, click)) strictHits.push(f);
+            } catch (_e) {}
+          });
+        });
+
+        var hit = null;
+        if (strictHits.length) {
+          hit = strictHits[0];
+          var bestArea = approxArea(hit);
+          for (var i = 1; i < strictHits.length; i++) {
+            var a = approxArea(strictHits[i]);
+            if (a < bestArea) { hit = strictHits[i]; bestArea = a; }
+          }
+        } else if (bboxHits.length) {
+          hit = bboxHits[0];
+          var bestD = nearestVertexDistSq(hit, click);
+          for (var j = 1; j < bboxHits.length; j++) {
+            var d = nearestVertexDistSq(bboxHits[j], click);
+            if (d < bestD) { hit = bboxHits[j]; bestD = d; }
+          }
+        }
+
+        if (hit && typeof window.selectParcelLive === 'function') {
+          var p = (hit.feature && hit.feature.properties) || hit.parcelData || {};
+          hit.parcelData = p;
+          window.selectParcelLive(p, hit);
+        }
+      } catch (_err) {}
     };
   }
 
-  function patchRenderer(renderer) {
-    if (!renderer || renderer.__mnPreciseClickHooked) return false;
-    var c = renderer._container;
-    if (!c || c.tagName !== 'CANVAS') return false;
-    var evs = c._leaflet_events;
-    if (!evs) return false;
-
-    // Find the original click listener key (Leaflet stores it as
-    // "click<eventId>_<targetId>"). Remove it so our handler is the
-    // sole click responder for this canvas.
-    var clickKey = null;
-    for (var k in evs) {
-      if (k.indexOf('click') === 0 && typeof evs[k] === 'function') {
-        clickKey = k;
-        break;
+  function tryInstall() {
+    var map = window.__leafletMap || window.map;
+    if (!map || !map._events || !Array.isArray(map._events.click)) return false;
+    var handlers = map._events.click;
+    var replaced = 0;
+    for (var i = 0; i < handlers.length; i++) {
+      var src = '';
+      try { src = (handlers[i].fn || function () {}).toString(); } catch (_e) {}
+      if (src.indexOf('getBounds().contains(clickPt)') !== -1 ||
+          src.indexOf('getBounds().contains(click') !== -1) {
+        handlers[i].fn = makePreciseHandler(map);
+        replaced++;
       }
     }
-    if (!clickKey) return false;
-
-    var original = evs[clickKey];
-    try { c.removeEventListener('click', original, false); } catch (e) {}
-    delete evs[clickKey];
-
-    var handler = makeHandler(renderer);
-    c.addEventListener('click', handler, false);
-
-    renderer.__mnPreciseClickHooked = true;
-    renderer.__mnPreciseHandler = handler;
-    return true;
-  }
-
-  function findCanvasRenderers(map) {
-    var seen = new Set(), out = [];
-    if (!map || typeof map.eachLayer !== 'function') return out;
-    map.eachLayer(function (l) {
-      var r = l && l.options && l.options.renderer;
-      if (!r || seen.has(r)) return;
-      var c = r._container;
-      if (c && c.tagName === 'CANVAS') {
-        seen.add(r);
-        out.push(r);
-      }
-    });
-    return out;
-  }
-
-  function patchAll(map) {
-    if (!map) return 0;
-    var rs = findCanvasRenderers(map), n = 0;
-    for (var i = 0; i < rs.length; i++) if (patchRenderer(rs[i])) n++;
-    return n;
-  }
-
-  function attachLayerAddListener(map) {
-    if (!map || map.__mnPreciseClickListener) return;
-    map.__mnPreciseClickListener = true;
-    map.on('layeradd', function () { patchAll(map); });
-  }
-
-  // Bootstrap with a polling tick that survives slow page loads.
-  // Runs for up to 4 minutes (480 ticks at 500 ms) so that county
-  // GIS layers loaded after the initial map are also patched.
-  var tries = 0, maxTries = 480;
-  var timer = setInterval(function () {
-    tries++;
-    var map = window.__leafletMap;
-    if (map) {
-      attachLayerAddListener(map);
-      patchAll(map);
+    if (replaced > 0) {
+      window.__mnPreciseMapClickInstalled = true;
+      window.__mnPreciseMapClickCount = replaced;
+      return true;
     }
-    if (tries >= maxTries) clearInterval(timer);
-  }, 500);
+    return false;
+  }
+
+  // Try immediately, then poll for up to 4 minutes (handlers may register late).
+  if (!tryInstall()) {
+    var ticks = 0;
+    var iv = setInterval(function () {
+      ticks++;
+      if (tryInstall() || ticks > 480) clearInterval(iv);
+    }, 500);
+  }
+
+  // Also re-check on every map load/layer add in case the handler is
+  // re-bound by some downstream code.
+  function rebindCheck() {
+    if (window.__mnPreciseMapClickInstalled) return;
+    tryInstall();
+  }
+  document.addEventListener('DOMContentLoaded', rebindCheck);
+  window.addEventListener('load', rebindCheck);
 })();
