@@ -671,3 +671,29 @@ Earlier failed attempts in this session (commits reverted):
 - (earlier today) Size-sync with `_resetView` — caused basemap to disappear.
 
 Verified working live (5 clicks Hancock, 1 Marion, 1 Hamilton, all matched).
+
+
+## 2026-05-02 — Parcel click precision fix (DOM-level)
+
+**Symptom:** Clicking near a shared boundary between two adjacent parcels would select the wrong parcel — the cursor would land in parcel A but parcel B would highlight. Reproducible across every Indiana county.
+
+**Root cause:** Leaflet's canvas renderer applies a 4 px tolerance buffer to its hit-test (`_containsPoint`). At any shared border, both adjacent parcels match, and the LAST one in the renderer's draw list wins. This is rarely the parcel the user is pointing at.
+
+**Fix:** `assets/mn-clickfix.js` removes the canvas's original DOM `click` listener and installs a precise picker that:
+
+1. Collects all candidate layers within the tolerance buffer.
+2. Filters down to the layers whose polygon STRICTLY contains the click (point-in-polygon, no buffer).
+3. Among multiple strict matches (overlapping parcels) prefers the one with the smallest area — the more specific selection.
+4. Falls back to the tolerance candidate whose nearest edge is closest to the click when no parcel strictly contains it.
+
+The DOM-level binding is intentional. `renderer._onClick` is bound once at `_initContainer` time, so reassigning the property on the instance does NOT change the active handler. We have to remove the DOM listener and add our own.
+
+**Verification:** 10 ambiguous-edge clicks across Hamilton County all picked the strict-contains parcel correctly. 3 additional clicks in Marion County (Indianapolis) confirmed the same behavior. Center-of-parcel clicks still work normally; clicks on empty map areas correctly select nothing.
+
+**Files:**
+- `assets/mn-clickfix.js` — the patch (idempotent, polls every 500 ms for up to 4 minutes to handle late-loading county GIS layers).
+- `index.html` — loads the patch with `?v=2` cachebuster after `mn-bugfixes.js`.
+
+**Caveats:**
+- The `_initContainer` source registers a single handler for `click dblclick mousedown mouseup contextmenu`. We only override `click`; the other events still flow through Leaflet's original `_onClick`, which is correct (mousedown/mouseup/contextmenu have their own non-selection logic in there).
+- Future Leaflet upgrades may rename internal symbols (`_drawFirst`, `_containsPoint`, `_fireEvent`, `_leaflet_events`). The patch defends against missing methods but a major Leaflet bump should re-test the edge-click suite.
