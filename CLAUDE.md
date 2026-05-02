@@ -512,3 +512,47 @@ Approximately 12 commits made:
 - 1 CSP-Report-Only addition
 - 1 #5 closure (Supabase publishable key accepted)
 - (plus 3 docs commits to CLAUDE.md and INDIANA_GIS_INVENTORY.md)
+
+
+### 2026-05-02T16:09:18.250Z — Session 3 (cachebusters + optgroup labels)
+
+2 commits:
+
+11. perf(cache): add ?v=2 cachebusters to 8 asset script tags
+    - Was: 8 asset scripts had no version query param
+    - Now: All scripts have ?v=2 so future asset content changes propagate within minutes (not 4 hours)
+    - Verified: live page now loads with ?v=2 and shows the em-dash fixes from session 2
+
+12. fix(ui): clean corrupt NULL bytes from Indiana county dropdown optgroup labels
+    - Was: optgroup labels showed NULL+NULL+space+NAME+space+NULL+NULL (rendered as garbage in dropdown)
+    - Now: Clean labels: Central, North, East, Southeast, South, West
+
+### Summary of autonomous work to date
+
+Total commits: ~14 (security/CSP/migration done earlier + 12 this autonomous block)
+All deployed to mapnova.org and smoke-tested
+App fully functional, no regressions
+
+### What I deliberately did not do
+
+- Did not add new county configs (would require web search to discover endpoints)
+- Did not expand fsel triplet dropdowns from 3 to 59 counties (downstream tool logic uncertain)
+- Did not auto-set country dropdown from state selection (UX choice not bug)
+- Did not touch Supabase auth lock warnings (Supabase library issue, not app code)
+- Did not clean 1657+ remaining NULL bytes in HTML/JS comments (invisible to users)
+- Did not consolidate mn-bugfixes.js patches (architectural, needs human review)
+
+### What the next agent should consider doing first thing
+
+1. Verify all my fixes look correct on mapnova.org
+2. If anything visually wrong, revert that commit
+3. For step #3 of original plan (county data expansion): use web search to populate INDIANA_GIS_INVENTORY.md county-by-county
+4. The `fsel` triplet dropdowns (Address Search, Section-Township-Range, Drainage tools) still hardcoded to 3 counties — needs review of underlying tool functions to know if it's safe to expand
+5. Consider auto-setting country-sel when state-sel changes (UX improvement)
+6. Consider standardizing state dropdown labels — currently inconsistent (Indiana/Ohio have no suffix despite having county data; Alabama/Delaware/etc. have '— county data' suffix). Per mn-state-ui.js logic, suffix indicates per-county fallback (no statewide ESRI source). Fine as-is; just a UX consistency choice.
+
+### What I am stopping work on (per safety rules)
+
+I have made enough changes for one autonomous block. Each commit auto-deploys to live mapnova.org. To prevent compounding any subtle errors I haven't caught, I'm pausing further code changes here.
+
+Will continue documentation and inventory work only for the rest of the autonomous window if appropriate.
