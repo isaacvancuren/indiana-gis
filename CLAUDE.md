@@ -294,3 +294,112 @@ The expansion happened in three sessions:
 - **Session 1 (overnight):** Initial 20 states added by previous agent (mn-state-sources, mn-states, mn-state-ui scaffolding).
 - **Session 2:** Added WA, IA, AR, MS, ID, ME (6 more); built TIGER county loader; built county-FIPS WHERE filter; backfilled countyField on 15 existing states.
 - **Session 3 (this one):** Added WV, MT, WY, CO, PA, AZ, RI, NV (8 more statewide); discovered GDIT catalog; created mn-county-parcels.js with runtime catalog loader + dropdown integration; added OK static county overrides; reached **50/50 selectable**.
+
+
+---
+
+## Session log — 2026-05-02T06:24:41.811Z
+
+### Summary
+Security hardening + Cloudflare Pages migration completed. Mapnova.org now hosted on Cloudflare Pages (project: mapnova, account: 57ebbb9606bbf210a079cdb46a725e7a). DNS swap done. SSL active.
+
+### Commits this session (chronological)
+1. 25f8ab3 — security: remove broken client-side Anthropic API call from getVenturiPDF
+2. (SRI commit) — security: add SRI integrity hashes; pin supabase-js to 2.105.1
+3. b2eeb6e — security: add _headers with security headers (X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy, COOP, HSTS)
+4. 17903a8 — security: add Pages Function cors-proxy with wthgis.com allow-list (replaces corsproxy.io)
+5. e8a003c — security: route WTH identify through /api/cors-proxy (replaces corsproxy.io)
+
+### Live verification (mapnova.org via Cloudflare Pages)
+- All 5 security headers active: X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy locked down, COOP same-origin
+- /api/cors-proxy returns 400 Missing url parameter when no url supplied (function alive)
+- /api/cors-proxy returns 403 Host not allowed for non-wthgis.com targets (allow-list working)
+- /api/cors-proxy returns 400 Only https targets allowed for http: (protocol check working)
+- /api/cors-proxy returns 403 Path not allowed for non-/MapDotNet/ paths (path check working)
+- App loads visually: layers panel, map, auth all functional
+
+### Status of 5-step security plan
+- #1 DONE — Anthropic call removed (commit 25f8ab3)
+- #2 DONE — corsproxy.io replaced with own backend (commit 17903a8 + e8a003c)
+- #3 DONE — SRI hashes added; supabase pinned to 2.105.1
+- #4 PARTIAL — Security headers done; strict CSP deferred (see Decisions section)
+- #5 NOT DONE — Supabase env var (see Decisions section, needs human input)
+
+### Decisions for human review (next session)
+
+#### Decision 1: Supabase publishable key — env var or accept client-side?
+Cloudflare Pages env vars only inject into Pages Functions (server-side), not client JS. Three options:
+  a. Add a build step that runs at deploy time, reads CLOUDFLARE_PAGES env var, and injects it into a generated config.js. Adds build complexity.
+  b. Move auth to a Pages Function (POST /api/auth/login etc.) so the publishable key never touches the browser. Significant refactor.
+  c. Accept it. Supabase publishable keys are designed to be public. RLS protects data. Already verified all 7 tables have RLS tied to auth.uid(). This is what 99% of Supabase apps do.
+
+Recommendation: option (c), close out #5 as "accepted as designed". Document RLS verification in CLAUDE.md as the security control. This is what was already verified earlier this session.
+
+#### Decision 2: Strict CSP
+The app calls 50+ external hosts (every county tile/parcel server, OpenStreetMap mirrors, Carto, OpenTopoMap, Esri, NWS, Mesonet, Supabase, etc.). A strict Content-Security-Policy is high-risk for breaking the app. Recommend:
+  - Phase A: enable Content-Security-Policy-Report-Only with a permissive-but-instrumented policy. Collect violation reports for 1-2 weeks.
+  - Phase B: tighten based on real traffic.
+  - Phase C: switch from Report-Only to enforcing.
+
+I will start phase A tonight (it's zero-risk — Report-Only never blocks anything).
+
+#### Decision 3: Disable GitHub Pages
+GitHub Pages is still publishing from main in parallel. mapnova.org no longer routes there because DNS now points to Cloudflare Pages. Two paths:
+  a. Disable GitHub Pages: GitHub repo > Settings > Pages > Source: None. Click Save.
+  b. Leave it running: harmless, gives an emergency fallback (re-point DNS A records to GitHub if Cloudflare Pages goes down).
+
+I cannot do (a) myself (security/permissions surface). Recommend (a) for clarity; (b) is acceptable.
+
+#### Decision 4: CNAME file
+The CNAME file in the repo is for GitHub Pages. Cloudflare Pages doesn't use it. It's dead weight but harmless. Leaving it as-is — it provides an emergency rollback path.
+
+### Architecture notes for next agent
+
+#### Hosting
+- Live: mapnova.org -> Cloudflare Pages (project "mapnova") via DNS CNAME @ -> mapnova.pages.dev
+- Auto-deploy: push to main -> Cloudflare Pages clones, deploys in ~30-60s
+- Pages Functions live at /api/*. Currently only /api/cors-proxy. Source: functions/api/cors-proxy.js
+- Static files served from repo root (no build step)
+- _headers file at repo root applies to all routes
+- GitHub Pages also still publishing (disable per Decision 3)
+
+#### Tier system for parcel data (in js/app.js)
+- Tier 1: ElevateMaps (19 IN counties) — direct REST fetch, richest data, .elevatemaps.io subdomains
+- Tier 2: County ArcGIS services (most US counties) — needs per-county pinField, queryUrl, attribute mapping
+- Tier 3: WTH GIS / MapDotNet (21 IN counties) — coordinate-based identify, requires CORS proxy because servers don't set CORS headers, all on *.wthgis.com subdomains
+
+#### Coverage gaps (read-only inventory done this session)
+Indiana counties known to be configured (from grep of host:* in js/app.js):
+- Tier 1 (elevatemaps.io): bartholomew, cass, monroe, morgan, floyd, grant, harrison, jay, lawrence, martin, miami, orange, benton, elkhart, laporte, owen, white (17 visible — there may be 19 total per code comment)
+- Tier 3 (wthgis.com): putnam, brown, daviess, dubois, henry, jackson, jasper, jefferson, jennings, newton, noble, parke, perry, pike, pulaski, scott, starke, sullivan, union, vermillion, warren (21 confirmed)
+- Total: 38+ of 92 IN counties have parcel coverage. Remaining ~54 need Tier 2 ArcGIS configs.
+
+### Backlog (prioritized for human approval)
+
+#### High value, low risk
+- B1: Enable CSP-Report-Only with permissive policy (I'll do this tonight)
+- B2: Inventory remaining 54 IN counties — find their public GIS endpoints, classify Tier 2 configs (I'll do this tonight, write findings to a new INDIANA_GIS_INVENTORY.md, NOT commit live config changes)
+- B3: Audit dropdown text/casing for typos and inconsistency (read-only inventory tonight, write findings to DROPDOWN_AUDIT.md)
+
+#### High value, medium risk
+- B4: Add Tier 2 configs for remaining IN counties (each county = one PR with smoke test, one at a time)
+- B5: Repeat for OH, KY, IL, MI border states
+- B6: Settle Decision 1 (Supabase env var)
+
+#### Other
+- B7: Disable GitHub Pages per Decision 3
+- B8: Review and merge inventories from B2/B3 into actual fixes
+
+### Tonight's autonomous work plan
+Scope: only adds files, only Report-Only headers, no config changes to live county data.
+
+Step 1 (now): commit this CLAUDE.md update
+Step 2: add CSP-Report-Only to _headers
+Step 3: create INDIANA_GIS_INVENTORY.md — for each of the 92 IN counties, list known public GIS endpoint URL, suspected tier, status (configured/not), and priority. Do this by web search of "<county> Indiana GIS parcel viewer site" patterns and reading the existing app.js Tier 2 configs.
+Step 4: create DROPDOWN_AUDIT.md — load mapnova.org in tab, walk every dropdown and option, log text and any visible inconsistencies (e.g. "minessota" vs "Minnesota", title case mismatches, missing options).
+Step 5: create FRAMEWORK_AUDIT.md — read js/app.js, identify framework presets, country/state/county dropdowns, find code paths that break or have known TODOs.
+Step 6: append progress to CLAUDE.md every ~30 min so morning agent has continuous record.
+
+If anything I find requires a code change to live, I will write it up as a proposed diff in CLAUDE.md, NOT commit it. Human decides in the morning.
+
+---
