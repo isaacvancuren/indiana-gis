@@ -65,7 +65,7 @@
       try {
         const { data, error } = await sbc().from('user_history').select('*').eq('user_id', u.id).order('created_at',{ascending:false}).limit(100);
         if(error) throw error;
-        if(!data || data.length === 0){ $('mn-history-body').innerHTML = '<div class="mn-empty">No activity yet. Start exploring counties and parcels  your history will appear here.</div>'; return; }
+        if(!data || data.length === 0){ $('mn-history-body').innerHTML = '<div class="mn-empty">No activity yet. Start exploring counties and parcels — your history will appear here.</div>'; return; }
         const rows = data.map(h => {
           const icon = h.event_type==='login'?'fa-sign-in-alt':h.event_type==='view_county'?'fa-map':h.event_type==='view_parcel'?'fa-home':h.event_type==='session_start'?'fa-power-off':'fa-circle';
           const sub = (h.county? h.county+' " ':'') + fmtDate(h.created_at);
@@ -214,7 +214,7 @@
           '</div>'+
           '<div class="mn-label">Features ('+(feats?feats.length:0)+')</div>'+
           '<div style="margin-top:6px;">'+featsHtml+'</div>'+
-          (isOwner ? '<div class="mn-label" style="margin-top:18px;">Add Features</div><div style="font-size:12px;color:#9ca8bd;margin-top:4px;">After activating, use the toolbar above the map to draw shapes, measure distances, or select parcels  they\'ll auto-save to this project.</div>' : '');
+          (isOwner ? '<div class="mn-label" style="margin-top:18px;">Add Features</div><div style="font-size:12px;color:#9ca8bd;margin-top:4px;">After activating, use the toolbar above the map to draw shapes, measure distances, or select parcels — they\'ll auto-save to this project.</div>' : '');
       } catch(e){
         $('mn-projects-body').innerHTML = '<div class="mn-empty" style="color:#fca5a5;">Error: '+esc(e.message||e)+'</div>';
       }
