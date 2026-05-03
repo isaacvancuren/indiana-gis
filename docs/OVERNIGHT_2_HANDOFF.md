@@ -126,3 +126,31 @@ In rough priority order:
 3. If border states (IL, KY, MI) work via GDIT, consider promoting common-use counties (e.g., Lake County IL, Jefferson County KY, Wayne County MI) to explicit `mn-state-sources.js` entries with verified field maps.
 4. Consider whether to remove or polish the legacy `tool-active` / `select-active` CSS rules in `app.css` (lines 675-676). They're dead but defensive — `mn-tool-cursor.js` strips them as a safety net.
 5. Consider strict CSP enforcement once `Content-Security-Policy-Report-Only` has collected enough field reports.
+
+---
+
+## Continuation (added overnight, 2026-05-03 AM)
+
+User authorized using web search to discover GIS endpoints. WebFetch was
+firewalled for all GIS hosts (403), so verification of every candidate
+URL was impossible from this sandbox — but the SAFE additions are
+listed below. Each new commit on this branch:
+
+| # | SHA | What |
+|---|-----|------|
+| 9 | `a5ffbe8` | Added BEACON_APP_DETAIL with numeric AppID/LayerID/PageID for 22 IN counties |
+| 10 | `acaf180` | Expanded BEACON_APP_DETAIL to 35 counties |
+| 11 | `3558998` | Expanded to 41 counties (added Blackford, Clark, Floyd, Greene, Knox, Marshall) |
+| 12 | `2ed4103` | Switched primary Beacon URL form to `App=<Name>&PageTypeID=4&searchparcelid=<pin>` — works for ALL 92 IN counties via the existing BEACON_APPS map without needing the numeric triplet, and lands directly on the parcel report. The numeric BEACON_APP_DETAIL is kept as a fallback layer. Verified pattern via Decatur and Harrison official URLs in search results. |
+
+Effect: every IN county now has a Beacon button that takes the user
+straight to the parcel report (PageTypeID=4) — not just to a search
+page. The user gets parcel data without typing the PIN again.
+
+For counties Beacon doesn't actually publish, the URL 404s gracefully —
+no breakage, just an unhelpful tab.
+
+The runtime Schneider auto-discovery (commit 4 above) and GDIT fallback
+(commit 5) are unchanged and still active. They register live
+COUNTY_PARCEL_APIS entries when probes succeed, populating the parcel
+popup with owner data live in-app.
