@@ -3672,8 +3672,9 @@ function doSearch(){
   const q=document.getElementById('sfield').value.trim().toLowerCase();
   const res=document.getElementById('search-res');
   if(!q){res.innerHTML='';return;}
-  // First search loaded parcel layer
+  // First search loaded parcel layer (also matches against ownerCache for live owner names)
   const matches=[];
+  const _oc = window.ownerCache || {};
   parcelLayer.eachLayer(l=>{
     if(!l.parcelData) return;
     const p=l.parcelData;
@@ -3681,13 +3682,25 @@ function doSearch(){
     const pid=(p.pid||'').toLowerCase();
     const city=(p.city||'').toLowerCase();
     const use=(p.use||'').toLowerCase();
-    if(addr.includes(q)||pid.includes(q)||city.includes(q)||use.includes(q)) matches.push({p,l});
+    let ownerHit = false;
+    if (p.pid) {
+      const cacheKey = p.pid.replace(/[^a-zA-Z0-9]/g,'');
+      const cached = _oc[cacheKey];
+      const ownerName = (cached && (cached.owner || cached.owner_name || cached.OWNER) || p.owner || '').toLowerCase();
+      if (ownerName && ownerName.includes(q)) ownerHit = true;
+    }
+    if (ownerHit || addr.includes(q) || pid.includes(q) || city.includes(q) || use.includes(q)) {
+      matches.push({p,l,ownerHit});
+    }
   });
 
   if(!matches.length){
-    // Try Nominatim geocoder as fallback
-    res.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Searching&</div>';
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+', Bartholomew County, Indiana')}&limit=5`)
+    // Try Nominatim geocoder as fallback — bias to active county+state for relevance
+    const ctx = (window.activeCounty && window.activeCounty.name)
+      ? (window.activeCounty.name + ', Indiana')
+      : 'Indiana';
+    res.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Searching '+ctx+'…</div>';
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+', '+ctx)}&limit=5`)
       .then(r=>r.json())
       .then(data=>{
         if(!data.length){
@@ -3705,14 +3718,20 @@ function doSearch(){
     return;
   }
 
-  res.innerHTML=matches.slice(0,20).map(({p})=>`
+  res.innerHTML=matches.slice(0,20).map(({p,ownerHit})=>{
+    const cacheKey = (p.pid || '').replace(/[^a-zA-Z0-9]/g,'');
+    const cached = _oc[cacheKey];
+    const owner = (cached && (cached.owner || cached.owner_name || cached.OWNER)) || p.owner || '';
+    return `
     <div class="scard" onclick="selectFromSearch('${p.pid||p.id}')">
-      <div class="sc-top"><i class="fas fa-house" style="color:var(--accent);margin-right:5px;"></i>${p.addr}, ${p.city} ${p.zip}</div>
+      <div class="sc-top"><i class="fas ${ownerHit?'fa-user':'fa-house'}" style="color:var(--accent);margin-right:5px;"></i>${p.addr}, ${p.city} ${p.zip}</div>
+      ${ownerHit && owner ? `<div class="sc-sub" style="color:#34d399;">${owner}</div>` : ''}
       <div class="sc-sub">${p.use||'Parcel'} · ${p.pid}</div>
       <div class="sc-badges">
         <span class="pbadge bg-amber">${(p.use||'Unknown').split(' ')[0]}</span>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 function clearSearch(){document.getElementById('sfield').value='';document.getElementById('search-res').innerHTML='';}
 
