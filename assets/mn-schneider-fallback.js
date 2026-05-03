@@ -24,8 +24,8 @@
  */
 (function(){
   'use strict';
-  if (window.__mnSchneiderFallbackVersion === 1) return;
-  window.__mnSchneiderFallbackVersion = 1;
+  if (window.__mnSchneiderFallbackVersion === 2) return;
+  window.__mnSchneiderFallbackVersion = 2;
 
   const HOST = 'https://wfs.schneidercorp.com/arcgis/rest/services';
   const TIMEOUT_MS = 6000;
@@ -184,8 +184,15 @@
       window.COUNTY_PARCEL_APIS[key] = cfg;
       console.log('[mn-schneider-fallback] auto-registered', key, '→', cfg.url);
       try { window.dispatchEvent(new CustomEvent('mn:county-config-added', { detail: { county: key, source: 'schneider-fallback' } })); } catch(_e){}
+      try {
+        if (typeof window.notify === 'function') {
+          var pretty = (countyMeta && countyMeta.name) || (key.charAt(0).toUpperCase() + key.slice(1));
+          window.notify('Live owner data activated for ' + pretty + ' (Schneider WFS)', 'fa-check-circle');
+        }
+      } catch (_e) {}
     } else {
-      // Quiet — many counties just aren't on Schneider WFS.
+      // Quiet — many counties just aren't on Schneider WFS. The Beacon
+      // deep-link button in the popup remains as the user's escape hatch.
     }
   }
 
