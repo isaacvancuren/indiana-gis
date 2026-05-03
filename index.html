@@ -3662,18 +3662,39 @@ document.addEventListener('click',e=>{if(!e.target.closest('#search-wrap'))$sear
 document.getElementById('search-btn').addEventListener('click',()=>$searchInput.dispatchEvent(new Event('input')));
 $searchInput.addEventListener('keydown',e=>{if(e.key==='Enter'){$searchInput.dispatchEvent(new Event('input'));}});
 
-function selectFromSearch(pid){
+function selectFromSearch(pid, fallbackLatLng){
   // Find in live loaded parcels
   let found = null;
   parcelLayer.eachLayer(l=>{
     if(l.parcelData&&(l.parcelData.id===pid||l.parcelData.pid===pid)) found={p:l.parcelData,l:l};
   });
   if(found){
-    $searchDrop.style.display='none';
-    $searchInput.value=found.p.addr+', '+found.p.city;
+    if (typeof $searchDrop !== 'undefined' && $searchDrop) $searchDrop.style.display='none';
+    if (typeof $searchInput !== 'undefined' && $searchInput) $searchInput.value=found.p.addr+', '+found.p.city;
     const center=found.l.getBounds?found.l.getBounds().getCenter():L.latLng(found.p.lat,found.p.lon);
     map.setView(center,17);
     selectParcelLive(found.p,found.l);
+    return;
+  }
+  // Not in current viewport — zoom to its location and try again after parcels load
+  if (fallbackLatLng) {
+    map.setView(fallbackLatLng, 17);
+    if (typeof loadParcelsForView === 'function') loadParcelsForView();
+    let tries = 0;
+    const tick = setInterval(() => {
+      tries++;
+      let f = null;
+      parcelLayer.eachLayer(l=>{
+        if(l.parcelData&&(l.parcelData.id===pid||l.parcelData.pid===pid)) f={p:l.parcelData,l:l};
+      });
+      if (f) {
+        clearInterval(tick);
+        selectParcelLive(f.p, f.l);
+      } else if (tries > 20) {
+        clearInterval(tick);
+        notify('Loaded the area but could not match parcel '+pid, 'fa-info-circle');
+      }
+    }, 600);
   }
 }
 
@@ -3688,70 +3709,207 @@ function updateSearchUI(){
   document.getElementById('sfield').placeholder=phs[t]||'';
 }
 
-function doSearch(){
-  const q=document.getElementById('sfield').value.trim().toLowerCase();
-  const res=document.getElementById('search-res');
-  if(!q){res.innerHTML='';return;}
-  // First search loaded parcel layer (also matches against ownerCache for live owner names)
-  const matches=[];
-  const _oc = window.ownerCache || {};
-  parcelLayer.eachLayer(l=>{
-    if(!l.parcelData) return;
-    const p=l.parcelData;
-    const addr=(p.addr||'').toLowerCase();
-    const pid=(p.pid||'').toLowerCase();
-    const city=(p.city||'').toLowerCase();
-    const use=(p.use||'').toLowerCase();
-    let ownerHit = false;
-    if (p.pid) {
-      const cacheKey = p.pid.replace(/[^a-zA-Z0-9]/g,'');
-      const cached = _oc[cacheKey];
-      const ownerName = (cached && (cached.owner || cached.owner_name || cached.OWNER) || p.owner || '').toLowerCase();
-      if (ownerName && ownerName.includes(q)) ownerHit = true;
-    }
-    if (ownerHit || addr.includes(q) || pid.includes(q) || city.includes(q) || use.includes(q)) {
-      matches.push({p,l,ownerHit});
-    }
-  });
+// Universal search: covers addresses, parcel IDs, owner names — across the
+// entire active county (not just the loaded viewport). Strategy:
+//   1. Search loaded parcels first (instant, free).
+//   2. In parallel, run a remote query against the IGIO statewide parcel
+//      service for address/parcel matches in the active county.
+//   3. If owner search, also query the active county's Tier 1/2 ownership
+//      service (ElevateMaps for Tier 1, ArcGIS REST for Tier 2). IGIO
+//      doesn't expose owner names — Tier 1/2 do.
+//   4. Merge by parcel_id, dedupe, render.
+//   5. If nothing found, fall back to Nominatim geocoder (free-text places).
 
-  if(!matches.length){
-    // Try Nominatim geocoder as fallback — bias to active county+state for relevance
-    const ctx = (window.activeCounty && window.activeCounty.name)
-      ? (window.activeCounty.name + ', Indiana')
-      : 'Indiana';
-    res.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0;"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Searching '+ctx+'…</div>';
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+', '+ctx)}&limit=5`)
-      .then(r=>r.json())
-      .then(data=>{
-        if(!data.length){
-          res.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0;"><i class="fas fa-circle-exclamation" style="margin-right:6px;"></i>No results. Zoom in to load more parcels first.</div>';
-          return;
-        }
-        res.innerHTML=data.map(d=>`
-          <div class="scard" onclick="map.setView([${d.lat},${d.lon}],17);loadParcelsForView()">
-            <div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>${d.display_name.split(',')[0]}</div>
-            <div class="sc-sub">${d.display_name}</div>
-          </div>`).join('');
-      }).catch(()=>{
-        res.innerHTML='<div style="color:var(--text3);font-size:12px;">No results found.</div>';
-      });
+const SEARCH_DEBOUNCE_MS = 250;
+let _searchSeq = 0; // monotonic id so stale promises don't overwrite newer results
+
+function doSearch(){
+  const qRaw = document.getElementById('sfield').value.trim();
+  const q = qRaw.toLowerCase();
+  const res = document.getElementById('search-res');
+  if (!qRaw) { res.innerHTML = ''; return; }
+
+  const seq = ++_searchSeq;
+  const stype = (document.getElementById('stype') || {}).value || 'address';
+  const _oc = window.ownerCache || {};
+
+  // Coordinates: short-circuit to setView
+  if (stype === 'coords') {
+    const m = qRaw.match(/(-?\d+(?:\.\d+)?)\s*[,\s]\s*(-?\d+(?:\.\d+)?)/);
+    if (m) {
+      const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+      map.setView([lat, lng], 17);
+      if (typeof loadParcelsForView === 'function') loadParcelsForView();
+      L.circleMarker([lat,lng], { radius:8, color:'#06b6d4', fillColor:'#06b6d4', fillOpacity:0.7, weight:2 }).addTo(map);
+      res.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0;">Centered on '+lat.toFixed(5)+', '+lng.toFixed(5)+'.</div>';
+    } else {
+      res.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0;">Format: <code>lat, lng</code></div>';
+    }
     return;
   }
 
-  res.innerHTML=matches.slice(0,20).map(({p,ownerHit})=>{
-    const cacheKey = (p.pid || '').replace(/[^a-zA-Z0-9]/g,'');
-    const cached = _oc[cacheKey];
-    const owner = (cached && (cached.owner || cached.owner_name || cached.OWNER)) || p.owner || '';
-    return `
-    <div class="scard" onclick="selectFromSearch('${p.pid||p.id}')">
-      <div class="sc-top"><i class="fas ${ownerHit?'fa-user':'fa-house'}" style="color:var(--accent);margin-right:5px;"></i>${p.addr}, ${p.city} ${p.zip}</div>
-      ${ownerHit && owner ? `<div class="sc-sub" style="color:#34d399;">${owner}</div>` : ''}
-      <div class="sc-sub">${p.use||'Parcel'} · ${p.pid}</div>
-      <div class="sc-badges">
-        <span class="pbadge bg-amber">${(p.use||'Unknown').split(' ')[0]}</span>
-      </div>
-    </div>`;
-  }).join('');
+  // Step 1: instant local search
+  const localMatches = [];
+  parcelLayer.eachLayer(l => {
+    if (!l.parcelData) return;
+    const p = l.parcelData;
+    const addr  = (p.addr  || '').toLowerCase();
+    const pid   = (p.pid   || '').toLowerCase();
+    const city  = (p.city  || '').toLowerCase();
+    const use   = (p.use   || '').toLowerCase();
+    let ownerHit = false, ownerName = '';
+    if (p.pid) {
+      const cacheKey = p.pid.replace(/[^a-zA-Z0-9]/g,'');
+      const cached   = _oc[cacheKey];
+      ownerName = (cached && (cached.owner || cached.owner_name || cached.OWNER) || p.owner || '').toLowerCase();
+      if (ownerName && ownerName.includes(q)) ownerHit = true;
+    }
+    let hit = false;
+    if (stype === 'parcel')   hit = pid.includes(q);
+    else if (stype === 'owner') hit = ownerHit;
+    else if (stype === 'address') hit = addr.includes(q) || city.includes(q);
+    else hit = ownerHit || addr.includes(q) || pid.includes(q) || city.includes(q) || use.includes(q);
+    if (hit) localMatches.push({ p, l, ownerHit, ownerName, source:'local' });
+  });
+
+  // Render local results immediately so the user sees something
+  function render(matches, statusLine){
+    if (seq !== _searchSeq) return; // stale
+    const seen = new Set(); const dedup = [];
+    matches.forEach(m => {
+      const k = (m.p.pid || m.p.id || JSON.stringify(m.p.lat+','+m.p.lon)).toLowerCase();
+      if (seen.has(k)) return; seen.add(k); dedup.push(m);
+    });
+    const html = dedup.slice(0,40).map(({p,ownerHit,ownerName,source}) => {
+      const cacheKey = (p.pid || '').replace(/[^a-zA-Z0-9]/g,'');
+      const cached   = _oc[cacheKey];
+      const owner    = (cached && (cached.owner || cached.owner_name || cached.OWNER)) || ownerName || p.owner || '';
+      const sourceTag = source === 'remote' ? '<span style="font-size:9px;color:#60a5fa;margin-left:6px;">[county-wide]</span>' : '';
+      const ll = (p.lat && p.lon) ? `,L.latLng(${p.lat},${p.lon})` : '';
+      return `
+      <div class="scard" onclick="selectFromSearch('${(p.pid||p.id||'').replace(/'/g,"\\'")}'${ll})">
+        <div class="sc-top"><i class="fas ${ownerHit?'fa-user':'fa-house'}" style="color:var(--accent);margin-right:5px;"></i>${(p.addr||'(no address)')}${p.city?', '+p.city:''}${p.zip?' '+p.zip:''}${sourceTag}</div>
+        ${owner ? `<div class="sc-sub" style="color:${ownerHit?'#34d399':'#94a3b8'};"><i class="fas fa-user" style="font-size:9px;margin-right:4px;opacity:.7;"></i>${owner}</div>` : ''}
+        <div class="sc-sub">${p.use||'Parcel'} · ${p.pid||''}</div>
+      </div>`;
+    }).join('');
+    res.innerHTML = (statusLine ? `<div style="font-size:10px;color:var(--text3);padding:4px 0 6px;">${statusLine}</div>` : '') + (html || '<div style="color:var(--text3);font-size:12px;padding:8px 0;">No matches.</div>');
+  }
+
+  render(localMatches, localMatches.length
+    ? `${localMatches.length} match${localMatches.length===1?'':'es'} in current view · searching county-wide…`
+    : 'Searching county-wide…');
+
+  // Step 2: remote search across the active county (and owner endpoint if applicable)
+  Promise.all([_remoteParcelSearch(q, stype), _remoteOwnerSearch(qRaw, stype)])
+    .then(([igio, owners]) => {
+      if (seq !== _searchSeq) return;
+      const remote = (igio || []).concat(owners || []).map(p => ({ p, ownerHit: stype === 'owner', source:'remote' }));
+      const all = localMatches.concat(remote);
+      const status = all.length
+        ? `${all.length} result${all.length===1?'':'s'}`
+        : null;
+      if (all.length) {
+        render(all, status);
+      } else {
+        // Final fallback: Nominatim geocoder for free-text places
+        const ctx = (window.activeCounty && window.activeCounty.name) ? (window.activeCounty.name + ', Indiana') : 'Indiana';
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(qRaw+', '+ctx)}&limit=5`)
+          .then(r => r.json()).then(data => {
+            if (seq !== _searchSeq) return;
+            if (!data.length) {
+              res.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0;"><i class="fas fa-circle-exclamation" style="margin-right:6px;"></i>No results in '+ctx+'.</div>';
+              return;
+            }
+            res.innerHTML = data.map(d => `
+              <div class="scard" onclick="map.setView([${d.lat},${d.lon}],17);loadParcelsForView()">
+                <div class="sc-top"><i class="fas fa-map-pin" style="color:var(--accent);margin-right:5px;"></i>${d.display_name.split(',')[0]}</div>
+                <div class="sc-sub">${d.display_name}</div>
+              </div>`).join('');
+          }).catch(()=>{
+            res.innerHTML = '<div style="color:var(--text3);font-size:12px;">No results found.</div>';
+          });
+      }
+    });
+}
+
+// IGIO statewide query for parcel id / address. Returns array of normalized parcel-shape objects.
+async function _remoteParcelSearch(q, stype) {
+  const qSafe = q.replace(/'/g, "''");
+  const cKey = (typeof getCountyKey === 'function') ? getCountyKey() : null;
+  const fips = cKey && window.INDIANA_COUNTIES && window.INDIANA_COUNTIES[cKey] && window.INDIANA_COUNTIES[cKey].fips;
+  if (!fips) return [];
+  const QU = qSafe.toUpperCase();
+  let where;
+  if (stype === 'parcel') {
+    where = `(UPPER(parcel_id) LIKE '%${QU}%' OR UPPER(state_parcel_id) LIKE '%${QU}%') AND county_fips=${parseInt(fips,10)}`;
+  } else { // address (and 'all' variant)
+    where = `(UPPER(prop_add) LIKE '%${QU}%' OR UPPER(prop_city) LIKE '%${QU}%') AND county_fips=${parseInt(fips,10)}`;
+  }
+  const url = 'https://gisdata.in.gov/server/rest/services/Hosted/Parcel_Boundaries_of_Indiana_Current/FeatureServer/0/query'
+    + '?where=' + encodeURIComponent(where)
+    + '&outFields=parcel_id,state_parcel_id,prop_add,prop_city,prop_zip,dlgf_prop_class_code,latitude,longitude'
+    + '&returnGeometry=false&resultRecordCount=40&f=json';
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return [];
+    const j = await r.json();
+    return (j.features || []).map(f => {
+      const a = f.attributes || {};
+      return {
+        id:  a.parcel_id || a.state_parcel_id,
+        pid: a.parcel_id || a.state_parcel_id,
+        addr: a.prop_add || '',
+        city: a.prop_city || '',
+        zip:  a.prop_zip  || '',
+        use:  (typeof getPropClass === 'function' ? getPropClass(a.dlgf_prop_class_code || '') : 'Parcel'),
+        lat:  parseFloat(a.latitude)  || 0,
+        lon:  parseFloat(a.longitude) || 0
+      };
+    });
+  } catch (e) { return []; }
+}
+
+// Active-county Tier 1/2 query for owner-name match. Returns parcel-shape objects.
+async function _remoteOwnerSearch(qRaw, stype) {
+  if (stype !== 'owner') return [];
+  const cKey = (typeof getCountyKey === 'function') ? getCountyKey() : null;
+  const cfg = cKey && (typeof getOwnershipConfig === 'function') && getOwnershipConfig(cKey);
+  if (!cfg || !cfg.url) return [];
+  const Q = qRaw.replace(/'/g, "''").toUpperCase();
+  let ownerField, addrField, pinField;
+  if (cfg.tier === 1) {
+    ownerField = 'owner'; addrField = 'property_street'; pinField = 'pin_18';
+  } else {
+    ownerField = cfg.ownerField || 'OWNER';
+    addrField  = cfg.addrField  || 'PROP_ADDR';
+    pinField   = cfg.pinField   || 'PARCEL_ID';
+  }
+  const where = `UPPER(${ownerField}) LIKE '%${Q}%'`;
+  const out = [pinField, ownerField, addrField].filter(Boolean).join(',');
+  const url = cfg.url.replace(/\/$/,'') + (cfg.url.endsWith('/query') ? '' : '/query')
+    + '?where=' + encodeURIComponent(where)
+    + '&outFields=' + encodeURIComponent(out)
+    + '&returnGeometry=false&resultRecordCount=40&f=json';
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return [];
+    const j = await r.json();
+    return (j.features || []).map(f => {
+      const a = f.attributes || {};
+      const pid = a[pinField] || '';
+      const owner = a[ownerField] || '';
+      const addr  = a[addrField]  || '';
+      // Cache the owner immediately so the popup can show it without a refetch
+      if (pid && owner) {
+        const ck = String(pid).replace(/[^a-zA-Z0-9]/g,'');
+        window.ownerCache = window.ownerCache || {};
+        window.ownerCache[ck] = window.ownerCache[ck] || {};
+        window.ownerCache[ck].owner = owner;
+      }
+      return { id: pid, pid: pid, addr: addr, city: '', zip: '', use: 'Parcel', lat: 0, lon: 0, owner: owner };
+    });
+  } catch (e) { return []; }
 }
 function clearSearch(){document.getElementById('sfield').value='';document.getElementById('search-res').innerHTML='';}
 
