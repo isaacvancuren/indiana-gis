@@ -292,7 +292,7 @@
     </div>
   <div id="sbody">
 
-    <!--    LAYERS TAB — Dynamically generated per county    -->
+    <!--  LAYERS TAB — Dynamically generated per county  -->
     <div class="tpane on" id="tab-layers">
 
       <!-- STATEWIDE LAYERS — always present, always working -->
@@ -307,7 +307,7 @@
 
     </div><!-- /layers -->
 
-    <!--    PARCEL TAB    -->
+    <!--  PARCEL TAB  -->
     <div class="tpane" id="tab-parcel">
       <div id="parcel-empty">
         <div class="pe-icon"><i class="fas fa-map-location-dot"></i></div>
@@ -457,7 +457,7 @@
       </div>
     </div><!-- /parcel -->
 
-    <!--    TOOLS TAB    -->
+    <!--  TOOLS TAB  -->
     <div class="tpane" id="tab-tools">
 
       <!-- ========== INQUIRE MODE (default) ========== -->
@@ -657,7 +657,7 @@
 
     </div><!-- /tools -->
 
-    <!--    SEARCH TAB    -->
+    <!--  SEARCH TAB  -->
     <div class="tpane" id="tab-search">
       <div class="sf">
         <div>
@@ -966,7 +966,7 @@
 </aside>
 </div>
 
-<!--     NOTIFICATION     -->
+<!--  NOTIFICATION  -->
 <div id="notif"><i class="fas fa-circle-check"></i><span id="notif-msg">Done</span></div>
 
 <!-- PPPPPPPPPP MODALS PPPPPPPPPP -->
@@ -1356,7 +1356,7 @@ function setBasemap(name,btn){
 //  Bartholomew County FIPS: 18005 / county_id: 3
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
-//    Parcel layer — Canvas renderer is dramatically faster than SVG             
+//  Parcel layer — Canvas renderer is dramatically faster than SVG 
 // Canvas renders all polygons as a single bitmap — no DOM elements per parcel
 const canvasRenderer = L.canvas({ padding: 0.5, tolerance: 4 });
 const parcelLayer = L.featureGroup().addTo(map);
@@ -1372,7 +1372,7 @@ const MAX_CONCURRENT   = 3;  // max simultaneous IGIO requests
 let   pendingTiles     = []; // queue of bbox objects waiting to fetch
 let   loadDebounceTimer = null;
 
-//    IGIO FeatureServer endpoint                                               
+//  IGIO FeatureServer endpoint 
 const IGIO_BASE = 'https://gisdata.in.gov/server/rest/services/Hosted/Parcel_Boundaries_of_Indiana_Current/FeatureServer/0/query';
 
 function buildParcelQuery(bbox) {
@@ -1408,7 +1408,7 @@ function tileBBox(row, col, tileSize, pad) {
   };
 }
 
-//    Debounced tile loader — prevents rapid-pan from flooding requests          
+//  Debounced tile loader — prevents rapid-pan from flooding requests 
 function loadParcelsForView() {
   clearTimeout(loadDebounceTimer);
   loadDebounceTimer = setTimeout(_doLoadParcels, 150);
@@ -1440,7 +1440,7 @@ function _doLoadParcels() {
   _drainTileQueue();
 }
 
-//    Concurrent-capped tile fetcher                                             
+//  Concurrent-capped tile fetcher 
 function _drainTileQueue() {
   while (pendingTiles.length > 0 && activeRequests < MAX_CONCURRENT) {
     const bbox = pendingTiles.shift();
@@ -1477,7 +1477,7 @@ async function _fetchOneTile(bbox) {
   }
 }
 
-//    Non-blocking chunked renderer                                             
+//  Non-blocking chunked renderer 
 // Builds a batch of layers then adds them all at once per frame
 function _renderChunked(features, startIdx, chunkSize) {
   const end   = Math.min(startIdx + chunkSize, features.length);
@@ -1495,7 +1495,7 @@ function _renderChunked(features, startIdx, chunkSize) {
   }
 }
 
-//    Build one parcel polygon layer (no map mutation yet)                      
+//  Build one parcel polygon layer (no map mutation yet) 
 function _buildParcelLayer(feature) {
   if (!feature || !feature.geometry) return null;
   const props = feature.properties || {};
@@ -1597,13 +1597,13 @@ function _buildParcelLayer(feature) {
   return poly;
 }
 
-//    Single-feature entry point (backwards compat)                              
+//  Single-feature entry point (backwards compat) 
 function _addParcelFeature(feature) {
   const l = _buildParcelLayer(feature);
   if (l) parcelLayer.addLayer(l);
 }
 
-//    Backwards-compat aliases                                                   
+//  Backwards-compat aliases 
 function renderGeoJSONParcels(features) { _renderChunked(features, 0, 80); }
 function fetchParcelTile(bbox)          { pendingTiles.push(bbox); _drainTileQueue(); }
 
@@ -1621,7 +1621,7 @@ function getPropClass(code) {
   return map[code] || (code ? `Class ${code}` : 'Unknown');
 }
 
-//    Get centroid from GeoJSON geometry                                        
+//  Get centroid from GeoJSON geometry 
 function getBBoxCenter(geometry) {
   try {
     const coords = geometry.type === 'Polygon' ? geometry.coordinates[0]
@@ -1634,13 +1634,13 @@ function getBBoxCenter(geometry) {
   } catch(e) { return { lat:39.201, lng:-85.921 }; }
 }
 
-//    Show/hide the loading spinner                                             
+//  Show/hide the loading spinner 
 function showLoadingIndicator(show) {
   const el = document.getElementById('loading');
   if (el) el.classList.toggle('gone', !show);
 }
 
-//    Zoom hint                                                                  
+//  Zoom hint 
 let zoomHintTimer;
 function showZoomHint() {
   const el = document.getElementById('zoom-hint');
@@ -1650,7 +1650,7 @@ function showZoomHint() {
   zoomHintTimer = setTimeout(()=>el.classList.remove('on'), 2500);
 }
 
-//    Select a live (API-loaded) parcel                                         
+//  Select a live (API-loaded) parcel 
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  OWNERSHIP DATA — ElevateMaps Layer 92
@@ -1717,17 +1717,17 @@ const ELEVATE_URL = getElevateUrl; // function reference, call as getElevateUrl(
 const ownerCache = {};
 let ownerCacheLoading = false;
 
-//    TIER 1: ElevateMaps Layer 92                                              
+//  TIER 1: ElevateMaps Layer 92 
 // EM_LAYER92, EM_BASE, L92_FIELDS, COUNTY_PARCEL_APIS moved to assets/county-parcel-apis.js
 
-//    Get county key                                                             
+//  Get county key 
 function getCountyKey() {
   if (!activeCounty) return 'bartholomew';
   return activeCounty.name.toLowerCase()
     .replace(' county','').replace(/[^a-z]/g,'');
 }
 
-//    Get ownership config for county                                           
+//  Get ownership config for county 
 function getOwnershipConfig(cKey) {
   if (EM_LAYER92[cKey]) {
     return { tier: 1, url: EM_BASE + EM_LAYER92[cKey] + '/MapServer/92/query' };
@@ -1744,7 +1744,7 @@ function getOwnershipUrl(cKey) {
 }
 
 
-//    Tier 3: WTH GIS (MapDotNet coordinate-based)                               
+//  Tier 3: WTH GIS (MapDotNet coordinate-based) 
 // WTH hosts use MapDotNet tiles. We convert Leaflet lat/lng to WTH tile coords.
 function _latlngToWthTile(lat, lng, zoom) {
   // MapDotNet uses Web Mercator EPSG:3857 internally, pixel coords at zoom
@@ -1822,9 +1822,9 @@ function _normalizeWthAttrs(raw) {
   };
 }
 
-//    End Tier 3                                                                 
+//  End Tier 3 
 
-//    Main ownership fetch                                                       
+//  Main ownership fetch 
 async function fetchOwnershipByPin(pin) {
   if (!pin) return null;
   const cacheKey = pin.replace(/[^a-zA-Z0-9]/g,'');
@@ -1885,7 +1885,7 @@ async function fetchOwnershipByPin(pin) {
   return null;
 }
 
-//    Normalize tier-2 county attributes to common L92 schema                   
+//  Normalize tier-2 county attributes to common L92 schema 
 function _normalizeCountyAttr(raw, cfg) {
   const get = f => (f && raw[f] != null) ? String(raw[f]).trim() : null;
   const getNum = f => (f && raw[f] != null) ? parseFloat(raw[f]) : null;
@@ -1927,7 +1927,7 @@ function _normalizeCountyAttr(raw, cfg) {
   };
 }
 
-//    Bulk viewport prefetch                                                     
+//  Bulk viewport prefetch 
 async function prefetchOwnershipForView() {
   if (map.getZoom() < 14) return;
   const cKey = getCountyKey();
@@ -1981,7 +1981,7 @@ async function prefetchOwnershipForView() {
   }
 }
 
-//    Apply ownerCache to already-rendered parcels                               
+//  Apply ownerCache to already-rendered parcels 
 function _applyOwnerCacheToParcels() {
   parcelLayer.eachLayer(l => {
     if (!l.parcelData || l.parcelData._enriched) return;
@@ -1990,7 +1990,7 @@ function _applyOwnerCacheToParcels() {
   });
 }
 
-//    Enrich parcel data with ownership attributes                               
+//  Enrich parcel data with ownership attributes 
 function enrichParcelData(p, attr) {
   if (!attr) return;
   if (attr.owner)                p.owner  = attr.owner;
@@ -2020,7 +2020,7 @@ function enrichParcelData(p, attr) {
 
 window._selectedLiveParcel = null;
 
-//    Get best parcel lookup URL (used in popup)                                 
+//  Get best parcel lookup URL (used in popup) 
 function getParcelLookupUrl(pin) {
   const cKey = getCountyKey();
   // Use BEACON_APPS if available (defined further below), else DLGF fallback
@@ -2041,7 +2041,7 @@ function selectParcelLive(p, layer) {
   layer.setStyle({ color:'#ffffff', weight:3, fillOpacity:0.45 });
   layer.bringToFront();
 
-  //    Pre-enrich from ownerCache immediately (no async wait needed if prefetch ran)
+  //  Pre-enrich from ownerCache immediately (no async wait needed if prefetch ran)
   if (!p._enriched) {
     const cacheKey = (p.pid || '').replace(/[^a-zA-Z0-9]/g,'');
     if (ownerCache[cacheKey]) {
@@ -2143,7 +2143,7 @@ function buildPopupHTML(p) {
 
 function selectParcel(p, layer) { selectParcelLive(p, layer); }
 
-//    Full PRC panel with real ownership data                                    
+//  Full PRC panel with real ownership data 
 function loadLiveParcelPanel(p) {
   // Ensure the parcel detail is visible (called from both selectParcel and openPRCPanel)
   const emptyEl  = document.getElementById('parcel-empty');
@@ -2360,12 +2360,12 @@ function buildLiveReport(p) {
     </div>`;
 }
 
-//    renderParcels is now a wrapper that triggers the live API load             
+//  renderParcels is now a wrapper that triggers the live API load 
 function renderParcels() {
   loadParcelsForView();
 }
 
-//    Map event handlers — debounced, no bringToFront thrash                    
+//  Map event handlers — debounced, no bringToFront thrash 
 // zoomend always fires before moveend — skip moveend after a zoom
 let _lastZoomTime = 0;
 
@@ -2416,17 +2416,17 @@ function buildFullReport(p) { buildLiveReport(p); }
 //     match by name keyword, cache. Then remove+readd active layers.
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
-//    Statewide gisdata.in.gov services (confirmed live 2025)                   
+//  Statewide gisdata.in.gov services (confirmed live 2025) 
 // IGIO_SVC, IGIO_ADMIN, *_BASE, *_LAYERS moved to assets/county-layer-engines.js
 
-//    Beacon counties without a public ArcGIS Online layer org (parcel data only via COUNTY_PARCEL_APIS / Beacon link fallback)               
+//  Beacon counties without a public ArcGIS Online layer org (parcel data only via COUNTY_PARCEL_APIS / Beacon link fallback) 
 //   vigo, kosciusko, elkhart, cass, grant, laporte, jackson — no county-hosted ArcGIS REST
 //   feature server with rich layer catalog discoverable as of 2026-04-28. They use the Beacon
 //   Schneider HTML viewer for everything beyond the IndianaMap statewide parcels feed.
 //   Re-investigate periodically; new public AGOL orgs may appear over time.
-//    County layer registry                                                      
+//  County layer registry 
 
-//    County GIS server registry — CONFIRMED live URLs only                      
+//  County GIS server registry — CONFIRMED live URLs only 
 // All URLs verified from browser via fetch() before inclusion
 // COUNTY_GIS_SERVERS moved to assets/county-gis-servers.js (loaded synchronously above this <script> block)
 // IndianaMap statewide fallback layers - applies to any county not in COUNTY_GIS_SERVERS / countyLayerCache
@@ -2488,7 +2488,7 @@ const STATEWIDE_FALLBACK_LAYERS = [
 // MUNICIPAL_GIS_SERVERS moved to assets/municipal-gis-servers.js (loaded via <script src> in <head>)
 
 
-//    County layer registry                                                      
+//  County layer registry 
 const countyLayerCache = {
   bartholomew: BARTHOLOMEW_LAYERS,
   johnson:     JOHNSON_LAYERS,
@@ -2755,7 +2755,7 @@ async function refreshCountyLayers() {
   setTimeout(prefetchOwnershipForView, 1800);
 }
 
-//    Permanent layer registry (statewide — all 92 counties)                    
+//  Permanent layer registry (statewide — all 92 counties) 
 const gisLayers = {};
 gisLayers['parcels']        = parcelLayer;
 gisLayers['flood']          = (function(){
@@ -2972,7 +2972,7 @@ const legendData = {
 
 const activeLyrs = new Set(['parcels']);
 
-//    Universal layer toggle                                                     
+//  Universal layer toggle 
 function toggleLyr(name, cb) {
   const layer = gisLayers[name];
   if (!layer) {
@@ -3759,10 +3759,10 @@ function buildBeaconUrl(k, pin) {
 }
 function buildGatewayUrl() { return 'https://gateway.ifionline.org/TaxBillLookUp/Default.aspx'; }
 
-//    Try to get signed Venturi blob PDF URL via ElevateMaps ArcGIS API         
+//  Try to get signed Venturi blob PDF URL via ElevateMaps ArcGIS API 
 // The ElevateMaps MapServer exposes a "GetAttachments" or related endpoint
 // that returns signed Azure blob URLs for stored PRC PDFs.
-//    Fetch signed Venturi PDF URL via Claude API (server-side, no CORS)        
+//  Fetch signed Venturi PDF URL via Claude API (server-side, no CORS) 
 async function getVenturiPDF(em, pin) {
   if (!em.appId || !em.folderId) return null;
 
@@ -3793,7 +3793,7 @@ async function getVenturiPDF(em, pin) {
   return null;
 }
 
-//    Main PRC button                                                            
+//  Main PRC button 
 function openPRCPanel() {
   const p = window._selectedLiveParcel;
   if (!p || !p.pid) {
@@ -3811,7 +3811,7 @@ function openPRCPanel() {
 }
 
 async function _openPRCForCounty(cKey, p, pin) {
-  //    1. Marion County — real PDF server                                     
+  //  1. Marion County — real PDF server 
   if (cKey === 'marion') {
     const num = pin.replace(/[^0-9]/g, '').substring(0, 10);
     if (num) {
@@ -3821,7 +3821,7 @@ async function _openPRCForCounty(cKey, p, pin) {
     }
   }
 
-  //    2. Hamilton County — real property reports server                      
+  //  2. Hamilton County — real property reports server 
   if (cKey === 'hamilton') {
     const num = pin.replace(/[^0-9]/g, '').padEnd(16, '0').substring(0, 16);
     if (num) {
@@ -3831,7 +3831,7 @@ async function _openPRCForCounty(cKey, p, pin) {
     }
   }
 
-  //    3. ElevateMaps / Venturi CAMA counties                                 
+  //  3. ElevateMaps / Venturi CAMA counties 
   const em = EM_COUNTIES[cKey];
   if (em && em.folderId && em.appId) {
     notify('Fetching signed PRC PDF from Venturi CAMA&', 'fa-spinner');
@@ -3845,18 +3845,18 @@ async function _openPRCForCounty(cKey, p, pin) {
     } catch(e) { /* fall through to generated PDF */ }
   }
 
-  //    4. XSoft Engage counties                                               
+  //  4. XSoft Engage counties 
   if (XSOFT_SLUGS[cKey]) {
     window.open(`https://engage.xsoftinc.com/${XSOFT_SLUGS[cKey]}/Map/GetParcelDetail?parcelId=${encodeURIComponent(pin)}`, '_blank', 'noopener');
     notify('Opened XSoft assessor record', 'fa-file-lines');
     return;
   }
 
-  //    5. All counties — generate complete PDF from real assessment data       
+  //  5. All counties — generate complete PDF from real assessment data 
   generateLocalPRC(p);
 }
 
-//    Generate a proper PRC PDF in the browser                                   
+//  Generate a proper PRC PDF in the browser 
 // Uses real ownership & assessment data from ElevateMaps Layer 92.
 // Opens in a new window with a "Save as PDF" button — one click to PDF.
 function generateLocalPRC(p) {
@@ -4000,7 +4000,7 @@ let activeCounty = (function(){
   return null;
 })();
 
-//    County selector handler                                                    
+//  County selector handler 
 document.getElementById('county-sel').addEventListener('change', function() {
   const key = this.value;
   if (!key) {
@@ -4391,7 +4391,7 @@ function setLyrOpac(name, slider) {
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  FILTER CHIP QUICK TOGGLES
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-//    Filter chip quick toggles                                                  
+//  Filter chip quick toggles 
 // Chips toggle static layers (flood, imagery) or search dynamic layer panel
 function chipToggle(chipName, chipEl) {
   // Map chip names to stable statewide layer keys or dynamic category matches
