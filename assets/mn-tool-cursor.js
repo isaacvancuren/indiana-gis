@@ -12,8 +12,8 @@
  *   3. On boot, ensures the map starts in inquire mode (no class).
  */
 (function(){
-  if (window.__mnToolCursorVersion === 1) return;
-  window.__mnToolCursorVersion = 1;
+  if (window.__mnToolCursorVersion === 2) return;
+  window.__mnToolCursorVersion = 2;
 
   function isToolActive() {
     try {
@@ -72,16 +72,33 @@
     return true;
   }
 
-  // Drift watchdog: keep #map class in sync with actual tool state. Cheap, runs
-  // 4x/sec, only mutates DOM when state diverges.
+  // Drift watchdog: keep #map class in sync with actual tool state. Also
+  // strips stale inline cursor and pointer-events left behind by legacy code
+  // paths (e.g. setBasemap variants, _cancelDraw forgetting a step). Self-
+  // healing — runs 4x/sec, mutates only when state diverges.
   function syncDrift() {
     var el = mapEl();
     if (!el) return;
-    var want = isToolActive();
+    var active = isToolActive();
     var have = el.classList.contains('mn-tool-active');
-    if (want !== have) {
-      if (want) el.classList.add('mn-tool-active');
+    if (active !== have) {
+      if (active) el.classList.add('mn-tool-active');
       else el.classList.remove('mn-tool-active');
+    }
+    if (!active) {
+      // Inline cursor wins over CSS — kill any stale tool-cursor.
+      var cur = el.style.cursor;
+      if (cur && (cur === 'crosshair' || cur === 'text' || cur === 'cell')) {
+        el.style.cursor = '';
+      }
+      // Overlay pane must accept pointer events when no tool is running,
+      // otherwise the parcel canvas (which lives in this pane) goes deaf.
+      try {
+        var op = document.querySelector('.leaflet-overlay-pane');
+        if (op && op.style.pointerEvents === 'none') {
+          op.style.pointerEvents = '';
+        }
+      } catch (_e) {}
     }
   }
 

@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all';this.onload=null;"/><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/></noscript>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/app.css?v=2">
 
   <!-- Supabase Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
@@ -3039,8 +3039,8 @@ function activateTool(name, btn) {
   measureTotal = 0;
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
   btn?.classList.add('on');
-  try{document.querySelector('.leaflet-overlay-pane').style.pointerEvents='none';}catch(e){}
-  try{document.getElementById('map').style.cursor='crosshair';}catch(e){}
+  // Cursor and overlay-pane pointer-events are managed declaratively by
+  // mn-tool-cursor.js (toggles #map.mn-tool-active based on activeTool state).
   // Show units panel for measure tools
   var unitsEl=document.getElementById('mn-meas-units');
   if(unitsEl) unitsEl.style.display=(name==='distance'||name==='area'||name==='rectmeas')?'block':'none';
@@ -3294,7 +3294,7 @@ function activateDraw(type, btn) {
   btn?.classList.add('on');
   _cancelDraw();
   btn?.classList.add('on');
-  try{var _op=document.querySelector('.leaflet-overlay-pane');if(_op)_op.style.pointerEvents='none';}catch(e){}
+  // Cursor managed by mn-tool-cursor.js via #map.mn-tool-active class.
   var instrMap = {
     polygon:'Click to add points • Double-click to finish',
     freehand:'Click and drag to draw freehand shape',
@@ -5769,7 +5769,7 @@ window.selectParcel = function(p, layer) {
   <script src="assets/mn-county-parcels.js?v=2" defer></script>
 <script src="assets/mn-bugfixes.js?v=7" defer></script>
 <script src="assets/mn-clickfix.js?v=7" defer></script>
-<script src="assets/mn-tool-cursor.js?v=1" defer></script>
+<script src="assets/mn-tool-cursor.js?v=2" defer></script>
 <script src="assets/mn-project-features.js?v=1" defer></script>
 </body>
 </html>
