@@ -830,7 +830,7 @@
 
   <!-- Status bar -->
   <div id="sbar">
-    <span id="coords-disp"><i class="fas fa-crosshairs" style="margin-right:4px;"></i>Lat: — � Lon: —</span>
+    <span id="coords-disp"><i class="fas fa-crosshairs" style="margin-right:4px;"></i>Lat: — · Lon: —</span>
     <span class="sbar-sep"></span>
     <span id="zoom-disp"><i class="fas fa-search-plus" style="margin-right:4px;"></i>Zoom: 12</span>
     <span class="sbar-sep"></span>
@@ -1297,12 +1297,12 @@ const map = L.map('map',{
   zoom: __initView.z,
   zoomControl: false,
   attributionControl: true,
-  scrollWheelZoom: true,   // � enable trackpad/mouse wheel zoom
-  touchZoom: true,         // � enable pinch zoom on mobile
+  scrollWheelZoom: true,   // → enable trackpad/mouse wheel zoom
+  touchZoom: true,         // → enable pinch zoom on mobile
   doubleClickZoom: true,
   dragging: true,
   tap: true,
-  preferCanvas: true       // � faster rendering for many polygons
+  preferCanvas: true       // → faster rendering for many polygons
 });
 
 const basemaps = {
@@ -1682,29 +1682,26 @@ const ELEVATE_URL = getElevateUrl; // function reference, call as getElevateUrl(
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 
-// ������������������������������������������������������������������������������
-//  !! BASELINE LOCKED — DO NOT MODIFY THIS OWNERSHIP SYSTEM !!
+// ============================================================================== //  !! BASELINE LOCKED — DO NOT MODIFY THIS OWNERSHIP SYSTEM !!
 //
 //  This is the confirmed working ownership model for ALL Indiana counties.
 //  Bartholomew County is the baseline. Every county uses this exact system.
 //
 //  WHAT WORKS (DO NOT CHANGE):
-//  " Hover tooltip  � address, city, owner name (green), AV, property class
-//  " Click popup    � opens immediately, updates with full owner data async
-//  " Owner panel    � owner, mailing addr, AV, land/improv, acres, sale, twp
-//  " Prefetch       � bulk-loads ownerCache on pan/zoom so data is instant
+//  " Hover tooltip  · address, city, owner name (green), AV, property class
+//  " Click popup    · opens immediately, updates with full owner data async
+//  " Owner panel    · owner, mailing addr, AV, land/improv, acres, sale, twp
+//  " Prefetch       · bulk-loads ownerCache on pan/zoom so data is instant
 //
 //  DATA FLOW (DO NOT CHANGE):
-//  1. prefetchOwnershipForView() � fills ownerCache for all visible parcels
-//  2. mouseover � reads ownerCache � shows owner in tooltip immediately
-//  3. click � selectParcelLive() � buildPopupHTML() � shows popup
-//  4. fetchOwnershipByPin() � enrichParcelData() � popup.setContent() updates
+//  1. prefetchOwnershipForView() · fills ownerCache for all visible parcels
+//  2. mouseover · reads ownerCache · shows owner in tooltip immediately
+//  3. click · selectParcelLive() · buildPopupHTML() · shows popup
+//  4. fetchOwnershipByPin() · enrichParcelData() · popup.setContent() updates
 //
 //  TIER 1 (ElevateMaps Layer 92 — 19 counties): direct fetch, richest data
 //  TIER 2 (County ArcGIS services): normalized via _normalizeCountyAttr()
-// ������������������������������������������������������������������������������
-
-// PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+// ============================================================================== // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  OWNERSHIP DATA SYSTEM — ALL 92 INDIANA COUNTIES
 //
 //  TIER 1: ElevateMaps Layer 92 — 19 counties (richest: owner, AV, sales)
@@ -2058,7 +2055,7 @@ function selectParcelLive(p, layer) {
     .setContent(buildPopupHTML(p))
     .openOn(map);
 
-  document.getElementById('sel-info').textContent = '=� ' + (p.addr || 'Parcel selected');
+  document.getElementById('sel-info').textContent = '=· ' + (p.addr || 'Parcel selected');
   loadLiveParcelPanel(p);
 
   // If still not enriched, fetch async and update when it arrives
@@ -2091,10 +2088,9 @@ function buildPopupHTML(p) {
         <div class="mpop-owner" style="color:${hasOwner ? '#34d399' : '#94a3b8'};">
           ${hasOwner
             ? `<i class="fas fa-user" style="font-size:9px;margin-right:4px;opacity:.8;"></i>${p.owner}`
-            
             : p._enriched
-              ? `<span style="font-size:10px;">${p.use || 'Parcel'} � ${p.pid ? p.pid.substring(0,14)+'&' : 'No PIN'}</span>`
-              : `<span style="font-size:10px;color:#60a5fa;"><i class="fas fa-circle-notch fa-spin" style="margin-right:4px;"></i>Loading owner&</span>`
+              ? `<span style="font-size:10px;">${p.use || 'Parcel'} · ${p.pid ? p.pid.substring(0,14)+'…' : 'No PIN'}</span>`
+              : `<span style="font-size:10px;color:#60a5fa;"><i class="fas fa-circle-notch fa-spin" style="margin-right:4px;"></i>Loading owner…</span>`
           }
         </div>
       </div>
@@ -2115,7 +2111,7 @@ function buildPopupHTML(p) {
           <span class="mpop-v">${hasAcres ? p.acres + ' ac' : '—'}</span></div>
         ${p.txdate && p.txdate !== '—'
           ? `<div class="mpop-row"><span class="mpop-k">Last Sale</span>
-             <span class="mpop-v" style="font-size:10px;">${p.txdate}${p.txprice && p.txprice !== '—' ? ' � ' + p.txprice : ''}</span></div>` : ''}
+             <span class="mpop-v" style="font-size:10px;">${p.txdate}${p.txprice && p.txprice !== '—' ? ' · ' + p.txprice : ''}</span></div>` : ''}
         ${p.twp && p.twp !== '—'
           ? `<div class="mpop-row"><span class="mpop-k">Township</span>
              <span class="mpop-v" style="font-size:10px;">${p.twp}</span></div>` : ''}
@@ -2169,7 +2165,7 @@ function loadLiveParcelPanel(p) {
   // PRC Header — use active county name
   const countyName = (activeCounty && activeCounty.name) ? activeCounty.name : 'Indiana';
   set('prc-county-name', countyName);
-  set('prc-doc-sub',     `Tax Year 2024 � Pay 2025 � DLGF Official Record`);
+  set('prc-doc-sub',     `Tax Year 2024 · Pay 2025 · DLGF Official Record`);
   set('prc-pid',    p.pid);
   set('prc-use',    p.use);
   set('prc-tv',     p.tv);
@@ -2229,7 +2225,7 @@ function loadLiveParcelPanel(p) {
   set('pi-legal',  p.legal);
 
   // Physical
-  set('pi-acressf', p.sqft ? p.acres + ' ac � ' + p.sqft + ' sf' : p.acres);
+  set('pi-acressf', p.sqft ? p.acres + ' ac · ' + p.sqft + ' sf' : p.acres);
   set('pi-yr',     p.yr);
   set('pi-struct', p.struct);
   set('pi-bed',    p.bed);
@@ -2255,14 +2251,14 @@ function loadLiveParcelPanel(p) {
         <div class="prow" style="border-bottom:1px solid var(--border);padding:4px 0;">
           <span class="pk">${s.dt}</span>
           <span class="pv" style="color:var(--accent);font-weight:700;">${s.price}</span>
-          <span class="pk" style="margin-top:2px;">${s.buyer||'—'} � ${s.type||'—'}</span>
+          <span class="pk" style="margin-top:2px;">${s.buyer||'—'} · ${s.type||'—'}</span>
         </div>`).join('');
     } else {
       salesDiv.innerHTML = `<div class="prow">
         <span class="pk">No sale data</span>
         <span class="pv" style="font-size:10px;color:var(--text3);">
           <a href="https://gateway.ifionline.org/TaxBillLookUp/Default.aspx" target="_blank" style="color:var(--accent);">
-            Search Gateway Tax Bill Lookup �
+            Search Gateway Tax Bill Lookup ·
           </a>
         </span></div>`;
     }
@@ -2278,7 +2274,7 @@ function buildLiveReport(p) {
     <div style="border-bottom:1px solid var(--border);margin-bottom:14px;padding-bottom:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--text);">${p.addr||'Parcel'}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px;">${p.city||'Columbus'}, IN ${p.zip||'47201'} � Bartholomew County</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">${p.city||'Columbus'}, IN ${p.zip||'47201'} · Bartholomew County</div>
         <div style="font-size:11px;color:var(--text3);margin-top:1px;">Parcel: ${p.pid}</div>
       </div>
       <a href="https://beacon.schneidercorp.com/Application.aspx?App=BartholomewCountyIN&PageType=GeneralInfo&ParcelNumber=${encodeURIComponent(p.pid)}"
@@ -2316,7 +2312,7 @@ function buildLiveReport(p) {
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:9px;">
         <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Deed Reference</b><br>
         <span style="font-family:monospace;font-size:11px;color:var(--text);">${p.deed||'—'}</span><br>
-        <span style="color:var(--text3);font-size:11px;">Transferred: ${p.txdate||'—'} � ${p.txprice||'—'}</span>
+        <span style="color:var(--text3);font-size:11px;">Transferred: ${p.txdate||'—'} · ${p.txprice||'—'}</span>
       </div>
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:9px;">
         <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Neighborhood</b><br>
@@ -2334,11 +2330,11 @@ function buildLiveReport(p) {
       <b style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Sales History</b>
       ${p.sales && p.sales.length ? p.sales.map(s=>`
         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
-          <span style="color:var(--text3);">${s.dt} � ${s.type}</span>
+          <span style="color:var(--text3);">${s.dt} · ${s.type}</span>
           <span style="color:var(--accent);font-weight:700;">${s.price}</span>
         </div>`).join('') :
-        `<div style="font-size:11px;color:var(--text3);padding:6px 0;">No sales on record � 
-          <a href="https://gateway.ifionline.org/TaxBillLookUp/Default.aspx" target="_blank" style="color:var(--accent);">Search Gateway �</a>
+        `<div style="font-size:11px;color:var(--text3);padding:6px 0;">No sales on record · 
+          <a href="https://gateway.ifionline.org/TaxBillLookUp/Default.aspx" target="_blank" style="color:var(--accent);">Search Gateway ·</a>
         </div>`}
     </div>
 
@@ -2356,7 +2352,7 @@ function buildLiveReport(p) {
         links.push('<a href="https://www.in.gov/dlgf/understanding-your-tax-bill/assessed-value-search/" target="_blank" style="display:inline-block;background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.25);padding:4px 10px;border-radius:4px;font-weight:700;text-decoration:none;margin:2px 2px 2px 0;"><i class="fas fa-search-dollar" style="margin-right:4px;"></i>DLGF Assessed Value</a>');
         return links.join('');
       })()}
-      <div style="margin-top:6px;color:var(--text3);font-size:10px;">Parcel geometry: Indiana IGIO (gisdata.in.gov) � Assessment: ElevateMaps Layer 92 / Bartholomew County Assessor</div>
+      <div style="margin-top:6px;color:var(--text3);font-size:10px;">Parcel geometry: Indiana IGIO (gisdata.in.gov) · Assessment: ElevateMaps Layer 92 / Bartholomew County Assessor</div>
     </div>`;
 }
 
@@ -2570,7 +2566,7 @@ const ArcGISCountyLayer = L.TileLayer.extend({
     this._ts     = Date.now();
     L.TileLayer.prototype.initialize.call(this, '', {
       opacity: opacity || 0.75, tileSize: 256,
-      attribution: '� County GIS', maxZoom: 22, keepBuffer: 0
+      attribution: '· County GIS', maxZoom: 22, keepBuffer: 0
     });
   },
   bumpTimestamp: function() { this._ts = Date.now(); },
@@ -2596,7 +2592,7 @@ const StatewideLayer = L.TileLayer.extend({
     this._ids  = Array.isArray(ids) ? ids : [ids];
     L.TileLayer.prototype.initialize.call(this, '', {
       opacity: opacity || 0.75, tileSize: 256,
-      attribution: '� IGIO / IndianaMap', maxZoom: 22
+      attribution: '· IGIO / IndianaMap', maxZoom: 22
     });
   },
   getTileUrl: function(coords) {
@@ -3626,7 +3622,7 @@ $searchInput.addEventListener('input', function(){
   $searchDrop.innerHTML=matches.slice(0,8).map(({p,l})=>`
     <div class="sdr-item" onclick="selectFromSearch('${p.pid||p.id}')">
       <div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-house" style="color:var(--accent);"></i></div>
-      <div class="sdr-text"><div class="t1">${p.addr}, ${p.city}</div><div class="t2">${p.use||'Parcel'} � ${p.pid}</div></div>
+      <div class="sdr-text"><div class="t1">${p.addr}, ${p.city}</div><div class="t2">${p.use||'Parcel'} · ${p.pid}</div></div>
     </div>`).join('');
   $searchDrop.style.display='block';
 });
@@ -3700,7 +3696,7 @@ function doSearch(){
   res.innerHTML=matches.slice(0,20).map(({p})=>`
     <div class="scard" onclick="selectFromSearch('${p.pid||p.id}')">
       <div class="sc-top"><i class="fas fa-house" style="color:var(--accent);margin-right:5px;"></i>${p.addr}, ${p.city} ${p.zip}</div>
-      <div class="sc-sub">${p.use||'Parcel'} � ${p.pid}</div>
+      <div class="sc-sub">${p.use||'Parcel'} · ${p.pid}</div>
       <div class="sc-badges">
         <span class="pbadge bg-amber">${(p.use||'Unknown').split(' ')[0]}</span>
       </div>
@@ -3713,7 +3709,7 @@ function clearSearch(){document.getElementById('sfield').value='';document.getEl
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 map.on('mousemove',e=>{
   document.getElementById('coords-disp').innerHTML=
-    `<i class="fas fa-crosshairs" style="margin-right:4px;color:var(--text3);"></i>Lat: ${e.latlng.lat.toFixed(5)} � Lon: ${e.latlng.lng.toFixed(5)}`;
+    `<i class="fas fa-crosshairs" style="margin-right:4px;color:var(--text3);"></i>Lat: ${e.latlng.lat.toFixed(5)} · Lon: ${e.latlng.lng.toFixed(5)}`;
 });
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
@@ -3876,7 +3872,7 @@ function generateLocalPRC(p) {
 <div class="page">
 
 <div class="print-btn">
-  <span>Property Record Card — ${v(p.addr)}, ${county}<br>Assessment Year 2024 � Pay 2025 � DLGF Official Record</span>
+  <span>Property Record Card — ${v(p.addr)}, ${county}<br>Assessment Year 2024 · Pay 2025 · DLGF Official Record</span>
   <button onclick="window.print()"> Save as PDF / Print</button>
 </div>
 
@@ -3887,11 +3883,11 @@ function generateLocalPRC(p) {
   </div>
   <div class="hdr-main">
     <h1>${county}</h1>
-    <p>State of Indiana — Assessor's Office${fips ? ' � FIPS ' + fips : ''}</p>
+    <p>State of Indiana — Assessor's Office${fips ? ' · FIPS ' + fips : ''}</p>
   </div>
   <div class="hdr-right">
     <div class="doc">Property Record Card</div>
-    <div class="sub">Assessment Year 2024 � Tax Year Pay 2025</div>
+    <div class="sub">Assessment Year 2024 · Tax Year Pay 2025</div>
     <div class="badge">DLGF Official Assessment Record</div>
   </div>
 </div>
@@ -3960,7 +3956,7 @@ function generateLocalPRC(p) {
       <tr><th>Date</th><th class="right">Sale Price</th><th>Buyer</th><th>Deed Reference</th><th>Type</th></tr>
       ${p.sales && p.sales.length
         ? p.sales.map(s => `<tr><td>${s.dt||'—'}</td><td class="money">${s.price||'—'}</td><td>${s.buyer||v(p.owner)}</td><td class="mono" style="font-size:9px;">${v(p.deed)}</td><td>${s.type||'Transfer'}</td></tr>`).join('')
-        : '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:8px;">No sales recorded � Contact county recorder for deed history</td></tr>'
+        : '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:8px;">No sales recorded · Contact county recorder for deed history</td></tr>'
       }
     </table>
   </div>
@@ -3972,8 +3968,8 @@ function generateLocalPRC(p) {
 </div>
 
 <div class="footer">
-  <div>Mapnova Universal Mapping Platform � Data: Indiana IGIO + ElevateMaps Layer 92 (${county} Assessor)<br>For official records contact the ${county} Assessor's Office. This document is for informational purposes only.</div>
-  <div style="text-align:right;">Generated: ${now}<br>Parcel ID: ${v(p.pid)}${fips ? ' � FIPS: ' + fips : ''}</div>
+  <div>Mapnova Universal Mapping Platform · Data: Indiana IGIO + ElevateMaps Layer 92 (${county} Assessor)<br>For official records contact the ${county} Assessor's Office. This document is for informational purposes only.</div>
+  <div style="text-align:right;">Generated: ${now}<br>Parcel ID: ${v(p.pid)}${fips ? ' · FIPS: ' + fips : ''}</div>
 </div>
 
 </div>
@@ -4176,7 +4172,7 @@ const COUNTY_STATS = {
 };
 function fmtNum(n){ if(n>=1000) return n.toLocaleString(); return String(n); }
 function fmtAssessed(b){ if(b>=1) return "$"+b.toFixed(1)+"B"; return "$"+(b*1000).toFixed(0)+"M"; }
-function fmtArea(a){ if(a>=1000) return a.toLocaleString()+" mi�"; return a+" mi�"; }
+function fmtArea(a){ if(a>=1000) return a.toLocaleString()+" mi·"; return a+" mi·"; }
 function updateCountyAnalytics(countyKey){
   const stats = COUNTY_STATS[countyKey];
   const c = INDIANA_COUNTIES[countyKey];
@@ -4563,7 +4559,7 @@ function runBuffer() {
   res.innerHTML = `
     <div style="font-weight:700;color:var(--accent);margin-bottom:6px;"><i class="fas fa-circle-check" style="margin-right:6px;"></i>${within.length} parcels found within ${dist} ${unit}</div>
     ${within.map(p=>`<div style="padding:3px 0;border-bottom:1px solid rgba(240,165,0,.1);color:var(--text2);">
-      <span style="font-weight:600;color:var(--text);">${p.addr}</span> — ${p.tv} � ${p.acres} ac
+      <span style="font-weight:600;color:var(--text);">${p.addr}</span> — ${p.tv} · ${p.acres} ac
     </div>`).join('')}
   `;
 
@@ -4660,7 +4656,7 @@ function runQuery() {
   });
 
   // Show results bar
-  showQResults(results, `Query: ${field} � ${results.length} results`);
+  showQResults(results, `Query: ${field} · ${results.length} results`);
   notify(`Query matched ${results.length} parcel${results.length!==1?'s':''}`, 'fa-filter');
   closeModal('query-modal');
 }
@@ -4687,7 +4683,7 @@ function showQResults(results, title) {
     <div class="qr-card" onclick="selectFromSearch('${p.id}')">
       <div class="qr-addr">${p.addr}</div>
       <div class="qr-val">${p.tv}</div>
-      <div class="qr-sub">${p.owner.substring(0,26)} � ${p.acres} ac</div>
+      <div class="qr-sub">${p.owner.substring(0,26)} · ${p.acres} ac</div>
     </div>`).join('');
   document.getElementById('qresults-bar').classList.add('open');
   document.getElementById('qr-arrow').style.transform = 'rotate(180deg)';
@@ -4790,7 +4786,7 @@ function runProximity() {
           <i class="fas fa-location-dot" style="color:var(--accent);font-size:12px;flex-shrink:0;"></i>
           <div style="flex:1;">
             <div style="font-size:11px;font-weight:600;color:var(--text);">${p.addr}</div>
-            <div style="font-size:10px;color:var(--text3);">${p.use} � ${p.tv}</div>
+            <div style="font-size:10px;color:var(--text3);">${p.use} · ${p.tv}</div>
           </div>
           <div style="font-size:10px;color:var(--accent2);font-weight:700;flex-shrink:0;">${p.dist.toFixed(2)} mi</div>
         </div>`).join('')
@@ -5049,7 +5045,7 @@ window.selectParcel = function(p, layer) {
     h += '<div class="mn-acc-section"><div class="mn-acc-avatar-row">';
     h += '<div class="mn-acc-avatar" id="mn-acc-avatar">'+avatarHtml+'</div>';
     h += '<div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-upload">Upload picture</button>'+removeBtn+'</div>';
-    h += '<div style="font-size:11px;color:#8b91a5;">PNG, JPG, WebP, or GIF � max 5MB</div></div></div></div>';
+    h += '<div style="font-size:11px;color:#8b91a5;">PNG, JPG, WebP, or GIF · max 5MB</div></div></div></div>';
     h += '<div class="mn-acc-section"><h3>Profile details</h3>';
     h += '<div class="mn-acc-row">';
     h += '<div class="mn-acc-field"><label>Display name</label><input type="text" id="mn-acc-display_name" value="'+escHtml(p.display_name)+'" /></div>';

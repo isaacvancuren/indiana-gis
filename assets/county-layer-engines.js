@@ -16,7 +16,7 @@ const IGIO_ADMIN = IGIO_SVC + '/Administrative_Boundaries_of_Indiana_2024/Featur
 //  UNIVERSAL DYNAMIC GIS LAYER SYSTEM v18
 //  
 //  Architecture:
-//  1. On county switch: fetch MapServer?f=json � get real layer list
+//  1. On county switch: fetch MapServer?f=json → get real layer list
 //  2. Build layer panel HTML dynamically from that list  
 //  3. Each checkbox maps directly to its real layer ID — no guessing
 //  4. Statewide layers (FEMA, imagery) always present

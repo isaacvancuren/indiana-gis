@@ -113,11 +113,11 @@ const INDIANA_COUNTIES = {
 //  PRC PDF SYSTEM — DIRECT & RELIABLE
 //
 //  Sources (in priority order):
-//  1. Marion County  � maps.indy.gov (real PDF server)
-//  2. Hamilton County � secure2.hamiltoncounty.in.gov (real PDF server)
-//  3. ElevateMaps counties � fetch SAS URL from ElevateMaps API, open Venturi blob PDF
-//  4. XSoft Engage counties � engage.xsoftinc.com detail page
-//  5. All others � professional browser-generated PDF from real assessment data
+//  1. Marion County  → maps.indy.gov (real PDF server)
+//  2. Hamilton County → secure2.hamiltoncounty.in.gov (real PDF server)
+//  3. ElevateMaps counties → fetch SAS URL from ElevateMaps API, open Venturi blob PDF
+//  4. XSoft Engage counties → engage.xsoftinc.com detail page
+//  5. All others → professional browser-generated PDF from real assessment data
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 // ElevateMaps county config: appId required for API auth, folderId for Azure blob

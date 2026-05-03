@@ -350,7 +350,7 @@
     
     saveFeature: async function(featureType, geom, properties, label){
       await sbcInit();
-      if(!MNProjects.state.current){ toast('No active project. Click Projects � Activate one first.', 3500); return null; }
+      if(!MNProjects.state.current){ toast('No active project. Click Projects → Activate one first.', 3500); return null; }
       const u = curUser(); if(!u){ toast('Sign in to save.'); return null; }
       try {
         const { data, error } = await sbc().from('project_features').insert({ project_id: MNProjects.state.current, feature_type: featureType, label: label||null, geom: geom, properties: properties||{} }).select().single();
