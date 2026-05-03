@@ -3632,35 +3632,133 @@ function convertCoords(){
 const $searchInput = document.getElementById('search-input');
 const $searchDrop = document.getElementById('search-dropdown');
 
-$searchInput.addEventListener('input', function(){
-  const q=this.value.trim().toLowerCase();
-  if(q.length<2){$searchDrop.style.display='none';return;}
-  // Search loaded parcel layer
-  const matches=[];
-  parcelLayer.eachLayer(l=>{
-    if(!l.parcelData) return;
-    const p=l.parcelData;
-    const addr=(p.addr||'').toLowerCase();
-    const pid=(p.pid||'').toLowerCase();
-    const city=(p.city||'').toLowerCase();
-    if(addr.includes(q)||pid.includes(q)||city.includes(q)) matches.push({p,l});
-  });
-  if(!matches.length){
-    // If no loaded parcels match yet, show a geocode hint
-    $searchDrop.innerHTML=`<div class="sdr-item"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-magnifying-glass" style="color:var(--accent);"></i></div><div class="sdr-text"><div class="t1">Search "${q}"</div><div class="t2">Press Enter to geocode or zoom in to load parcels</div></div></div>`;
-    $searchDrop.style.display='block';
+// Header search: covers address, parcel ID, owner name, coordinates.
+// Mirrors the sidebar Search tab's behavior — runs three lookups in parallel
+// (loaded viewport + IGIO statewide + active county owner endpoint), merges
+// and renders into the dropdown below the header search field.
+let _hdrSearchSeq = 0;
+let _hdrSearchTimer = null;
+
+function _renderHdrDrop(items, statusLine) {
+  if (!items || !items.length) {
+    if (statusLine) {
+      $searchDrop.innerHTML = `<div class="sdr-item" style="opacity:.7;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-magnifying-glass" style="color:var(--text3);"></i></div><div class="sdr-text"><div class="t1">${statusLine}</div></div></div>`;
+      $searchDrop.style.display = 'block';
+    } else {
+      $searchDrop.style.display = 'none';
+    }
     return;
   }
-  $searchDrop.innerHTML=matches.slice(0,8).map(({p,l})=>`
-    <div class="sdr-item" onclick="selectFromSearch('${p.pid||p.id}')">
-      <div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-house" style="color:var(--accent);"></i></div>
-      <div class="sdr-text"><div class="t1">${p.addr}, ${p.city}</div><div class="t2">${p.use||'Parcel'} · ${p.pid}</div></div>
-    </div>`).join('');
-  $searchDrop.style.display='block';
+  // Dedupe by pid
+  const seen = new Set();
+  const unique = items.filter(m => {
+    const k = (m.p.pid || m.p.id || '').toLowerCase();
+    if (!k || seen.has(k)) return !!m.p.lat;
+    seen.add(k); return true;
+  });
+  $searchDrop.innerHTML = (statusLine ? `<div style="padding:6px 10px;font-size:10px;color:var(--text3);background:rgba(255,255,255,.02);">${statusLine}</div>` : '') + unique.slice(0, 12).map(({p, ownerHit, ownerName, source}) => {
+    const _oc = window.ownerCache || {};
+    const ck  = (p.pid || '').replace(/[^a-zA-Z0-9]/g,'');
+    const cached = _oc[ck];
+    const owner = (cached && (cached.owner || cached.owner_name || cached.OWNER)) || ownerName || p.owner || '';
+    const ll = (p.lat && p.lon) ? `,L.latLng(${p.lat},${p.lon})` : '';
+    const tag = source === 'remote' ? '<span style="font-size:9px;color:#60a5fa;margin-left:6px;">[county-wide]</span>' : '';
+    return `
+    <div class="sdr-item" onclick="selectFromSearch('${(p.pid||p.id||'').replace(/'/g,"\\'")}'${ll})">
+      <div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas ${ownerHit?'fa-user':'fa-house'}" style="color:var(--accent);"></i></div>
+      <div class="sdr-text">
+        <div class="t1">${p.addr || '(no address)'}${p.city ? ', ' + p.city : ''}${tag}</div>
+        ${owner ? `<div class="t2" style="color:${ownerHit?'#34d399':'var(--text3)'};"><i class="fas fa-user" style="font-size:9px;margin-right:4px;opacity:.7;"></i>${owner}</div>` : ''}
+        <div class="t2">${p.use || 'Parcel'} · ${p.pid || ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  $searchDrop.style.display = 'block';
+}
+
+function _runHdrSearch() {
+  const qRaw = $searchInput.value.trim();
+  const q = qRaw.toLowerCase();
+  if (q.length < 2) { $searchDrop.style.display = 'none'; return; }
+  const seq = ++_hdrSearchSeq;
+
+  // Coordinates: short-circuit
+  const coordMatch = qRaw.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,\s]\s*(-?\d+(?:\.\d+)?)\s*$/);
+  if (coordMatch) {
+    const lat = parseFloat(coordMatch[1]), lng = parseFloat(coordMatch[2]);
+    if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      $searchDrop.innerHTML = `<div class="sdr-item" onclick="map.setView([${lat},${lng}],17);loadParcelsForView();$searchDrop.style.display='none';"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-crosshairs" style="color:var(--accent);"></i></div><div class="sdr-text"><div class="t1">Center on ${lat.toFixed(5)}, ${lng.toFixed(5)}</div><div class="t2">Coordinates</div></div></div>`;
+      $searchDrop.style.display = 'block';
+      return;
+    }
+  }
+
+  // Step 1: instant local search across viewport
+  const _oc = window.ownerCache || {};
+  const localMatches = [];
+  parcelLayer.eachLayer(l => {
+    if (!l.parcelData) return;
+    const p = l.parcelData;
+    const addr = (p.addr || '').toLowerCase();
+    const pid  = (p.pid  || '').toLowerCase();
+    const city = (p.city || '').toLowerCase();
+    let ownerHit = false, ownerName = '';
+    if (p.pid) {
+      const ck = p.pid.replace(/[^a-zA-Z0-9]/g,'');
+      const cached = _oc[ck];
+      ownerName = (cached && (cached.owner || cached.owner_name || cached.OWNER) || p.owner || '').toLowerCase();
+      if (ownerName && ownerName.includes(q)) ownerHit = true;
+    }
+    if (ownerHit || addr.includes(q) || pid.includes(q) || city.includes(q)) {
+      localMatches.push({ p, l, ownerHit, ownerName, source: 'local' });
+    }
+  });
+
+  // Render local results immediately
+  _renderHdrDrop(localMatches, localMatches.length
+    ? `${localMatches.length} match${localMatches.length===1?'':'es'} on screen — searching county-wide…`
+    : 'Searching county-wide…');
+
+  // Step 2: remote queries — always do address + parcel match, plus owner if the
+  // query has letters (likely an owner name). We don't know the search "type"
+  // from the header bar so we run a permissive set in parallel.
+  const looksLikeName = /[a-z]/i.test(qRaw) && !/\d/.test(qRaw);
+  const tasks = [
+    _remoteParcelSearch(q, 'address'),
+    _remoteParcelSearch(q, 'parcel'),
+  ];
+  if (looksLikeName) tasks.push(_remoteOwnerSearch(qRaw, 'owner'));
+
+  Promise.all(tasks).then(results => {
+    if (seq !== _hdrSearchSeq) return;
+    const remote = [].concat(...results.filter(Boolean)).map(p => ({ p, ownerHit: !!p.owner, ownerName: p.owner || '', source: 'remote' }));
+    const all = localMatches.concat(remote);
+    if (all.length) {
+      _renderHdrDrop(all, `${all.length} result${all.length===1?'':'s'} for "${qRaw}"`);
+    } else {
+      $searchDrop.innerHTML = `<div class="sdr-item"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-magnifying-glass" style="color:var(--text3);"></i></div><div class="sdr-text"><div class="t1">No matches in this county</div><div class="t2">Press Enter to geocode "${qRaw}"</div></div></div>`;
+      $searchDrop.style.display = 'block';
+    }
+  });
+}
+
+$searchInput.addEventListener('input', function(){
+  clearTimeout(_hdrSearchTimer);
+  _hdrSearchTimer = setTimeout(_runHdrSearch, 250);
 });
-document.addEventListener('click',e=>{if(!e.target.closest('#search-wrap'))$searchDrop.style.display='none';});
-document.getElementById('search-btn').addEventListener('click',()=>$searchInput.dispatchEvent(new Event('input')));
-$searchInput.addEventListener('keydown',e=>{if(e.key==='Enter'){$searchInput.dispatchEvent(new Event('input'));}});
+$searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    clearTimeout(_hdrSearchTimer);
+    _runHdrSearch();
+  }
+});
+document.getElementById('search-btn').addEventListener('click', () => {
+  clearTimeout(_hdrSearchTimer);
+  _runHdrSearch();
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap')) $searchDrop.style.display = 'none';
+});
 
 function selectFromSearch(pid, fallbackLatLng){
   // Find in live loaded parcels
