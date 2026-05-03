@@ -2127,7 +2127,11 @@ function buildPopupHTML(p) {
         <button class="mpop-btn" style="background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.25);"
           onclick="switchTab('parcel')" title="Full parcel details">
           <i class="fas fa-list"></i> Details
-        </button>
+        </button>${lookupUrl ? `
+        <button class="mpop-btn" style="background:rgba(250,204,21,.12);color:#facc15;border:1px solid rgba(250,204,21,.25);"
+          onclick="window.open('${lookupUrl}','_blank','noopener')" title="Open in Beacon (Schneider)">
+          <i class="fas fa-up-right-from-square"></i> Beacon
+        </button>` : ''}
         <button class="mpop-btn mpop-btn-s" onclick="map.closePopup()" title="Close">
           <i class="fas fa-xmark"></i>
         </button>
