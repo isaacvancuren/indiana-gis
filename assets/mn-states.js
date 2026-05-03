@@ -122,7 +122,9 @@
 
   // ----- STATE-AWARE FETCH INTERCEPTOR -----
   // Indiana original parcel queries hit gisdata.in.gov. When activeState != IN,
-  // we rewrite the URL to the active state\u2019s SOURCE and normalize the response.
+  // we rewrite the URL to the active state's SOURCE and normalize the response.
+  // If the state has no statewide SOURCE entry but a county is selected, fall
+  // back to the per-county GDIT catalog (window.MNCountyParcels.lookup).
   var IN_PATTERN = /gisdata\.in\.gov\/server\/rest\/services\/Hosted\/Parcel_Boundaries_of_Indiana_Current\/FeatureServer\/0\/query/;
   var origFetch = window.fetch.bind(window);
   window.fetch = function(input, init){
@@ -132,23 +134,121 @@
         var active = getActive();
         if (active !== "IN") {
           var src = SOURCES[active];
-          if (!src || src.type !== "esri") {
-            // No source for this state - return empty GeoJSON
-            return Promise.resolve(new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}}));
+          if (src && src.type === "esri") {
+            var rewritten = _rewriteUrl(url, src, active);
+            return origFetch(rewritten, init).then(function(r){
+              if (!r.ok) return r;
+              return r.clone().json().then(function(data){
+                var normalized = _normalizeFeatures(data, src, active);
+                return new Response(JSON.stringify(normalized), {headers:{"content-type":"application/json"}, status:200});
+              }).catch(function(){ return r; });
+            });
           }
-          var rewritten = _rewriteUrl(url, src, active);
-          return origFetch(rewritten, init).then(function(r){
-            if (!r.ok) return r;
-            return r.clone().json().then(function(data){
-              var normalized = _normalizeFeatures(data, src, active);
-              return new Response(JSON.stringify(normalized), {headers:{"content-type":"application/json"}, status:200});
-            }).catch(function(){ return r; });
-          });
+          // No statewide source \u2014 try GDIT per-county fallback
+          var countyAttrs = _getActiveCountyAttrs();
+          if (countyAttrs && window.MNCountyParcels && typeof window.MNCountyParcels.lookup === "function") {
+            return _gditCountyFetch(url, active, countyAttrs).catch(function(){
+              return new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}});
+            });
+          }
+          // Final fallback: empty
+          return Promise.resolve(new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}}));
         }
       }
     } catch(e){ console.warn("[mn-states] fetch hook error", e); }
     return origFetch(input, init);
   };
+
+  // ----- GDIT PER-COUNTY FALLBACK -----
+  // For states with no statewide ESRI source, the GDIT catalog
+  // (window.MN_COUNTY_PARCELS, populated by mn-county-parcels.js) often has
+  // per-county FeatureServers. Probe the layer schema, run an envelope query,
+  // and normalize the response into the same GeoJSON shape the rest of the
+  // app expects.
+  var _gditSchemaCache = {};
+  function _gditFieldName(fields, candidates){
+    if (!Array.isArray(fields)) return null;
+    var names = fields.map(function(f){ return f && (f.name || f); });
+    var lower = names.map(function(n){ return (n||"").toLowerCase(); });
+    for (var i = 0; i < candidates.length; i++) {
+      var idx = names.indexOf(candidates[i]);
+      if (idx >= 0) return candidates[i];
+    }
+    for (var j = 0; j < candidates.length; j++) {
+      var idx2 = lower.indexOf(candidates[j].toLowerCase());
+      if (idx2 >= 0) return names[idx2];
+    }
+    return null;
+  }
+  async function _gditProbeSchema(svcUrl){
+    if (_gditSchemaCache[svcUrl]) return _gditSchemaCache[svcUrl];
+    try {
+      var r = await origFetch(svcUrl + (svcUrl.indexOf("?") >= 0 ? "&" : "?") + "f=json", { credentials: "omit" });
+      if (!r.ok) return null;
+      var meta = await r.json();
+      var fields = (meta && meta.fields) || [];
+      var schema = {
+        parcel_id: _gditFieldName(fields, ["parcel_id","PARCEL_ID","PARCELID","PARCEL_NUM","PARCELNUM","PIN","PARID","PIN_18","pin_18","STATE_PARCEL_ID","TaxParcel","ParcelNumber"]),
+        owner:     _gditFieldName(fields, ["owner","OWNER","OWNER1","Owner","OWNER_NAME","OWNERNAME","OwnerName","FULLOWNERNAME","DEEDEDOWNR"]),
+        prop_add:  _gditFieldName(fields, ["prop_add","PROP_ADDR","PROPERTY_ADDRESS","SITUS_ADDRESS","SITE_ADDR","property_street","Property_Street","SiteAddress","ADDRESS"]),
+        prop_city: _gditFieldName(fields, ["prop_city","PROP_CITY","CITY","SITUS_CITY","SiteCity"]),
+        prop_zip:  _gditFieldName(fields, ["prop_zip","PROP_ZIP","ZIP","ZIPCODE","SITUS_ZIP","SiteZip"]),
+        class_code:_gditFieldName(fields, ["dlgf_prop_class_code","PROP_CLASS","PROPERTY_C","prop_class_desc","PropertyClass","CLASS","ClassCode"])
+      };
+      _gditSchemaCache[svcUrl] = schema;
+      return schema;
+    } catch(e) { return null; }
+  }
+  async function _gditCountyFetch(origUrl, stateCode, countyAttrs){
+    var basename = (countyAttrs.text || "").replace(/\s*County\s*$/i,"").replace(/\s*Borough\s*$/i,"").replace(/\s*Census Area\s*$/i,"").trim();
+    var entry = await window.MNCountyParcels.lookup(stateCode, basename);
+    if (!entry || !entry.u) return new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}});
+    var svcUrl = entry.u.replace(/\/$/,"");
+    var queryUrl = /\/(query|FeatureServer\/\d+|MapServer\/\d+)$/.test(svcUrl) ? svcUrl : svcUrl;
+    if (!/\/query$/.test(queryUrl)) queryUrl = queryUrl + "/query";
+    var schema = await _gditProbeSchema(svcUrl);
+    var origQp = new URL(origUrl).searchParams;
+    var nu = new URL(queryUrl);
+    var np = nu.searchParams;
+    np.set("geometry", origQp.get("geometry") || "");
+    np.set("geometryType", origQp.get("geometryType") || "esriGeometryEnvelope");
+    np.set("inSR", origQp.get("inSR") || "4326");
+    np.set("spatialRel", origQp.get("spatialRel") || "esriSpatialRelIntersects");
+    np.set("outFields", "*");
+    np.set("returnGeometry","true");
+    np.set("outSR","4326");
+    np.set("resultRecordCount", origQp.get("resultRecordCount") || "2000");
+    np.set("where","1=1");
+    np.set("f","geojson");
+    var r = await origFetch(nu.toString(), { credentials: "omit" });
+    if (!r.ok) return new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}});
+    var data = await r.json();
+    if (!data || !data.features) return new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}});
+    var fmap = schema || {};
+    var normalized = {
+      type: "FeatureCollection",
+      features: data.features.map(function(f){
+        var p = f.properties || {};
+        function S(v){ return v == null ? "" : String(v); }
+        function N(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+        var np2 = {
+          parcel_id:           S(fmap.parcel_id ? p[fmap.parcel_id] : (p.parcel_id || p.PARCEL_ID || p.PARCELID)),
+          state_parcel_id:     S(fmap.parcel_id ? p[fmap.parcel_id] : (p.state_parcel_id || p.parcel_id || p.PARCEL_ID)),
+          prop_add:            S(fmap.prop_add ? p[fmap.prop_add] : ""),
+          prop_city:           S(fmap.prop_city ? p[fmap.prop_city] : ""),
+          prop_zip:            S(fmap.prop_zip ? p[fmap.prop_zip] : ""),
+          dlgf_prop_class_code:S(fmap.class_code ? p[fmap.class_code] : ""),
+          owner:               S(fmap.owner ? p[fmap.owner] : ""),
+          latitude:            0,
+          longitude:           0,
+          _state:              stateCode,
+          _src:                p
+        };
+        return { type: "Feature", geometry: f.geometry, properties: np2 };
+      })
+    };
+    return new Response(JSON.stringify(normalized), {headers:{"content-type":"application/json"}, status:200});
+  }
 
   function _getActiveCountyAttrs(){
     try {
