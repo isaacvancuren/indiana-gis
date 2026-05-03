@@ -12,8 +12,8 @@
  *   3. On boot, ensures the map starts in inquire mode (no class).
  */
 (function(){
-  if (window.__mnToolCursorVersion === 2) return;
-  window.__mnToolCursorVersion = 2;
+  if (window.__mnToolCursorVersion === 3) return;
+  window.__mnToolCursorVersion = 3;
 
   function isToolActive() {
     try {
@@ -91,6 +91,14 @@
       if (cur && (cur === 'crosshair' || cur === 'text' || cur === 'cell')) {
         el.style.cursor = '';
       }
+      // Strip rogue classes that force crosshair via CSS:
+      //   leaflet-crosshair: added by Leaflet during box-zoom (shift-drag)
+      //                      and by Leaflet.Draw while a shape handler is active
+      //   tool-active / select-active: legacy CSS rules in app.css
+      // If a real tool is active, mn-tool-active is the canonical class.
+      if (el.classList.contains('leaflet-crosshair')) el.classList.remove('leaflet-crosshair');
+      if (el.classList.contains('tool-active')) el.classList.remove('tool-active');
+      if (el.classList.contains('select-active')) el.classList.remove('select-active');
       // Overlay pane must accept pointer events when no tool is running,
       // otherwise the parcel canvas (which lives in this pane) goes deaf.
       try {

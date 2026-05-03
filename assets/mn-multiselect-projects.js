@@ -296,7 +296,9 @@
       return n === 'select' || n === 'select-rect' || n === 'select-poly' || /^sel[\-_]/.test(n) || /^sel_/.test(n);
     }
 
-    /* selectParcelLive: bail when tool active; feed inquiry list when select tool */
+    /* selectParcelLive: bail when tool active; feed inquiry list ONLY when
+       a select tool is the active one. Plain inquire-mode clicks must not
+       add to the list. */
     var origSelectLive = window.selectParcelLive;
     window.selectParcelLive = function(p, layer){
       if (isToolActive()) {
@@ -304,7 +306,6 @@
         return;
       }
       try { origSelectLive.call(this, p, layer); } catch(e) { console.warn(e); }
-      INQ.add(p, layer);
     };
 
     /* loadLiveParcelPanel: also gate (some other paths call it directly) */
