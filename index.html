@@ -1328,7 +1328,6 @@ function setBasemap(name,btn){
   curBM = name;
   document.querySelectorAll('.bmbtn').forEach(b=>b.classList.remove('on'));
   btn?.classList.add('on');
-  try { var _op=document.querySelector('.leaflet-overlay-pane'); if(_op) _op.style.pointerEvents='none'; } catch(ex){}
   // Parcel canvas layer always renders on top of basemaps naturally
 }
 
