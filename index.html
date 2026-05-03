@@ -2018,16 +2018,23 @@ function enrichParcelData(p, attr) {
 window._selectedLiveParcel = null;
 
 //  Get best parcel lookup URL (used in popup)
+//  Beacon supports two URL forms:
+//    a) App=<Name>&PageTypeID=4&searchparcelid=<pin>     (resolves automatically — preferred)
+//    b) AppID=<n>&LayerID=<n>&PageTypeID=4&PageID=<n>&KeyValue=<pin>  (works only with verified numeric triplet)
+//  Form (a) covers all 92 IN counties via BEACON_APPS without needing numeric AppIDs.
+//  Form (b) is kept as a fallback for any county where (a) misbehaves.
 function getParcelLookupUrl(pin) {
   const cKey = getCountyKey();
   const safe = encodeURIComponent(pin || '');
-  // Direct parcel report deep-link when we know AppID/LayerID/PageID.
+  if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey] && pin) {
+    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageTypeID=4&searchparcelid=${safe}`;
+  }
   if (typeof BEACON_APP_DETAIL !== 'undefined' && BEACON_APP_DETAIL[cKey] && pin) {
     const [a, l, pg] = BEACON_APP_DETAIL[cKey];
     return `https://beacon.schneidercorp.com/Application.aspx?AppID=${a}&LayerID=${l}&PageTypeID=4&PageID=${pg}&KeyValue=${safe}`;
   }
   if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey]) {
-    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageType=GeneralInfo&ParcelNumber=${safe}`;
+    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageType=Search`;
   }
   return `https://gateway.ifionline.org/TaxBillLookUp/Default.aspx`;
 }
@@ -3756,11 +3763,10 @@ function toggleRight(){document.getElementById('rpanel').classList.toggle('hide'
 // Legacy helpers for buildLiveReport
 function buildPRCUrl(k, pin) { return null; }
 function buildBeaconUrl(k, pin) {
-  if (typeof BEACON_APP_DETAIL !== 'undefined' && BEACON_APP_DETAIL[k] && pin) {
-    const [a, l, pg] = BEACON_APP_DETAIL[k];
-    return `https://beacon.schneidercorp.com/Application.aspx?AppID=${a}&LayerID=${l}&PageTypeID=4&PageID=${pg}&KeyValue=${encodeURIComponent(pin)}`;
+  if (BEACON_APPS[k] && pin) {
+    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[k]}&PageTypeID=4&searchparcelid=${encodeURIComponent(pin)}`;
   }
-  return BEACON_APPS[k] ? `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[k]}&PageType=GeneralInfo&ParcelNumber=${encodeURIComponent(pin)}` : null;
+  return BEACON_APPS[k] ? `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[k]}&PageType=Search` : null;
 }
 function buildGatewayUrl() { return 'https://gateway.ifionline.org/TaxBillLookUp/Default.aspx'; }
 
