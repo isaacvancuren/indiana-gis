@@ -749,3 +749,26 @@ and runtime-probe modules that run in the user's browser.
 - `assets/mn-schneider-fallback.js?v=2` (new)
 - `assets/mn-states.js?v=4`
 - `assets/mn-multiselect-projects.js?v=3`
+
+
+### Continuation (overnight #2 part 2 — 2026-05-03 AM, web search authorized)
+
+User authorized using WebSearch to discover GIS endpoints. WebFetch was
+firewalled for all GIS hosts (403), so only WebSearch (no live verification).
+
+Additional commits beyond #2 part 1:
+
+9. `a5ffbe8` — feat(beacon): added BEACON_APP_DETAIL with numeric AppID/LayerID/PageID for 22 IN counties (Allen, Bartholomew, Boone, Decatur, Dearborn, Delaware, Hamilton, Hancock, Hendricks, Howard, Johnson, Kosciusko, LaPorte, Madison, Marion, Montgomery, Noble, Steuben, Tippecanoe, Vigo, Wabash, Whitley).
+10. `acaf180` — Expanded to 35 counties.
+11. `3558998` — Expanded to 41 counties (+ Blackford, Clark, Floyd, Greene, Knox, Marshall).
+12. `2ed4103` — fix(beacon): switched primary URL form to `App=<Name>&PageTypeID=4&searchparcelid=<pin>`. This works for ALL 92 IN counties via the existing BEACON_APPS map without needing the numeric triplet, and lands directly on the parcel report page. The numeric BEACON_APP_DETAIL is kept as a fallback. Verified pattern via Decatur and Harrison official URLs.
+13. `5ab94b4` — feat(search): owner-name match + dynamic county context for geocoder fallback. Search now matches against ownerCache, and the Nominatim fallback uses window.activeCounty instead of hardcoded "Bartholomew County, Indiana".
+14. `258928e` — feat(lookup): state-aware parcel lookup URL. Beacon for IN, qPublic for KY/GA/AL/FL/MS/TN/NC/SC/LA/MD/VA/WV/AR, Beacon default for others. Synthesizes App name from county+state. Falls back to Google search when no county is selected.
+
+### Summary stats
+
+Branch `claude/overnight-1`: 18 commits, ~1,200 lines added, ~150 deleted.
+
+Beacon coverage: all 92 IN counties get a direct parcel-report deep-link.
+qPublic / Beacon coverage: synthesized for any non-IN county via the App=<CamelCounty><ST> pattern.
+Live owner data fallback: Schneider WFS auto-discovery for IN, GDIT catalog for non-IN states without statewide source.
