@@ -697,3 +697,55 @@ The DOM-level binding is intentional. `renderer._onClick` is bound once at `_ini
 **Caveats:**
 - The `_initContainer` source registers a single handler for `click dblclick mousedown mouseup contextmenu`. We only override `click`; the other events still flow through Leaflet's original `_onClick`, which is correct (mousedown/mouseup/contextmenu have their own non-selection logic in there).
 - Future Leaflet upgrades may rename internal symbols (`_drawFirst`, `_containsPoint`, `_fireEvent`, `_leaflet_events`). The patch defends against missing methods but a major Leaflet bump should re-test the edge-click suite.
+
+
+## Overnight #2 — 2026-05-03 (early AM)
+
+Branch: `claude/overnight-1` (8 commits, NOT merged to main). User authorized
+overnight autonomous work. Cannot use external HTTP from sandbox (all hosts
+404), so safe scope was limited to UI/UX, deterministic config expansion,
+and runtime-probe modules that run in the user's browser.
+
+### Commits (chronological)
+
+1. `93d2bcc` — feat(tools): universal Clear + Save-to-Project buttons in every tool section. New file `assets/mn-tool-actions.js`. Each section (Measure / Draw / Select) now has the same affordance pair, wired to the existing project-features pipeline.
+
+2. `5456463` — feat(beacon): extended `BEACON_APPS` to all 92 IN counties via Schneider's deterministic `<CamelCaseCounty>CountyIN` URL pattern. Special cases: DeKalb, LaGrange, LaPorte, StJoseph. Counties Beacon doesn't actually publish 404 gracefully.
+
+3. `38cb1ac` — feat(popup): added direct Beacon button to the parcel popup footer so users can always open the official assessor record, regardless of whether the county has live owner data wired.
+
+4. `2c6f1e6` — feat(parcels): runtime Schneider WFS auto-discovery for IN counties not yet in `COUNTY_PARCEL_APIS`. New file `assets/mn-schneider-fallback.js`. On county select, probes `https://wfs.schneidercorp.com/arcgis/rest/services/<County>CountyIN_WFS/MapServer/<layer>?f=json`, walks layers, matches field names against ~14 PIN candidates / 9 owner candidates, registers a `COUNTY_PARCEL_APIS` entry on success. Caches result in sessionStorage 12 h. Toasts "Live owner data activated" when a probe succeeds. **Highest-leverage commit on the branch** — auto-unlocks any IN county that publishes a public Schneider WFS without a code update.
+
+5. `febbaf2` — feat(states): GDIT per-county catalog wired as fallback for non-IN states. When state has no statewide source AND a county is selected, fetches the county's GDIT FeatureServer (catalog populated by `mn-county-parcels.js`), probes its schema, normalizes to canonical fields. Effect: any of 16 Tier B states (AL, DE, GA, IL, KS, KY, LA, MI, MN, MO, NE, NM, OK, OR, SC, SD) can now display per-county parcels at runtime. Border states this directly unlocks: IL, KY, MI.
+
+6. `716dc40` — docs: `docs/OVERNIGHT_2_HANDOFF.md` for morning review.
+
+7. (small toast UX polish on schneider-fallback bumped to v=2.)
+
+8. `c2c8e29` — chore: stripped 2,508 NULL bytes from `index.html` + 3 asset files (residual from earlier UTF-8 corruption fix; in comments only, but bloating file sizes).
+
+### Things NOT done
+
+- Did not pre-add Schneider WFS configs for specific IN counties (no way to verify without network). Runtime auto-discovery in commit 4 is the safe path.
+- Did not push to main. All work on `claude/overnight-1`.
+- Did not touch the tool engine — the morning fixes shipped (mn-clickfix v7, mn-tool-cursor, basemap pointer-events fix) are working per user confirmation on Bartholomew. Touching it again without a specific complaint would risk regression.
+- Did not add keyboard shortcuts beyond ESC (already wired). Single-letter shortcuts would compete with form inputs and need explicit user buy-in.
+
+### Verification checklist for the morning
+
+1. Pick any unconfigured IN county (Fayette, Huntington, Vigo, Delaware, Kosciusko, Montgomery, etc.). Click a parcel. If Schneider hosts that county's WFS publicly, you should see "Live owner data activated" toast within ~3 s and live owner data in the popup. Console: `[mn-schneider-fallback] auto-registered <county>`.
+2. Pick state IL or KY or MI, then a county (e.g., Cook, Jefferson, Wayne). Pan/zoom — parcels should render with owner data via GDIT fallback.
+3. Test new Save-to-Project buttons. Activate a project. Draw / measure / select. Click Save to Project in the relevant section. Confirm features persist across refresh.
+4. Test new Beacon button on a parcel popup — should open the Schneider Beacon property page in a new tab.
+5. Confirm all morning fixes still work (cursor, click precision, no auto-add to inquiry list).
+
+### File cachebuster summary post-overnight-2
+
+- `app.css?v=2`
+- `assets/county-metadata.js?v=3`
+- `assets/mn-clickfix.js?v=7`
+- `assets/mn-tool-cursor.js?v=3`
+- `assets/mn-tool-actions.js?v=1` (new)
+- `assets/mn-schneider-fallback.js?v=2` (new)
+- `assets/mn-states.js?v=4`
+- `assets/mn-multiselect-projects.js?v=3`
