@@ -317,10 +317,15 @@ body.mn-county-selected #rpanel{display:flex!important;}
 
 /*  MAP  */
 #mwrap{flex:1;position:relative;overflow:hidden;}
-#map{width:100%;height:100%;cursor:crosshair;}
+#map{width:100%;height:100%;cursor:grab;}
+#map:active{cursor:grabbing;}
 #map.default-cursor{cursor:default;}
 #map.pointer-cursor{cursor:pointer;}
-#map.mn-tool-active .leaflet-interactive{cursor:crosshair!important;pointer-events:none;}
+#map.mn-tool-active{cursor:crosshair;}
+#map.mn-tool-active:active{cursor:crosshair;}
+#map.mn-tool-active .leaflet-interactive{cursor:crosshair!important;}
+.leaflet-grab{cursor:grab;}
+.leaflet-dragging .leaflet-grab,.leaflet-dragging.leaflet-grab{cursor:grabbing;}
 
 /* parcel selection highlight */
 .parcel-selected{

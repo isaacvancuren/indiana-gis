@@ -5677,16 +5677,19 @@ window.selectParcel = function(p, layer) {
       try { window.activeTool = tool; } catch(e){}
       var inquireBtn = document.getElementById('mn-inquire-btn');
       var statusEl = document.getElementById('mn-mode-status');
+      var mapEl = document.getElementById('map');
       if(!tool){
         if(inquireBtn){ inquireBtn.classList.add('mn-active'); inquireBtn.style.background='rgba(6,182,212,0.15)'; inquireBtn.style.borderColor='rgba(6,182,212,0.45)'; inquireBtn.style.color='#67e8f9'; }
         if(statusEl){ statusEl.textContent='Click parcels to view info'; statusEl.style.color='#8fa3bf'; }
         document.body.style.cursor='';
         if(typeof map !== 'undefined' && map._container){ map._container.style.cursor=''; }
+        if(mapEl) mapEl.classList.remove('mn-tool-active');
       } else {
         if(inquireBtn){ inquireBtn.classList.remove('mn-active'); inquireBtn.style.background=''; inquireBtn.style.borderColor=''; inquireBtn.style.color=''; }
         if(btn){ btn.classList.add('mn-active'); btn.style.background='rgba(6,182,212,0.18)'; btn.style.borderColor='rgba(6,182,212,0.5)'; btn.style.color='#67e8f9'; }
         if(statusEl){ statusEl.textContent='Tool active: '+tool+' (double-click to finish, ESC to cancel)'; statusEl.style.color='#67e8f9'; }
-        if(typeof map !== 'undefined' && map._container){ map._container.style.cursor='crosshair'; }
+        if(typeof map !== 'undefined' && map._container){ map._container.style.cursor=''; }
+        if(mapEl) mapEl.classList.add('mn-tool-active');
       }
       this._showOptionsForTool(tool);
     },
@@ -5767,6 +5770,7 @@ window.selectParcel = function(p, layer) {
   <script src="assets/mn-county-parcels.js?v=2" defer></script>
 <script src="assets/mn-bugfixes.js?v=7" defer></script>
 <script src="assets/mn-clickfix.js?v=7" defer></script>
+<script src="assets/mn-tool-cursor.js?v=1" defer></script>
 <script src="assets/mn-project-features.js?v=1" defer></script>
 </body>
 </html>
