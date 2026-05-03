@@ -1275,7 +1275,7 @@
 <script src="assets/municipal-gis-servers.js?v=2"></script>
 <script src="assets/county-parcel-apis.js?v=2"></script>
 <script src="assets/county-layer-engines.js?v=2"></script>
-<script src="assets/county-metadata.js?v=3"></script>
+<script src="assets/county-metadata.js?v=4"></script>
 <script>
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  MAP INITIALIZATION
@@ -2017,12 +2017,17 @@ function enrichParcelData(p, attr) {
 
 window._selectedLiveParcel = null;
 
-//  Get best parcel lookup URL (used in popup) 
+//  Get best parcel lookup URL (used in popup)
 function getParcelLookupUrl(pin) {
   const cKey = getCountyKey();
-  // Use BEACON_APPS if available (defined further below), else DLGF fallback
+  const safe = encodeURIComponent(pin || '');
+  // Direct parcel report deep-link when we know AppID/LayerID/PageID.
+  if (typeof BEACON_APP_DETAIL !== 'undefined' && BEACON_APP_DETAIL[cKey] && pin) {
+    const [a, l, pg] = BEACON_APP_DETAIL[cKey];
+    return `https://beacon.schneidercorp.com/Application.aspx?AppID=${a}&LayerID=${l}&PageTypeID=4&PageID=${pg}&KeyValue=${safe}`;
+  }
   if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey]) {
-    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageType=GeneralInfo&ParcelNumber=${encodeURIComponent(pin || '')}`;
+    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageType=GeneralInfo&ParcelNumber=${safe}`;
   }
   return `https://gateway.ifionline.org/TaxBillLookUp/Default.aspx`;
 }
@@ -3751,6 +3756,10 @@ function toggleRight(){document.getElementById('rpanel').classList.toggle('hide'
 // Legacy helpers for buildLiveReport
 function buildPRCUrl(k, pin) { return null; }
 function buildBeaconUrl(k, pin) {
+  if (typeof BEACON_APP_DETAIL !== 'undefined' && BEACON_APP_DETAIL[k] && pin) {
+    const [a, l, pg] = BEACON_APP_DETAIL[k];
+    return `https://beacon.schneidercorp.com/Application.aspx?AppID=${a}&LayerID=${l}&PageTypeID=4&PageID=${pg}&KeyValue=${encodeURIComponent(pin)}`;
+  }
   return BEACON_APPS[k] ? `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[k]}&PageType=GeneralInfo&ParcelNumber=${encodeURIComponent(pin)}` : null;
 }
 function buildGatewayUrl() { return 'https://gateway.ifionline.org/TaxBillLookUp/Default.aspx'; }

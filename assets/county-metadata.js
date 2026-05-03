@@ -188,6 +188,13 @@ const XSOFT_SLUGS = {
 // Coverage: all 92 Indiana counties so the "Open in Beacon" affordance is
 // universally available; the more accurate Tier 1/2/3 owner data takes
 // precedence for any county that has it configured.
+//
+// BEACON_APP_DETAIL: numeric triplet (AppID, LayerID, PageID) for direct
+// deep-link to a specific parcel's report page. When present, the popup
+// uses this instead of the App=...&PageType=Search URL, taking the user
+// straight to the parcel detail. Discovered via web research 2026-05-03.
+// Add new entries by visiting beacon.schneidercorp.com/?site=<App>, opening
+// any parcel, and copying the AppID/LayerID/PageID query params.
 const BEACON_APPS = {
   adams:       'AdamsCountyIN',
   allen:       'AllenCountyIN',
@@ -283,10 +290,41 @@ const BEACON_APPS = {
   whitley:     'WhitleyCountyIN',
 };
 
+// Numeric Beacon parcel-detail-page deep-link config.
+// Each value: [AppID, LayerID, PageID] — when set, the popup builds:
+//   https://beacon.schneidercorp.com/Application.aspx?AppID=<a>&LayerID=<l>&PageTypeID=4&PageID=<p>&KeyValue=<pin>
+// PageTypeID=4 is the "Parcel Report" page in Beacon. This lands the user
+// directly on the property record rather than the search page.
+const BEACON_APP_DETAIL = {
+  allen:       [1178,34847,13392],
+  bartholomew: [1130,28606,12977],
+  boone:       [84,795,550],
+  dearborn:    [267,3292,1830],
+  decatur:     [124,1376,743],
+  delaware:    [213,2828,1566],
+  hamilton:    [1186,35358,13446],
+  hancock:     [111,1206,674],
+  hendricks:   [327,3469,2293],
+  howard:      [94,952,599],
+  johnson:     [129,1554,939],
+  kosciusko:   [152,1998,1013],
+  laporte:     [205,2736,1532],
+  madison:     [406,6209,3309],
+  marion:      [70,477,449],
+  montgomery:  [200,2653,1511],
+  noble:       [127,1479,798],
+  steuben:     [97,963,613],
+  tippecanoe:  [578,8505,4151],
+  vigo:        [99,962,611],
+  wabash:      [167,2153,1112],
+  whitley:     [85,829,560],
+};
+
 
   if (typeof INDIANA_COUNTIES !== 'undefined') window.INDIANA_COUNTIES = INDIANA_COUNTIES;
   if (typeof EM_COUNTIES !== 'undefined') window.EM_COUNTIES = EM_COUNTIES;
   if (typeof WTH_GIS !== 'undefined') window.WTH_GIS = WTH_GIS;
   if (typeof XSOFT_SLUGS !== 'undefined') window.XSOFT_SLUGS = XSOFT_SLUGS;
   if (typeof BEACON_APPS !== 'undefined') window.BEACON_APPS = BEACON_APPS;
+  if (typeof BEACON_APP_DETAIL !== 'undefined') window.BEACON_APP_DETAIL = BEACON_APP_DETAIL;
 })();
