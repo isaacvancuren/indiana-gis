@@ -2018,25 +2018,45 @@ function enrichParcelData(p, attr) {
 window._selectedLiveParcel = null;
 
 //  Get best parcel lookup URL (used in popup)
-//  Beacon supports two URL forms:
-//    a) App=<Name>&PageTypeID=4&searchparcelid=<pin>     (resolves automatically — preferred)
-//    b) AppID=<n>&LayerID=<n>&PageTypeID=4&PageID=<n>&KeyValue=<pin>  (works only with verified numeric triplet)
-//  Form (a) covers all 92 IN counties via BEACON_APPS without needing numeric AppIDs.
-//  Form (b) is kept as a fallback for any county where (a) misbehaves.
+//  Schneider Geospatial publishes two property viewers, both share URL form:
+//    Beacon  : beacon.schneidercorp.com   — used for IN, IA, MN, NE, etc.
+//    qPublic : qpublic.schneidercorp.com  — used for KY, GA, AL, FL, etc.
+//  Both accept the same App=<CountyName>County<ST>&PageTypeID=4&searchparcelid=<pin>
+//  pattern that lands directly on the parcel report page. For Indiana we have
+//  BEACON_APPS pre-mapped; for other states we synthesize the URL from county
+//  + state. Counties not actually published 404 gracefully.
 function getParcelLookupUrl(pin) {
   const cKey = getCountyKey();
   const safe = encodeURIComponent(pin || '');
-  if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey] && pin) {
-    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageTypeID=4&searchparcelid=${safe}`;
+  const stateCode = (window.MNStates && window.MNStates.active && window.MNStates.active()) || 'IN';
+
+  // Indiana: use the pre-mapped BEACON_APPS lookup
+  if (stateCode === 'IN') {
+    if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey] && pin) {
+      return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageTypeID=4&searchparcelid=${safe}`;
+    }
+    if (typeof BEACON_APP_DETAIL !== 'undefined' && BEACON_APP_DETAIL[cKey] && pin) {
+      const [a, l, pg] = BEACON_APP_DETAIL[cKey];
+      return `https://beacon.schneidercorp.com/Application.aspx?AppID=${a}&LayerID=${l}&PageTypeID=4&PageID=${pg}&KeyValue=${safe}`;
+    }
+    if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey]) {
+      return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageType=Search`;
+    }
+    return `https://gateway.ifionline.org/TaxBillLookUp/Default.aspx`;
   }
-  if (typeof BEACON_APP_DETAIL !== 'undefined' && BEACON_APP_DETAIL[cKey] && pin) {
-    const [a, l, pg] = BEACON_APP_DETAIL[cKey];
-    return `https://beacon.schneidercorp.com/Application.aspx?AppID=${a}&LayerID=${l}&PageTypeID=4&PageID=${pg}&KeyValue=${safe}`;
+
+  // Other states: synthesize from active county name + state code
+  // qPublic for KY/GA/AL/FL/etc.; Beacon for IA/MN/NE/etc. The two products
+  // mirror each other — try qPublic first since it covers more non-IN
+  // jurisdictions, fall back to Beacon. Both share identical URL syntax.
+  const countyName = (window.activeCounty && window.activeCounty.name) || '';
+  const camel = countyName.replace(/\s*County\s*$/i,'').replace(/\s+/g,'');
+  if (camel && pin) {
+    const QPUBLIC_STATES = new Set(['KY','GA','AL','FL','MS','TN','NC','SC','LA','MD','VA','WV','AR']);
+    const host = QPUBLIC_STATES.has(stateCode) ? 'qpublic.schneidercorp.com' : 'beacon.schneidercorp.com';
+    return `https://${host}/Application.aspx?App=${camel}County${stateCode}&PageTypeID=4&searchparcelid=${safe}`;
   }
-  if (typeof BEACON_APPS !== 'undefined' && BEACON_APPS[cKey]) {
-    return `https://beacon.schneidercorp.com/Application.aspx?App=${BEACON_APPS[cKey]}&PageType=Search`;
-  }
-  return `https://gateway.ifionline.org/TaxBillLookUp/Default.aspx`;
+  return `https://www.google.com/search?q=${encodeURIComponent((countyName||'')+' '+stateCode+' parcel '+ (pin||''))}`;
 }
 
 function selectParcelLive(p, layer) {
