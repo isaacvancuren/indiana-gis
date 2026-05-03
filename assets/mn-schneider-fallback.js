@@ -1,18 +1,19 @@
-/* Mapnova Schneider WFS Fallback v1
+/* Mapnova Schneider WFS Fallback v3
  *
- * Runtime probe + register for IN counties not yet in COUNTY_PARCEL_APIS.
+ * Runtime probe + register for IN counties (and now non-IN counties too)
+ * that aren't yet in COUNTY_PARCEL_APIS.
  *
- * Background: Schneider Geospatial publishes Beacon-backed parcel
- * FeatureServers under a deterministic URL pattern:
- *   https://wfs.schneidercorp.com/arcgis/rest/services/<CountyName>CountyIN_WFS/MapServer/<layer>/query
+ * Background: Schneider Geospatial publishes parcel FeatureServers under
+ * deterministic URL patterns:
+ *   IN (Beacon)          : wfs.schneidercorp.com/.../   <County>CountyIN_WFS/MapServer
+ *   Other states (qPublic): qpublic.net/<state>/<county> (parcel layer)
+ *   Both products mirror the same WFS architecture.
  *
- * Many IN counties on Beacon also expose this WFS publicly. We don't know
- * which ones do without testing, and the layer index + field schema
- * differs across counties. This module probes at runtime — when the user
- * selects a county that has no Tier 1/2/3 entry, we ask Schneider for
- * the layer list, find the parcels layer, infer the field mapping, and
- * register it in COUNTY_PARCEL_APIS so the existing fetch pipeline picks
- * it up automatically.
+ * Many counties on Beacon / qPublic also expose this WFS publicly. We
+ * probe at runtime — when the user selects a county that has no Tier
+ * 1/2/3 entry, we ask Schneider for the layer list, find the parcels
+ * layer, infer the field mapping, and register it in COUNTY_PARCEL_APIS
+ * so the existing fetch pipeline picks it up automatically.
  *
  * Failure modes are silent: if the probe 404s or the service doesn't have
  * a parcels-shaped layer, the county stays unconfigured and the existing
@@ -24,8 +25,8 @@
  */
 (function(){
   'use strict';
-  if (window.__mnSchneiderFallbackVersion === 2) return;
-  window.__mnSchneiderFallbackVersion = 2;
+  if (window.__mnSchneiderFallbackVersion === 3) return;
+  window.__mnSchneiderFallbackVersion = 3;
 
   const HOST = 'https://wfs.schneidercorp.com/arcgis/rest/services';
   const TIMEOUT_MS = 6000;
@@ -119,15 +120,17 @@
     return cfg;
   }
 
-  async function probeCounty(county) {
-    const cached = cacheGet(county);
+  async function probeCounty(county, stateCode) {
+    stateCode = stateCode || 'IN';
+    const cacheKey = stateCode + ':' + county;
+    const cached = cacheGet(cacheKey);
     if (cached) return cached.ok ? cached.config : null;
 
     const camel = camelCounty(county);
-    const svcUrl = HOST + '/' + camel + 'CountyIN_WFS/MapServer';
+    const svcUrl = HOST + '/' + camel + 'County' + stateCode + '_WFS/MapServer';
     const meta = await fetchJson(svcUrl);
     if (!meta || !Array.isArray(meta.layers)) {
-      cacheSet(county, { ok: false });
+      cacheSet(cacheKey, { ok: false });
       return null;
     }
     // Find candidate layers — title hints first, then probe field schemas
@@ -146,13 +149,14 @@
       if (layerMeta.geometryType !== 'esriGeometryPolygon') continue;
       const cfg = buildConfigFromLayer(svcUrl, layerMeta);
       if (cfg) {
-        const lookupUrl = 'https://beacon.schneidercorp.com/?site=' + camel + 'CountyIN';
-        cfg.lookupUrl = lookupUrl;
-        cacheSet(county, { ok: true, config: cfg });
+        const QPUBLIC = new Set(['KY','GA','AL','FL','MS','TN','NC','SC','LA','MD','VA','WV','AR']);
+        const host = QPUBLIC.has(stateCode) ? 'qpublic.schneidercorp.com' : 'beacon.schneidercorp.com';
+        cfg.lookupUrl = 'https://' + host + '/?site=' + camel + 'County' + stateCode;
+        cacheSet(cacheKey, { ok: true, config: cfg });
         return cfg;
       }
     }
-    cacheSet(county, { ok: false });
+    cacheSet(cacheKey, { ok: false });
     return null;
   }
 
@@ -171,28 +175,40 @@
     return null;
   }
 
+  function activeStateCode() {
+    try {
+      if (window.MNStates && typeof window.MNStates.active === 'function') {
+        return window.MNStates.active() || 'IN';
+      }
+    } catch(_e){}
+    return 'IN';
+  }
+
   async function maybeProbe() {
     const key = getCountyKey();
     if (!key || key === 'all') return;
     if (alreadyConfigured(key)) return;
-    // Only probe IN counties (FIPS 18xxx)
-    const countyMeta = (window.INDIANA_COUNTIES || {})[key];
-    if (!countyMeta || !countyMeta.fips || countyMeta.fips.indexOf('18') !== 0) return;
-    const cfg = await probeCounty(key);
+    const stateCode = activeStateCode();
+    // For IN we have the explicit Beacon WFS host pattern. For other states
+    // the public Schneider WFS host is the same — services aren't suffixed
+    // with the state, just the county name + _WFS. Try the same probe path
+    // with state-suffixed county name. Failures stay silent.
+    const cfg = await probeCounty(key, stateCode);
     if (cfg) {
       window.COUNTY_PARCEL_APIS = window.COUNTY_PARCEL_APIS || {};
       window.COUNTY_PARCEL_APIS[key] = cfg;
-      console.log('[mn-schneider-fallback] auto-registered', key, '→', cfg.url);
-      try { window.dispatchEvent(new CustomEvent('mn:county-config-added', { detail: { county: key, source: 'schneider-fallback' } })); } catch(_e){}
+      console.log('[mn-schneider-fallback] auto-registered', stateCode, key, '→', cfg.url);
+      try { window.dispatchEvent(new CustomEvent('mn:county-config-added', { detail: { county: key, state: stateCode, source: 'schneider-fallback' } })); } catch(_e){}
       try {
         if (typeof window.notify === 'function') {
-          var pretty = (countyMeta && countyMeta.name) || (key.charAt(0).toUpperCase() + key.slice(1));
-          window.notify('Live owner data activated for ' + pretty + ' (Schneider WFS)', 'fa-check-circle');
+          var pretty = key.charAt(0).toUpperCase() + key.slice(1);
+          window.notify('Live owner data activated for ' + pretty + ' County (' + stateCode + ')', 'fa-check-circle');
         }
       } catch (_e) {}
     } else {
-      // Quiet — many counties just aren't on Schneider WFS. The Beacon
-      // deep-link button in the popup remains as the user's escape hatch.
+      // Quiet — many counties just aren't on Schneider's public WFS. The
+      // Beacon / qPublic deep-link button in the popup remains as the
+      // user's escape hatch.
     }
   }
 
