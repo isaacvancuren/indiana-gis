@@ -4,7 +4,7 @@
 Single-file HTML GIS platform deployed at [mapnova.org](http://mapnova.org). Built on Leaflet.js, ElevateMaps ArcGIS services, and the IGIO statewide parcel dataset. Indiana-first but built to expand. Hard constraint: single HTML file, no build step, no framework.
 
 ## Deploy
-GitHub Pages auto-deploys main to [mapnova.org](http://mapnova.org) via CNAME. Every commit to main goes live. The Pages build workflow handles it; nothing else to do.
+Cloudflare Pages auto-deploys `main` to mapnova.org. Every commit to `main` goes live; PR branches get preview URLs (e.g. `https://<branch-slug>.mapnova.pages.dev`). Cloudflare Pages handles it; nothing else to do.
 
 ## Architecture
 - County-by-county hardcoded ArcGISCountyLayer instances + permanent statewide layers (parcels, basemaps).
