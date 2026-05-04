@@ -3670,6 +3670,7 @@ const $searchDrop = document.getElementById('search-dropdown');
 let _hdrSearchSeq = 0;
 let _hdrSearchTimer = null;
 let _searchMode = localStorage.getItem('mn_search_mode') || 'address';
+let _aiSearchAbort = null;
 
 function _renderHdrDrop(items, statusLine) {
   if (!items || !items.length) {
@@ -3712,8 +3713,59 @@ function _runHdrSearch() {
   if (_searchMode === 'ai') {
     const q = $searchInput.value.trim();
     if (!q) { $searchDrop.style.display = 'none'; return; }
-    $searchDrop.innerHTML = `<div class="sdr-item" style="opacity:.8;cursor:default;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-robot" style="color:var(--purple);"></i></div><div class="sdr-text"><div class="t1">AI search coming in slice b</div><div class="t2">Natural-language parcel search — stay tuned</div></div></div>`;
+
+    // Cancel any previous in-flight AI request
+    if (_aiSearchAbort) { _aiSearchAbort.abort(); }
+    const ctrl = new AbortController();
+    _aiSearchAbort = ctrl;
+
+    // Show spinner while request is in flight
+    $searchDrop.innerHTML = `<div class="sdr-item" style="opacity:.8;cursor:default;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-spinner fa-spin" style="color:var(--purple);"></i></div><div class="sdr-text"><div class="t1">Searching with AI…</div><div class="t2">${q.length > 60 ? q.slice(0,60)+'…' : q}</div></div></div>`;
     $searchDrop.style.display = 'block';
+
+    const cKey = (typeof getCountyKey === 'function') ? getCountyKey() : null;
+    const county = cKey && window.INDIANA_COUNTIES && window.INDIANA_COUNTIES[cKey];
+
+    fetch('/api/ai-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: q,
+        county_fips: county ? county.fips : null,
+        county_name: county ? county.name : null,
+        state: 'IN',
+      }),
+      signal: ctrl.signal,
+    }).then(async r => {
+      if (_aiSearchAbort !== ctrl) return; // superseded by a newer request
+      const data = await r.json();
+      if (_aiSearchAbort !== ctrl) return;
+      _aiSearchAbort = null;
+
+      if (data.error) throw new Error(data.error);
+
+      const { parcels = [], reasoning = '' } = data;
+      if (!parcels.length) {
+        $searchDrop.innerHTML = `<div style="padding:6px 10px;font-size:10px;color:var(--text3);background:rgba(255,255,255,.02);">${reasoning || 'No matches'}</div><div class="sdr-item" style="cursor:default;opacity:.7;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-robot" style="color:var(--purple);"></i></div><div class="sdr-text"><div class="t1">No parcels matched this query</div><div class="t2">Try rephrasing or broadening your description</div></div></div>`;
+        $searchDrop.style.display = 'block';
+        return;
+      }
+
+      const hdr = `<div style="padding:6px 10px;font-size:10px;color:var(--text3);background:rgba(255,255,255,.02);"><i class="fas fa-robot" style="margin-right:4px;color:var(--purple);opacity:.8;"></i>${reasoning} · ${parcels.length} result${parcels.length===1?'':'s'}</div>`;
+      $searchDrop.innerHTML = hdr + parcels.slice(0, 12).map(p => {
+        const ll = (p.lat && p.lon) ? `,L.latLng(${p.lat},${p.lon})` : '';
+        const acreStr = p.acres ? ` · ${p.acres} ac` : '';
+        const safePid = (p.pid || p.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        return `<div class="sdr-item" onclick="selectFromSearch('${safePid}'${ll})"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-house" style="color:var(--accent);"></i></div><div class="sdr-text"><div class="t1">${p.addr || '(no address)'}${p.city ? ', '+p.city : ''}</div><div class="t2">${p.use || 'Parcel'}${acreStr} · ${p.pid || ''}</div></div></div>`;
+      }).join('');
+      $searchDrop.style.display = 'block';
+    }).catch(err => {
+      if (err && err.name === 'AbortError') return;
+      if (_aiSearchAbort !== ctrl) return;
+      _aiSearchAbort = null;
+      $searchDrop.innerHTML = `<div class="sdr-item" style="opacity:.8;cursor:default;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i></div><div class="sdr-text"><div class="t1">AI search unavailable</div><div class="t2">${err && err.message ? err.message : 'Service error — check API key setup'}</div></div></div>`;
+      $searchDrop.style.display = 'block';
+    });
     return;
   }
   const qRaw = $searchInput.value.trim();
@@ -3808,6 +3860,7 @@ document.addEventListener('click', e => {
   function applyMode(mode) {
     _searchMode = mode;
     localStorage.setItem('mn_search_mode', mode);
+    if (_aiSearchAbort) { _aiSearchAbort.abort(); _aiSearchAbort = null; }
     $searchDrop.style.display = 'none';
     $segs.forEach(seg => seg.classList.toggle('active', seg.dataset.mode === mode));
     $searchInput.placeholder = mode === 'ai' ? AI_PH : ADDR_PH;
