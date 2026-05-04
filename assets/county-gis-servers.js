@@ -244,6 +244,37 @@ const COUNTY_GIS_SERVERS = {
     {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Council_Reps/FeatureServer', ids:[0], name:'City Council Members', cat:'districts'},
     {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Sign_Inventory/FeatureServer', ids:[0,1], name:'Sign Inventory & Poles', cat:'transportation'}
   ],
+  // Marion County (Indianapolis/Marion Consolidated) — gis.indy.gov (verified via municipal-gis-servers.js + county-parcel-apis.js)
+  marion: [
+    {svc:'https://gis.indy.gov/server/rest/services/MapIndy/MapIndyProperty/MapServer',          ids:[10], name:'Parcels',                       cat:'parcels'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer',     ids:[3],  name:'Parcel Boundaries',             cat:'parcels'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer',     ids:[5],  name:'Building Addresses',            cat:'parcels'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer',     ids:[12], name:'Building Footprints',           cat:'parcels'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer',     ids:[1],  name:'Subdivision Boundaries',        cat:'parcels'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[9],  name:'Zoning',                        cat:'zoning'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[3],  name:'Current Land Use',              cat:'zoning'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[15], name:'TIF Districts',                 cat:'zoning'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[5],  name:'Flood Plain',                  cat:'hydrology'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[13], name:'Street Centerlines',            cat:'transportation'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[10], name:'Bike Lanes',                    cat:'transportation'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[9],  name:'Trails',                        cat:'transportation'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[11], name:'IndyGo Bus Routes',             cat:'transportation'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[4],  name:'IndyGo Bus Stops',             cat:'transportation'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Transportation/MapServer', ids:[17], name:'Bridges',                      cat:'transportation'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Boundaries/MapServer',     ids:[10], name:'Neighborhoods',                 cat:'civic'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer',      ids:[1],  name:'City-County Council Districts', cat:'districts'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer',      ids:[2],  name:'Precincts',                     cat:'districts'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Political/MapServer',      ids:[9],  name:'School Board Districts',        cat:'districts'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_PlanningZoning/MapServer', ids:[6],  name:'Historic Register',             cat:'districts'},
+    {svc:'https://gis.indy.gov/server/rest/services/OpenData/OpenData_Infrastructure/MapServer', ids:[2],  name:'Vacant & Abandoned Houses',     cat:'poi'},
+  ],
+
+  // Allen County (Fort Wayne) — gis.cityoffortwayne.org (parcels confirmed in county-parcel-apis.js)
+  // Additional services need human verification against https://gis.cityoffortwayne.org/arcgis/rest/services/Public
+  allen: [
+    {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Parcels/FeatureServer',   ids:[0],  name:'Parcels',                       cat:'parcels'},
+  ],
+
   // Vanderburgh County (Evansville GIS server)
   vanderburgh: [
     {svc:'https://maps.evansvillegis.com/arcgis_server/rest/services/PROPERTY/PARCELS/MapServer', ids:[0], name:'Parcels', cat:'parcels'},
