@@ -28,9 +28,21 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 
 /* search */
 #search-wrap{flex:1;max-width:440px;position:relative;}
+#search-mode-btn{
+  position:absolute;left:0;top:0;bottom:0;width:76px;
+  background:var(--panel3);border:none;border-right:1px solid var(--border);
+  color:var(--text2);cursor:pointer;font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  border-radius:var(--radius) 0 0 var(--radius);
+  transition:color .15s,background .15s;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.8px;text-transform:uppercase;
+  white-space:nowrap;flex-shrink:0;
+}
+#search-mode-btn:hover{background:var(--panel2);color:var(--text);}
+#search-mode-btn.ai-mode{color:var(--purple);border-right-color:rgba(167,139,250,.3);}
 #search-input{
   width:100%;background:var(--panel2);border:1px solid var(--border);
-  border-radius:var(--radius);padding:8px 38px 8px 14px;
+  border-radius:var(--radius);padding:8px 38px 8px 84px;
   font-size:13px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;
   transition:border-color .2s,box-shadow .2s;
 }
