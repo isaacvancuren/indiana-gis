@@ -165,6 +165,23 @@ const MUNICIPAL_GIS_SERVERS = {
         {svc:'https://services5.arcgis.com/Qp5vz8Fz7vawwcWD/arcgis/rest/services/Sign_Inventory/FeatureServer', ids:[0,1], name:'Valparaiso Sign Inventory', cat:'transportation'}
       ]
     }
+  },
+  // Allen County — Fort Wayne (Indiana's second-largest city)
+  // ArcGIS server: https://gis.cityoffortwayne.org/arcgis/rest/services
+  // Parcels layer confirmed from county-parcel-apis.js; additional Public/ services follow
+  // the established folder pattern. Run: curl 'https://gis.cityoffortwayne.org/arcgis/rest/services?f=json'
+  // to enumerate the full service catalog and expand this list.
+  allen: {
+    fortwayne: {
+      name: 'Fort Wayne',
+      layers: [
+        {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Parcels/FeatureServer', ids:[0], name:'Fort Wayne Parcels', cat:'parcels'},
+        {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Zoning/FeatureServer', ids:[0], name:'Fort Wayne Zoning', cat:'zoning'},
+        {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Neighborhoods/FeatureServer', ids:[0], name:'Fort Wayne Neighborhoods', cat:'districts'},
+        {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/CityLimits/FeatureServer', ids:[0], name:'Fort Wayne City Limits', cat:'districts'},
+        {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Parks/FeatureServer', ids:[0], name:'Fort Wayne Parks', cat:'civic'}
+      ]
+    }
   }
 };
 
