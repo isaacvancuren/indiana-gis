@@ -370,6 +370,7 @@
               <div class="prc-cell">
                 <div class="lbl">Zoning District</div>
                 <div class="val" id="prc-zone">—</div>
+                <a id="prc-zone-link" href="#" target="_blank" rel="noopener" style="display:none;font-size:10px;color:#93c5fd;text-decoration:none;">View zoning ordinance →</a>
               </div>
             </div>
 
@@ -2112,6 +2113,10 @@ function buildPopupHTML(p) {
   const hasTV    = p.tv    && p.tv    !== '—';
   const hasAcres = p.acres && p.acres !== '—';
   const lookupUrl = p.lookupUrl || getParcelLookupUrl(p.pid);
+  const _cSlug  = activeCounty ? activeCounty.name.toLowerCase().replace(/\s*county\s*$/i,'').replace(/[^a-z]/g,'') : '';
+  const _ciSlug = (p.city || '').toLowerCase().replace(/[^a-z]/g,'');
+  const _zoningUrl = (typeof window.getZoningOrdinanceUrl === 'function')
+    ? window.getZoningOrdinanceUrl(_cSlug, _ciSlug, p.zone) : null;
 
   return `
     <div class="mpop">
@@ -2139,6 +2144,7 @@ function buildPopupHTML(p) {
              <span class="mpop-v" style="font-size:10px;">${p.lv} / ${p.iv || '—'}</span></div>` : ''}
         <div class="mpop-row"><span class="mpop-k">Property Class</span>
           <span class="mpop-v">${p.use || '—'}</span></div>
+        ${_zoningUrl ? `<div class="mpop-row"><span class="mpop-k">Zoning</span><span class="mpop-v"><a href="${_zoningUrl}" target="_blank" rel="noopener" style="color:#93c5fd;font-size:10px;text-decoration:none;">View ordinance →</a></span></div>` : ''}
         <div class="mpop-row"><span class="mpop-k">Acres</span>
           <span class="mpop-v">${hasAcres ? p.acres + ' ac' : '—'}</span></div>
         ${p.txdate && p.txdate !== '—'
@@ -2205,6 +2211,15 @@ function loadLiveParcelPanel(p) {
   set('prc-addr',   (p.addr || '') + ', ' + (p.city || '') + ', IN ' + (p.zip || ''));
   set('prc-acres',  p.acres && p.acres !== '—' ? p.acres + ' ac' : '—');
   set('prc-zone',   p.zone);
+  const _prcCSlug  = activeCounty ? activeCounty.name.toLowerCase().replace(/\s*county\s*$/i,'').replace(/[^a-z]/g,'') : '';
+  const _prcCiSlug = (p.city || '').toLowerCase().replace(/[^a-z]/g,'');
+  const _prcZoningUrl = (typeof window.getZoningOrdinanceUrl === 'function')
+    ? window.getZoningOrdinanceUrl(_prcCSlug, _prcCiSlug, p.zone) : null;
+  const _prcZoneLink = document.getElementById('prc-zone-link');
+  if (_prcZoneLink) {
+    if (_prcZoningUrl) { _prcZoneLink.href = _prcZoningUrl; _prcZoneLink.style.display = ''; }
+    else { _prcZoneLink.style.display = 'none'; }
+  }
 
   // Tax table
   const tbl = document.getElementById('prc-tax-table');
@@ -6106,6 +6121,7 @@ window.selectParcel = function(p, layer) {
 <script src="assets/mn-project-features.js?v=1" defer></script>
 <script src="assets/mn-tool-actions.js?v=1" defer></script>
 <script src="assets/mn-schneider-fallback.js?v=3" defer></script>
+<script src="assets/mn-zoning-ordinances.js?v=1" defer></script>
 </body>
 </html>
 
