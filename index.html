@@ -1272,7 +1272,7 @@
 </div></div>
 
 <script src="assets/county-gis-servers.js?v=2"></script>
-<script src="assets/municipal-gis-servers.js?v=2"></script>
+<script src="assets/municipal-gis-servers.js?v=3"></script>
 <script src="assets/county-parcel-apis.js?v=2"></script>
 <script src="assets/county-layer-engines.js?v=2"></script>
 <script src="assets/county-metadata.js?v=6"></script>
@@ -2540,23 +2540,30 @@ async function fetchCountyLayers(cKey) {
     return countyLayerCache[cKey];
   }
 
-  // 2. ElevateMaps counties — auto-discover layers from their MapServer
+  // 2. ElevateMaps counties — auto-discover layers from their MapServer.
+  //    Short timeout so the panel doesn't sit on a spinner when SAS auth
+  //    silently 401s. On any failure the result is cached so subsequent
+  //    selections of the same county fall through to fallback instantly.
   const base = getActiveDynamicBase();
   if (base) {
     try {
-      const r = await fetch(base + '?f=json', { signal: AbortSignal.timeout(12000) });
+      const r = await fetch(base + '?f=json', { signal: AbortSignal.timeout(4000) });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const d = await r.json();
       const layers = (d.layers || []).filter(l => l.type !== 'Group Layer')
         .map(l => ({ id: l.id, name: l.name, cat: categorizeLayer(l.name) }));
-      countyLayerCache[cKey] = layers;
-      return layers;
+      if (layers.length) {
+        countyLayerCache[cKey] = layers;
+        return layers;
+      }
     } catch(e) {
       console.warn('[fetchCountyLayers] ElevateMaps fetch failed for', cKey, e.message);
     }
   }
 
-  // 3. No server found — return empty (statewide IGIO parcel still available)
+  // 3. No server found or fetch failed — return statewide fallback.
+  //    Cache the fallback so we don't re-attempt ElevateMaps on every
+  //    county-switch back to this county within the session.
   countyLayerCache[cKey] = STATEWIDE_FALLBACK_LAYERS;
   return STATEWIDE_FALLBACK_LAYERS;
 }

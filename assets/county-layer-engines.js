@@ -563,6 +563,7 @@ const CLARK_LAYERS = [
 
   if (typeof IGIO_SVC !== 'undefined') window.IGIO_SVC = IGIO_SVC;
   if (typeof IGIO_ADMIN !== 'undefined') window.IGIO_ADMIN = IGIO_ADMIN;
+  if (typeof getActiveDynamicBase === 'function') window.getActiveDynamicBase = getActiveDynamicBase;
   if (typeof BARTHOLOMEW_LAYERS !== 'undefined') window.BARTHOLOMEW_LAYERS = BARTHOLOMEW_LAYERS;
   if (typeof JC_BASE !== 'undefined') window.JC_BASE = JC_BASE;
   if (typeof JOHNSON_LAYERS !== 'undefined') window.JOHNSON_LAYERS = JOHNSON_LAYERS;
