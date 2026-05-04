@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify index.html exists at repo root
+        run: test -f index.html || (echo "::error::index.html missing — GitHub Pages deploy will break" && exit 1)
+
+      - name: Syntax-check asset JS files
+        run: |
+          shopt -s nullglob
+          fail=0
+          for f in assets/*.js; do
+            if ! node --check "$f"; then
+              echo "::error file=$f::syntax error"
+              fail=1
+            fi
+          done
+          exit $fail
+
+      - name: Extract and syntax-check inline JS in index.html
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const re = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;
+          const blocks = [...html.matchAll(re)].map(m => m[1]);
+          if (blocks.length === 0) {
+            console.log('No inline <script> blocks found.');
+            process.exit(0);
+          }
+          let failed = 0;
+          blocks.forEach((src, i) => {
+            const tmp = `/tmp/inline-${i}.js`;
+            fs.writeFileSync(tmp, src);
+            try {
+              execSync(`node --check ${tmp}`, { stdio: 'pipe' });
+            } catch (e) {
+              console.error(`::error::inline <script> block #${i} failed syntax check`);
+              console.error(e.stderr.toString());
+              failed++;
+            }
+          });
+          if (failed) process.exit(1);
+          console.log(`All ${blocks.length} inline scripts passed.`);
+          EOF
+
+      - name: HTML validation
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: .
+          match: "index.html"
+        continue-on-error: true
