@@ -110,8 +110,11 @@
   <div class="hsep"></div>
 
   <div id="search-wrap">
-    <input id="search-input" placeholder="=
-  Search address, parcel ID, owner, coordinates&" autocomplete="off"/>
+    <div id="search-mode-toggle" role="group" aria-label="Search mode">
+      <button class="seg" data-mode="ai" type="button"><i class="fas fa-wand-magic-sparkles"></i> AI</button>
+      <button class="seg active" data-mode="address" type="button">Address</button>
+    </div>
+    <input id="search-input" placeholder="Search address, parcel ID, owner, coordinates" autocomplete="off"/>
     <button id="search-btn" title="Search"><i class="fas fa-magnifying-glass"></i></button>
     <div id="search-dropdown"></div>
   </div>
@@ -3666,6 +3669,7 @@ const $searchDrop = document.getElementById('search-dropdown');
 // and renders into the dropdown below the header search field.
 let _hdrSearchSeq = 0;
 let _hdrSearchTimer = null;
+let _searchMode = localStorage.getItem('mn_search_mode') || 'address';
 
 function _renderHdrDrop(items, statusLine) {
   if (!items || !items.length) {
@@ -3705,6 +3709,13 @@ function _renderHdrDrop(items, statusLine) {
 }
 
 function _runHdrSearch() {
+  if (_searchMode === 'ai') {
+    const q = $searchInput.value.trim();
+    if (!q) { $searchDrop.style.display = 'none'; return; }
+    $searchDrop.innerHTML = `<div class="sdr-item" style="opacity:.8;cursor:default;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-robot" style="color:var(--purple);"></i></div><div class="sdr-text"><div class="t1">AI search coming in slice b</div><div class="t2">Natural-language parcel search — stay tuned</div></div></div>`;
+    $searchDrop.style.display = 'block';
+    return;
+  }
   const qRaw = $searchInput.value.trim();
   const q = qRaw.toLowerCase();
   if (q.length < 2) { $searchDrop.style.display = 'none'; return; }
@@ -3787,6 +3798,32 @@ document.getElementById('search-btn').addEventListener('click', () => {
 document.addEventListener('click', e => {
   if (!e.target.closest('#search-wrap')) $searchDrop.style.display = 'none';
 });
+
+// Search mode toggle — Epic #4 slice a
+(function() {
+  const ADDR_PH = 'Search address, parcel ID, owner, coordinates';
+  const AI_PH   = "Describe what you're looking for…";
+  const $segs = document.querySelectorAll('#search-mode-toggle .seg');
+
+  function applyMode(mode) {
+    _searchMode = mode;
+    localStorage.setItem('mn_search_mode', mode);
+    $searchDrop.style.display = 'none';
+    $segs.forEach(seg => seg.classList.toggle('active', seg.dataset.mode === mode));
+    $searchInput.placeholder = mode === 'ai' ? AI_PH : ADDR_PH;
+  }
+
+  $segs.forEach(seg => {
+    seg.addEventListener('click', () => {
+      if (seg.dataset.mode === _searchMode) return;
+      applyMode(seg.dataset.mode);
+      $searchInput.value = '';
+      $searchInput.focus();
+    });
+  });
+
+  applyMode(_searchMode);
+})();
 
 function selectFromSearch(pid, fallbackLatLng){
   // Find in live loaded parcels
