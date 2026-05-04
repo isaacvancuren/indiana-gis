@@ -1819,9 +1819,22 @@ function _normalizeWthAttrs(raw) {
   };
 }
 
-//  End Tier 3 
+//  End Tier 3
 
-//  Main ownership fetch 
+// Fetch helper: tries direct first (most endpoints have open CORS), falls back
+// to /api/gis-proxy for hosts that block cross-origin requests (e.g. Allen/Fort Wayne).
+async function proxiedFetch(upstreamUrl, init) {
+  try {
+    const r = await fetch(upstreamUrl, init);
+    if (r.ok) return r;
+  } catch (e) {
+    // CORS block or network error — fall through to proxy
+  }
+  const proxyUrl = '/api/gis-proxy?url=' + encodeURIComponent(upstreamUrl);
+  return fetch(proxyUrl, init);
+}
+
+//  Main ownership fetch
 async function fetchOwnershipByPin(pin) {
   if (!pin) return null;
   const cacheKey = pin.replace(/[^a-zA-Z0-9]/g,'');
@@ -1867,7 +1880,7 @@ async function fetchOwnershipByPin(pin) {
         where, outFields: '*', returnGeometry: 'false',
         resultRecordCount: '1', f: 'json'
       });
-      resp = await fetch(cfg.url + '?' + params, { signal: AbortSignal.timeout(8000) });
+      resp = await proxiedFetch(cfg.url + '?' + params, { signal: AbortSignal.timeout(8000) });
       if (!resp.ok) return null;
       data = await resp.json();
       if (data.features && data.features.length > 0) {
