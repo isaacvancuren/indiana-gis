@@ -72,13 +72,18 @@
   }
 
   function toSearchResult(r) {
+    var useRaw = r.use || '';
+    // The cache stores either a raw DLGF class code (from warm() / fetchIGIOPage)
+    // or an already-translated label (from store() called after _fetchIGIOAndCache,
+    // which pre-translates). Only call getPropClass when the value looks like a code.
+    var isCode = /^\d{2,4}$/.test(useRaw);
     return {
       id:   r.pid,
       pid:  r.pid,
       addr: r.addrOrig || r.addr || '',
       city: r.cityOrig || r.city || '',
       zip:  r.zip  || '',
-      use:  (typeof getPropClass === 'function') ? getPropClass(r.use || '') : (r.use || 'Parcel'),
+      use:  isCode && typeof getPropClass === 'function' ? getPropClass(useRaw) : (useRaw || 'Parcel'),
       lat:  r.lat  || 0,
       lon:  r.lon  || 0
     };
