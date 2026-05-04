@@ -110,7 +110,10 @@
   <div class="hsep"></div>
 
   <div id="search-wrap">
-    <button id="search-mode-btn" title="Switch search mode">Address</button>
+    <div id="search-mode-toggle" role="group" aria-label="Search mode">
+      <button class="seg active" data-mode="address" type="button">Address</button>
+      <button class="seg" data-mode="ai" type="button"><i class="fas fa-wand-magic-sparkles"></i> AI</button>
+    </div>
     <input id="search-input" placeholder="Search address, parcel ID, owner, coordinates" autocomplete="off"/>
     <button id="search-btn" title="Search"><i class="fas fa-magnifying-glass"></i></button>
     <div id="search-dropdown"></div>
@@ -3800,27 +3803,23 @@ document.addEventListener('click', e => {
 (function() {
   const ADDR_PH = 'Search address, parcel ID, owner, coordinates';
   const AI_PH   = "Describe what you're looking for…";
-  const $modeBtn = document.getElementById('search-mode-btn');
+  const $segs = document.querySelectorAll('#search-mode-toggle .seg');
 
   function applyMode(mode) {
     _searchMode = mode;
     localStorage.setItem('mn_search_mode', mode);
     $searchDrop.style.display = 'none';
-    if (mode === 'ai') {
-      $modeBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> AI';
-      $modeBtn.classList.add('ai-mode');
-      $searchInput.placeholder = AI_PH;
-    } else {
-      $modeBtn.textContent = 'Address';
-      $modeBtn.classList.remove('ai-mode');
-      $searchInput.placeholder = ADDR_PH;
-    }
+    $segs.forEach(seg => seg.classList.toggle('active', seg.dataset.mode === mode));
+    $searchInput.placeholder = mode === 'ai' ? AI_PH : ADDR_PH;
   }
 
-  $modeBtn.addEventListener('click', () => {
-    applyMode(_searchMode === 'address' ? 'ai' : 'address');
-    $searchInput.value = '';
-    $searchInput.focus();
+  $segs.forEach(seg => {
+    seg.addEventListener('click', () => {
+      if (seg.dataset.mode === _searchMode) return;
+      applyMode(seg.dataset.mode);
+      $searchInput.value = '';
+      $searchInput.focus();
+    });
   });
 
   applyMode(_searchMode);
