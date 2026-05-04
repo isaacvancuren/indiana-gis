@@ -5,6 +5,11 @@ on:
     # Daily at 07:00 UTC (~2-3 AM US Eastern). GitHub may delay scheduled runs.
     - cron: "0 7 * * *"
   workflow_dispatch: {}
+  # Self-trigger when this workflow file changes so the label bootstrap
+  # step runs on first deploy without manual intervention.
+  push:
+    branches: [main]
+    paths: [".github/workflows/overnight-queue.yml"]
 
 jobs:
   dispatch:
@@ -12,6 +17,34 @@ jobs:
     permissions:
       issues: write
     steps:
+      - name: Ensure required labels exist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const desired = [
+              {
+                name: 'claude:overnight',
+                color: '0e1116',
+                description: 'Process this issue overnight via the scheduled @claude dispatcher',
+              },
+              {
+                name: 'claude:implement',
+                color: '1f6feb',
+                description: 'Tell @claude to skip planning and open a draft PR with code',
+              },
+            ];
+            for (const label of desired) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label.name });
+                core.info(`Label "${label.name}" already exists.`);
+              } catch (e) {
+                if (e.status !== 404) throw e;
+                await github.rest.issues.createLabel({ owner, repo, ...label });
+                core.info(`Created label "${label.name}".`);
+              }
+            }
+
       - name: Trigger @claude on issues labeled claude:overnight
         uses: actions/github-script@v7
         with:
