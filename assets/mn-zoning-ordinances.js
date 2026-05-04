@@ -1,39 +1,39 @@
-// Zoning ordinance URL lookup, keyed by 'county_slug:city_slug' (exact match)
-// or 'county_slug' (county-level fallback). Values are a URL string or a
-// function(zoningCode) => url for jurisdictions that support deep-linking.
+// Zoning ordinance lookup. Keyed by 'county_slug:city_slug' (exact-match,
+// preferred) or 'county_slug' (county-level fallback). Values are display
+// metadata describing the jurisdiction; the URL is built per-call as a
+// Google search so we never serve a broken Municode link.
+//
+// Many Indiana cities do host their ordinances on Municode, but the slug
+// pattern is inconsistent (carmel, fishers-in, town_of_fishers, etc.) and
+// guessing 404s. Routing through search guarantees the user lands on a
+// page that lets them find the actual ordinance, regardless of host.
 window.ZONING_ORDINANCES = {
-  // Marion County
-  'marion:indianapolis':  'https://library.municode.com/in/indianapolis_-_marion_county/codes/unified_development_ordinance',
+  'marion:indianapolis':  { label: 'Indianapolis / Marion County' },
 
-  // Hamilton County cities
-  'hamilton:carmel':      'https://library.municode.com/in/carmel/codes/code_of_ordinances',
-  'hamilton:fishers':     'https://www.fishers.in.us/216/Zoning',
-  'hamilton:noblesville': 'https://library.municode.com/in/noblesville/codes/code_of_ordinances',
-  'hamilton:westfield':   'https://library.municode.com/in/westfield/codes/code_of_ordinances',
+  'hamilton:carmel':      { label: 'Carmel, Indiana' },
+  'hamilton:fishers':     { label: 'Fishers, Indiana' },
+  'hamilton:noblesville': { label: 'Noblesville, Indiana' },
+  'hamilton:westfield':   { label: 'Westfield, Indiana' },
 
-  // Monroe County
-  'monroe:bloomington':   'https://library.municode.com/in/bloomington/codes/code_of_ordinances',
+  'monroe:bloomington':   { label: 'Bloomington, Indiana' },
+  'allen:fortwayne':      { label: 'Fort Wayne, Indiana' },
+  'bartholomew:columbus': { label: 'Columbus, Indiana' },
+  'stjoseph:southbend':   { label: 'South Bend, Indiana' },
 
-  // Allen County
-  'allen:fortwayne':      'https://library.municode.com/in/fort_wayne/codes/code_of_ordinances',
-
-  // Bartholomew County
-  'bartholomew:columbus': 'https://library.municode.com/in/columbus/codes/code_of_ordinances',
-
-  // St. Joseph County
-  'stjoseph:southbend':   'https://library.municode.com/in/south_bend/codes/code_of_ordinances',
-
-  // County-level fallbacks (used when city doesn't match any entry above)
-  'marion':      'https://library.municode.com/in/indianapolis_-_marion_county/codes/unified_development_ordinance',
-  'hamilton':    'https://www.hamiltoncounty.in.gov/291/Planning-Zoning',
-  'monroe':      'https://library.municode.com/in/bloomington/codes/code_of_ordinances',
-  'allen':       'https://library.municode.com/in/fort_wayne/codes/code_of_ordinances',
-  'bartholomew': 'https://library.municode.com/in/columbus/codes/code_of_ordinances',
-  'stjoseph':    'https://library.municode.com/in/south_bend/codes/code_of_ordinances',
+  // County-level fallbacks — used when the parcel's city doesn't have an
+  // exact entry above. The popup falls back to county scope automatically.
+  'marion':      { label: 'Marion County, Indiana' },
+  'hamilton':    { label: 'Hamilton County, Indiana' },
+  'monroe':      { label: 'Monroe County, Indiana' },
+  'allen':       { label: 'Allen County, Indiana' },
+  'bartholomew': { label: 'Bartholomew County, Indiana' },
+  'stjoseph':    { label: 'St. Joseph County, Indiana' },
 };
 
-// Returns a URL string for the given county/city/zoningCode, or null if none registered.
-window.getZoningOrdinanceUrl = function(countyName, cityName, zoningCode) {
+// Returns a URL string for the given county/city/zoningCode, or null if no
+// jurisdiction is registered. URL is a Google search rather than a direct
+// link to a code library so we never produce a 404.
+window.getZoningOrdinanceUrl = function (countyName, cityName, zoningCode) {
   var lookup = window.ZONING_ORDINANCES;
   if (!lookup) return null;
   var c  = (countyName || '').toLowerCase().replace(/\s*county\s*$/i, '').replace(/[^a-z]/g, '');
@@ -41,5 +41,8 @@ window.getZoningOrdinanceUrl = function(countyName, cityName, zoningCode) {
   if (!c) return null;
   var entry = (ci && lookup[c + ':' + ci]) || lookup[c] || null;
   if (!entry) return null;
-  return typeof entry === 'function' ? entry(zoningCode) : entry;
+  var label = entry.label || (c + (ci ? ' ' + ci : ''));
+  var q = label + ' zoning ordinance';
+  if (zoningCode) q += ' ' + zoningCode;
+  return 'https://www.google.com/search?q=' + encodeURIComponent(q);
 };
