@@ -111,12 +111,73 @@
 
   <div id="search-wrap">
     <div id="search-mode-toggle" role="group" aria-label="Search mode">
-      <button class="seg" data-mode="ai" type="button"><i class="fas fa-wand-magic-sparkles"></i> AI</button>
+      <button class="seg" data-mode="filter" type="button"><i class="fas fa-filter"></i> Filter</button>
       <button class="seg active" data-mode="address" type="button">Address</button>
     </div>
     <input id="search-input" placeholder="Search address, parcel ID, owner, coordinates" autocomplete="off"/>
     <button id="search-btn" title="Search"><i class="fas fa-magnifying-glass"></i></button>
     <div id="search-dropdown"></div>
+    <div id="fp">
+      <div class="fp-hdr">
+        <span class="fp-hdr-title"><i class="fas fa-filter" style="margin-right:6px;"></i>Filter Parcels</span>
+        <button class="fp-close" type="button" title="Close filter panel" onclick="document.getElementById('fp').classList.remove('open');"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="fp-body">
+        <div class="fp-section">
+          <div class="fp-sec-title">Acreage</div>
+          <div class="fp-range">
+            <input class="fp-inp fp-inp-sm" type="number" id="fp-acres-min" placeholder="Min" min="0" step="0.1">
+            <span class="fp-range-sep">to</span>
+            <input class="fp-inp fp-inp-sm" type="number" id="fp-acres-max" placeholder="Max" min="0" step="0.1">
+            <span class="fp-range-unit">acres</span>
+          </div>
+        </div>
+        <div class="fp-section">
+          <div class="fp-sec-title">Property Class</div>
+          <div class="fp-cls-grid">
+            <label class="fp-cls-item"><input type="checkbox" data-group="residential"> Residential</label>
+            <label class="fp-cls-item"><input type="checkbox" data-group="commercial"> Commercial</label>
+            <label class="fp-cls-item"><input type="checkbox" data-group="industrial"> Industrial</label>
+            <label class="fp-cls-item"><input type="checkbox" data-group="agricultural"> Agricultural</label>
+            <label class="fp-cls-item"><input type="checkbox" data-group="exempt"> Exempt / Public</label>
+            <label class="fp-cls-item"><input type="checkbox" data-group="vacant"> Vacant</label>
+            <label class="fp-cls-item"><input type="checkbox" data-group="utility"> Utility</label>
+          </div>
+        </div>
+        <div class="fp-section fp-checkline">
+          <label class="fp-chk-lbl"><input type="checkbox" id="fp-vacant-only"> Vacant lots only</label>
+          <label class="fp-chk-lbl"><input type="checkbox" id="fp-has-building"> Has building</label>
+        </div>
+        <div class="fp-section">
+          <div class="fp-sec-title">Owner Name Contains</div>
+          <input class="fp-inp fp-inp-full" type="text" id="fp-owner" placeholder="e.g. Smith, Jones, ABC LLC">
+        </div>
+        <div class="fp-section">
+          <div class="fp-sec-title">Property Address Contains</div>
+          <input class="fp-inp fp-inp-full" type="text" id="fp-addr" placeholder="e.g. 123 Main St">
+        </div>
+        <div class="fp-section">
+          <div class="fp-sec-title">City</div>
+          <input class="fp-inp fp-inp-full" type="text" id="fp-city" placeholder="e.g. Columbus">
+        </div>
+        <div class="fp-apply-row">
+          <button class="fp-btn-clr" type="button" onclick="clearFilterPanel()">Clear All</button>
+          <button class="fp-btn-apply" type="button" onclick="applyFilterPanel()"><i class="fas fa-magnifying-glass"></i> Apply</button>
+        </div>
+      </div>
+      <div id="fp-spinner"><i class="fas fa-circle-notch fa-spin"></i> Searching IGIO…</div>
+      <div id="fp-empty-msg" style="display:none;"></div>
+      <div id="fp-results-wrap" style="display:none;">
+        <div class="fp-res-hdr">
+          <span id="fp-res-count"></span>
+          <div class="fp-res-actions">
+            <button class="fp-save-btn" id="fp-save-sel-btn" type="button" onclick="filterSaveSelected()" style="display:none;"><i class="fas fa-bookmark"></i> Save selected</button>
+            <button class="fp-save-btn" id="fp-save-all-btn" type="button" onclick="filterSaveAll()" style="display:none;"><i class="fas fa-bookmark"></i> Save all</button>
+          </div>
+        </div>
+        <div id="fp-results-list"></div>
+      </div>
+    </div>
   </div>
 
   <div class="hsep"></div>
@@ -3669,7 +3730,11 @@ const $searchDrop = document.getElementById('search-dropdown');
 // and renders into the dropdown below the header search field.
 let _hdrSearchSeq = 0;
 let _hdrSearchTimer = null;
-let _searchMode = localStorage.getItem('mn_search_mode') || 'address';
+let _searchMode = (function() {
+  let m = localStorage.getItem('mn_search_mode') || 'address';
+  if (m === 'ai') { m = 'filter'; localStorage.setItem('mn_search_mode', 'filter'); }
+  return m;
+})();
 
 function _renderHdrDrop(items, statusLine) {
   if (!items || !items.length) {
@@ -3709,11 +3774,9 @@ function _renderHdrDrop(items, statusLine) {
 }
 
 function _runHdrSearch() {
-  if (_searchMode === 'ai') {
-    const q = $searchInput.value.trim();
-    if (!q) { $searchDrop.style.display = 'none'; return; }
-    $searchDrop.innerHTML = `<div class="sdr-item" style="opacity:.8;cursor:default;"><div class="sdr-icon" style="background:var(--panel2);border:1px solid var(--border);"><i class="fas fa-robot" style="color:var(--purple);"></i></div><div class="sdr-text"><div class="t1">AI search coming in slice b</div><div class="t2">Natural-language parcel search — stay tuned</div></div></div>`;
-    $searchDrop.style.display = 'block';
+  if (_searchMode === 'filter') {
+    // Filter mode: input is passive, panel handles the search
+    $searchDrop.style.display = 'none';
     return;
   }
   const qRaw = $searchInput.value.trim();
@@ -3799,10 +3862,10 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#search-wrap')) $searchDrop.style.display = 'none';
 });
 
-// Search mode toggle — Epic #4 slice a
+// Search mode toggle — Epic #4 slice a / Issue #32
 (function() {
-  const ADDR_PH = 'Search address, parcel ID, owner, coordinates';
-  const AI_PH   = "Describe what you're looking for…";
+  const ADDR_PH   = 'Search address, parcel ID, owner, coordinates';
+  const FILTER_PH = 'Set filters below — click Apply to search';
   const $segs = document.querySelectorAll('#search-mode-toggle .seg');
 
   function applyMode(mode) {
@@ -3810,16 +3873,37 @@ document.addEventListener('click', e => {
     localStorage.setItem('mn_search_mode', mode);
     $searchDrop.style.display = 'none';
     $segs.forEach(seg => seg.classList.toggle('active', seg.dataset.mode === mode));
-    $searchInput.placeholder = mode === 'ai' ? AI_PH : ADDR_PH;
+    const fp = document.getElementById('fp');
+    if (mode === 'filter') {
+      $searchInput.placeholder = FILTER_PH;
+      $searchInput.readOnly = true;
+      $searchInput.classList.add('fp-mode');
+      if (fp) fp.classList.add('open');
+    } else {
+      $searchInput.placeholder = ADDR_PH;
+      $searchInput.readOnly = false;
+      $searchInput.classList.remove('fp-mode');
+      if (fp) fp.classList.remove('open');
+    }
   }
 
   $segs.forEach(seg => {
     seg.addEventListener('click', () => {
       if (seg.dataset.mode === _searchMode) return;
       applyMode(seg.dataset.mode);
-      $searchInput.value = '';
-      $searchInput.focus();
+      if (seg.dataset.mode !== 'filter') {
+        $searchInput.value = '';
+        $searchInput.focus();
+      }
     });
+  });
+
+  // Clicking the passive search input in filter mode opens the panel
+  $searchInput.addEventListener('click', () => {
+    if (_searchMode === 'filter') {
+      const fp = document.getElementById('fp');
+      if (fp) fp.classList.add('open');
+    }
   });
 
   applyMode(_searchMode);
@@ -4092,6 +4176,248 @@ async function _remoteOwnerSearch(qRaw, stype) {
   } catch (e) { return []; }
 }
 function clearSearch(){document.getElementById('sfield').value='';document.getElementById('search-res').innerHTML='';}
+
+// PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+//  FILTER SEARCH PANEL  (Issue #32)
+// PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+
+// Property class group → IGIO LIKE pattern (dlgf_prop_class_code is string in IGIO)
+const _FP_CLASS_LIKE = {
+  residential:  "dlgf_prop_class_code LIKE '1%'",
+  agricultural: "dlgf_prop_class_code LIKE '2%'",
+  industrial:   "dlgf_prop_class_code LIKE '3%'",
+  commercial:   "dlgf_prop_class_code LIKE '4%'",
+  utility:      "dlgf_prop_class_code LIKE '5%'",
+  exempt:       "dlgf_prop_class_code LIKE '6%'",
+  vacant:       "dlgf_prop_class_code LIKE '7%'"
+};
+
+let _fpResultsData = [];
+let _fpSelected = new Set();
+
+function buildFilterWhere(filters) {
+  const parts = [];
+  const fips = window.activeCounty && window.activeCounty.fips;
+  if (fips) parts.push('county_fips=' + parseInt(fips, 10));
+
+  const acMin = parseFloat(filters.acresMin);
+  const acMax = parseFloat(filters.acresMax);
+  if (filters.acresMin !== '' && !isNaN(acMin)) parts.push('acres >= ' + acMin);
+  if (filters.acresMax !== '' && !isNaN(acMax)) parts.push('acres <= ' + acMax);
+
+  const classes = (filters.propClasses || []).filter(c => _FP_CLASS_LIKE[c]);
+  if (classes.length) {
+    parts.push('(' + classes.map(c => _FP_CLASS_LIKE[c]).join(' OR ') + ')');
+  }
+
+  // vacantOnly and hasBuilding expand to class-range filters
+  if (filters.vacantOnly) {
+    parts.push("dlgf_prop_class_code LIKE '7%'");
+  } else if (filters.hasBuilding) {
+    // Has building = not vacant and not exempt (ArcGIS NOT LIKE syntax)
+    parts.push("dlgf_prop_class_code NOT LIKE '7%'");
+    parts.push("dlgf_prop_class_code NOT LIKE '6%'");
+  }
+
+  if (filters.owner) {
+    parts.push("UPPER(owner_name) LIKE '%" + filters.owner.replace(/'/g, "''").toUpperCase() + "%'");
+  }
+  if (filters.addr) {
+    parts.push("UPPER(prop_add) LIKE '%" + filters.addr.replace(/'/g, "''").toUpperCase() + "%'");
+  }
+  if (filters.city) {
+    parts.push("UPPER(prop_city) LIKE '%" + filters.city.replace(/'/g, "''").toUpperCase() + "%'");
+  }
+
+  return parts.length ? parts.join(' AND ') : '1=1';
+}
+
+function _fpGetFilters() {
+  return {
+    acresMin:    document.getElementById('fp-acres-min').value,
+    acresMax:    document.getElementById('fp-acres-max').value,
+    propClasses: Array.from(document.querySelectorAll('#fp .fp-cls-item input:checked')).map(el => el.dataset.group),
+    vacantOnly:  document.getElementById('fp-vacant-only').checked,
+    hasBuilding: document.getElementById('fp-has-building').checked,
+    owner:       document.getElementById('fp-owner').value.trim(),
+    addr:        document.getElementById('fp-addr').value.trim(),
+    city:        document.getElementById('fp-city').value.trim()
+  };
+}
+
+function _fpActiveCount(f) {
+  return [
+    f.acresMin, f.acresMax,
+    ...(f.propClasses || []),
+    f.vacantOnly && 'v', f.hasBuilding && 'b',
+    f.owner, f.addr, f.city
+  ].filter(Boolean).length;
+}
+
+function _fpUpdateSummary(filters, count) {
+  const fc = _fpActiveCount(filters);
+  const $inp = document.getElementById('search-input');
+  if (!$inp) return;
+  if (fc > 0) {
+    $inp.placeholder = count !== null
+      ? `${fc} filter${fc===1?'':'s'} active · ${count} match${count===1?'':'es'}`
+      : `${fc} filter${fc===1?'':'s'} active`;
+  } else {
+    $inp.placeholder = 'Set filters below — click Apply to search';
+  }
+}
+
+async function applyFilterPanel() {
+  const filters = _fpGetFilters();
+  const fc = _fpActiveCount(filters);
+  const $spinner  = document.getElementById('fp-spinner');
+  const $empty    = document.getElementById('fp-empty-msg');
+  const $resWrap  = document.getElementById('fp-results-wrap');
+
+  if (fc === 0) {
+    $empty.textContent = 'No filters set. Add at least one filter above, then click Apply.';
+    $empty.style.display = 'block';
+    $resWrap.style.display = 'none';
+    return;
+  }
+
+  $spinner.classList.add('active');
+  $empty.style.display = 'none';
+  $resWrap.style.display = 'none';
+  _fpResultsData = [];
+  _fpSelected.clear();
+
+  const where = buildFilterWhere(filters);
+  const IGIO = 'https://gisdata.in.gov/server/rest/services/Hosted/Parcel_Boundaries_of_Indiana_Current/FeatureServer/0/query';
+  const url = IGIO
+    + '?where=' + encodeURIComponent(where)
+    + '&outFields=parcel_id,state_parcel_id,prop_add,prop_city,prop_zip,dlgf_prop_class_code,owner_name,acres,latitude,longitude'
+    + '&returnGeometry=false&resultRecordCount=200&f=json';
+
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
+
+    const results = (j.features || []).map(f => {
+      const a = f.attributes || {};
+      return {
+        id:    a.parcel_id || a.state_parcel_id || '',
+        pid:   a.parcel_id || a.state_parcel_id || '',
+        addr:  a.prop_add  || '',
+        city:  a.prop_city || '',
+        zip:   a.prop_zip  || '',
+        cls:   a.dlgf_prop_class_code != null ? String(a.dlgf_prop_class_code) : '',
+        owner: a.owner_name || '',
+        acres: a.acres != null ? parseFloat(a.acres).toFixed(2) : '',
+        lat:   parseFloat(a.latitude)  || 0,
+        lon:   parseFloat(a.longitude) || 0
+      };
+    });
+
+    _fpResultsData = results;
+    $spinner.classList.remove('active');
+    _fpUpdateSummary(filters, results.length);
+    _fpRenderResults(results);
+  } catch (e) {
+    $spinner.classList.remove('active');
+    $empty.textContent = 'Query failed: ' + e.message + '. Check console for details.';
+    $empty.style.display = 'block';
+    console.error('[FilterPanel] IGIO query failed:', e, '\nWHERE:', buildFilterWhere(filters));
+  }
+}
+
+function _fpRenderResults(results) {
+  const $resWrap = document.getElementById('fp-results-wrap');
+  const $empty   = document.getElementById('fp-empty-msg');
+  const $count   = document.getElementById('fp-res-count');
+  const $saveAll = document.getElementById('fp-save-all-btn');
+  const $saveSel = document.getElementById('fp-save-sel-btn');
+  const $list    = document.getElementById('fp-results-list');
+
+  if (!results.length) {
+    $empty.textContent = 'No parcels match your filters. Try broadening your criteria (e.g. remove the city filter).';
+    $empty.style.display = 'block';
+    $resWrap.style.display = 'none';
+    return;
+  }
+
+  $count.textContent = results.length + ' parcel' + (results.length === 1 ? '' : 's')
+    + (results.length === 200 ? ' (first 200)' : '');
+  $saveAll.style.display = 'inline-flex';
+  $saveSel.style.display = 'none';
+
+  $list.innerHTML = results.map((p, i) => {
+    const use = (typeof getPropClass === 'function') ? getPropClass(p.cls) : (p.cls || 'Parcel');
+    const ll  = (p.lat && p.lon) ? `,L.latLng(${p.lat},${p.lon})` : '';
+    const ownerHtml = p.owner ? `<span class="fp-owner-name">${p.owner}</span> · ` : '';
+    const acresHtml = p.acres ? `${p.acres} ac · ` : '';
+    const pidHtml   = p.pid   ? ` · <span>${p.pid}</span>` : '';
+    return `<div class="fp-result-row" data-idx="${i}" onclick="filterPanelNav(${i}${ll})">
+      <label class="fp-result-cb-wrap" onclick="event.stopPropagation()" title="Select">
+        <input type="checkbox" class="fp-cb" data-idx="${i}"
+          onchange="_fpToggleSelect(${i},this.checked)"
+          style="accent-color:var(--accent);cursor:pointer;">
+      </label>
+      <div class="fp-result-row-body">
+        <div class="fp-result-addr">${p.addr || '(no address)'}${p.city ? ', '+p.city : ''}</div>
+        <div class="fp-result-meta">${ownerHtml}${acresHtml}${use}${pidHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  $resWrap.style.display = 'block';
+}
+
+function filterPanelNav(idx, fallbackLatLng) {
+  const p = _fpResultsData[idx];
+  if (!p || !p.pid) return;
+  if (typeof selectFromSearch === 'function') selectFromSearch(p.pid, fallbackLatLng);
+}
+
+function _fpToggleSelect(idx, checked) {
+  if (checked) _fpSelected.add(idx);
+  else _fpSelected.delete(idx);
+  const $saveSel = document.getElementById('fp-save-sel-btn');
+  if ($saveSel) $saveSel.style.display = _fpSelected.size > 0 ? 'inline-flex' : 'none';
+}
+
+function clearFilterPanel() {
+  document.getElementById('fp-acres-min').value = '';
+  document.getElementById('fp-acres-max').value = '';
+  document.querySelectorAll('#fp .fp-cls-item input').forEach(el => el.checked = false);
+  document.getElementById('fp-vacant-only').checked = false;
+  document.getElementById('fp-has-building').checked = false;
+  document.getElementById('fp-owner').value = '';
+  document.getElementById('fp-addr').value = '';
+  document.getElementById('fp-city').value = '';
+  document.getElementById('fp-empty-msg').style.display = 'none';
+  document.getElementById('fp-results-wrap').style.display = 'none';
+  document.getElementById('fp-spinner').classList.remove('active');
+  _fpResultsData = [];
+  _fpSelected.clear();
+  _fpUpdateSummary({}, null);
+}
+
+function filterSaveAll() {
+  if (!_fpResultsData.length) return;
+  if (window.MNMultiselect && typeof window.MNMultiselect.openSaveDialog === 'function') {
+    window.MNMultiselect.openSaveDialog(_fpResultsData);
+  } else {
+    notify('Project save feature loading — try again.', 'fa-bookmark');
+  }
+}
+
+function filterSaveSelected() {
+  const sel = Array.from(_fpSelected).map(i => _fpResultsData[i]).filter(Boolean);
+  if (!sel.length) return;
+  if (window.MNMultiselect && typeof window.MNMultiselect.openSaveDialog === 'function') {
+    window.MNMultiselect.openSaveDialog(sel);
+  } else {
+    notify('Project save feature loading — try again.', 'fa-bookmark');
+  }
+}
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  MAP STATUS UPDATES
