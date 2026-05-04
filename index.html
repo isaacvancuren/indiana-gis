@@ -2098,7 +2098,13 @@ function selectParcelLive(p, layer) {
       ? fetchWthByLatLng(cfg3, center.lat, center.lng)
       : fetchOwnershipByPin(p.pid);
     doFetch.then(attr => {
-      if (!attr) return;
+      if (!attr) {
+        // Fetch returned nothing (CORS block, 404, pin mismatch, etc.).
+        // Mark enriched so the popup stops spinning and shows graceful empty state.
+        p._enriched = true;
+        try { popup.setContent(buildPopupHTML(p)); } catch(e) {}
+        return;
+      }
       enrichParcelData(p, attr);
       loadLiveParcelPanel(p);
       try { popup.setContent(buildPopupHTML(p)); } catch(e) {}
