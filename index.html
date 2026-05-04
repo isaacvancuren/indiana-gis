@@ -3960,11 +3960,26 @@ function doSearch(){
 }
 
 // IGIO statewide query for parcel id / address. Returns array of normalized parcel-shape objects.
+// Cache-first: checks IndexedDB (parcelCache) before hitting the network. On a cache hit,
+// fires a background IGIO refresh to keep the cache fresh (stale-while-revalidate).
 async function _remoteParcelSearch(q, stype) {
   const qSafe = q.replace(/'/g, "''");
   const cKey = (typeof getCountyKey === 'function') ? getCountyKey() : null;
   const fips = cKey && window.INDIANA_COUNTIES && window.INDIANA_COUNTIES[cKey] && window.INDIANA_COUNTIES[cKey].fips;
   if (!fips) return [];
+
+  if (stype !== 'owner' && window.parcelCache) {
+    const cached = await window.parcelCache.search(q, fips, stype);
+    if (cached.length) {
+      _fetchIGIOAndCache(qSafe, stype, fips); // background refresh, result ignored
+      return cached;
+    }
+  }
+
+  return _fetchIGIOAndCache(qSafe, stype, fips);
+}
+
+async function _fetchIGIOAndCache(qSafe, stype, fips) {
   const QU = qSafe.toUpperCase();
   let where;
   if (stype === 'parcel') {
@@ -3980,7 +3995,7 @@ async function _remoteParcelSearch(q, stype) {
     const r = await fetch(url);
     if (!r.ok) return [];
     const j = await r.json();
-    return (j.features || []).map(f => {
+    const results = (j.features || []).map(f => {
       const a = f.attributes || {};
       return {
         id:  a.parcel_id || a.state_parcel_id,
@@ -3993,6 +4008,8 @@ async function _remoteParcelSearch(q, stype) {
         lon:  parseFloat(a.longitude) || 0
       };
     });
+    if (window.parcelCache && results.length) window.parcelCache.store(results, fips);
+    return results;
   } catch (e) { return []; }
 }
 
@@ -4376,6 +4393,8 @@ document.getElementById('county-sel').addEventListener('change', function() {
   Object.keys(ownerCache).forEach(k => delete ownerCache[k]);
   // Pre-warm new county's ownership after parcels load
   setTimeout(prefetchOwnershipForView, 2500);
+  // Opportunistic parcel cache warm for the new county
+  if (window.parcelCache) setTimeout(() => window.parcelCache.warm(c.fips), 1500);
   notify('Switched to ' + c.name + ' — loading live data&', 'fa-map');
   // Persist last-active county to localStorage (profile sync hooks in later)
   try {
@@ -6128,6 +6147,7 @@ window.selectParcel = function(p, layer) {
 <script src="assets/mn-tool-actions.js?v=1" defer></script>
 <script src="assets/mn-schneider-fallback.js?v=3" defer></script>
 <script src="assets/mn-zoning-ordinances.js?v=3" defer></script>
+<script src="assets/mn-parcel-cache.js?v=1" defer></script>
 </body>
 </html>
 
