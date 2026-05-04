@@ -2144,7 +2144,7 @@ function buildPopupHTML(p) {
              <span class="mpop-v" style="font-size:10px;">${p.lv} / ${p.iv || '—'}</span></div>` : ''}
         <div class="mpop-row"><span class="mpop-k">Property Class</span>
           <span class="mpop-v">${p.use || '—'}</span></div>
-        ${_zoningUrl ? `<div class="mpop-row"><span class="mpop-k"></span><span class="mpop-v"><a href="${_zoningUrl}" target="_blank" rel="noopener" style="color:#93c5fd;font-size:10px;text-decoration:none;">View zoning ordinance →</a></span></div>` : ''}
+        ${_zoningUrl ? `<div class="mpop-row"><span class="mpop-k">Zoning</span><span class="mpop-v"><a href="${_zoningUrl}" target="_blank" rel="noopener" style="color:#93c5fd;font-size:10px;text-decoration:none;">View ordinance →</a></span></div>` : ''}
         <div class="mpop-row"><span class="mpop-k">Acres</span>
           <span class="mpop-v">${hasAcres ? p.acres + ' ac' : '—'}</span></div>
         ${p.txdate && p.txdate !== '—'
