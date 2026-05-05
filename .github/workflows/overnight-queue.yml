@@ -18,7 +18,7 @@ jobs:
       issues: write
     steps:
       - name: Ensure required labels exist
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -46,7 +46,7 @@ jobs:
             }
 
       - name: Trigger @claude on issues labeled claude:overnight
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
