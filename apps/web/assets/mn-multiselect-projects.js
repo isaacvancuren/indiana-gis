@@ -34,7 +34,8 @@
 
   function init(){
     var MNT = window.MNTools;
-    var MNP = window.MNProjects;
+    // NOTE: do NOT cache window.MNProjects locally — mn-auth-clerk.js replaces
+    // it after this script loads and the live reference must always be used.
     var MNS = window.MNSelect;
 
     var INQ = window.MNInquiryList = {
@@ -130,7 +131,7 @@
       },
 
       addAllToProject: function(){
-        if (!MNP.state.current) {
+        if (!window.MNProjects.state.current) {
           if (window.toast) window.toast('Open a project first (Projects → Activate one).', 3500);
           else alert('Open a project first.');
           return;
@@ -142,7 +143,7 @@
             if (it.layer && it.layer.toGeoJSON) geom = it.layer.toGeoJSON().geometry;
             else if (it.parcel && it.parcel.geometry) geom = it.parcel.geometry;
           } catch(e){}
-          MNP.saveFeature('parcel', geom, it.props_full || {}, it.owner + ' — ' + it.parid);
+          window.MNProjects.saveFeature('parcel', geom, it.props_full || {}, it.owner + ' — ' + it.parid);
           n++;
         });
         if (window.toast) window.toast('Added ' + n + ' parcel(s) to project.', 2500);
@@ -383,7 +384,7 @@
         var p = window._selectedLiveParcel || window.selectedParcel;
         var layer = window.selectedLayer;
         if (!p) { if (window.toast) window.toast('No parcel selected.'); return; }
-        if (!MNP.state.current) {
+        if (!window.MNProjects.state.current) {
           if (window.toast) window.toast('Open a project first (Projects → Activate).', 3500);
           else alert('Activate a project first.');
           return;
@@ -395,7 +396,7 @@
         } catch(e){}
         var props = p.properties || p;
         var label = (props.OWNER || props.owner || 'Parcel') + ' — ' + (props.PARCEL_ID || props.PARID || '');
-        MNP.saveFeature('parcel', geom, props, label);
+        window.MNProjects.saveFeature('parcel', geom, props, label);
         if (window.toast) window.toast('Parcel saved to project.', 2500);
       };
       detail.insertBefore(btn, detail.firstChild);

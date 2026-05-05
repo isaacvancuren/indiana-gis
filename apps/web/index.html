@@ -46,6 +46,8 @@
 
   <!-- Supabase Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
+  <!-- Clerk Auth (key injected by Cloudflare Pages _middleware.js as window.__CLERK_PK) -->
+  <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
   
 <script>
 // Early bootstrap: render user badge instantly from cached session/profile
@@ -5661,6 +5663,9 @@ window.selectParcel = function(p, layer) {
 <div class="mn-toast" id="mn-toast"></div>
 
 <script src="assets/mn-bookmarks.js?v=2"></script>
+<!-- mn-auth-clerk must load synchronously after mn-bookmarks so it can override
+     window.MNProjects before the defer scripts capture a local reference. -->
+<script src="assets/mn-auth-clerk.js?v=1"></script>
 <script>
 (function(){
   const M = { open:false, active:new Set() };

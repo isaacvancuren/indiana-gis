@@ -3,6 +3,13 @@ main = "src/index.ts"
 compatibility_date = "2024-10-22"
 workers_dev = true
 
+# D1 database — create with: wrangler d1 create mapnova
+# Then paste the database_id from the output below.
+[[d1_databases]]
+binding = "DB"
+database_name = "mapnova"
+database_id = "YOUR_D1_DATABASE_ID"
+
 # Custom route api.mapnova.org/* is configured via the Cloudflare dashboard
 # (Workers & Pages → mapnova-api → Settings → Triggers → Add Custom Domain)
 # rather than here, because zone-level routes require zone-edit permission
