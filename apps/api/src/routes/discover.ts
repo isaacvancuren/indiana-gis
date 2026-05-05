@@ -109,6 +109,10 @@ const ALLOWED_EXACT = new Set([
   'lcsogis.lakecountyin.org',
   'maps.evansvillegis.com',
   'gis.southbendin.gov',
+  // Ordinance code-hosting platforms (used by /api/discover/probe?mode=head)
+  'library.municode.com',
+  'codelibrary.amlegal.com',
+  'ecode360.com',
 ])
 
 export function isAllowedHost(hostname: string): boolean {
@@ -280,6 +284,28 @@ discover.get('/api/discover/probe', async c => {
   const ip = c.req.header('CF-Connecting-IP') ?? c.req.header('X-Forwarded-For') ?? 'unknown'
   if (!(await checkRateLimit(kv, ip))) {
     return c.json({ error: 'Rate limit exceeded' }, 429)
+  }
+
+  // mode=head: just check HTTP status — useful for HTML pages like ordinance code hosts
+  if (c.req.query('mode') === 'head') {
+    const cacheKey = `discover:probe:head:${rawUrl}`
+    const cachedRaw = await kv.get(cacheKey, 'text')
+    if (cachedRaw) {
+      return c.json({ ...(JSON.parse(cachedRaw) as Record<string, unknown>), cached: true })
+    }
+    try {
+      const resp = await fetch(rawUrl, {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(5000),
+        headers: { 'User-Agent': 'mapnova-discover/1.0' },
+      })
+      const result = { ok: resp.ok, status: resp.status }
+      await kv.put(cacheKey, JSON.stringify(result), { expirationTtl: 300 })
+      return c.json(result)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      return c.json({ error: `Upstream error: ${msg}` }, 502)
+    }
   }
 
   const cacheKey = `discover:probe:${rawUrl}`

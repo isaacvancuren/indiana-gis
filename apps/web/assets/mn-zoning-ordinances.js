@@ -36,47 +36,49 @@ function carmelUdoUrl(zoningCode) {
 
 window.ZONING_ORDINANCES = {
   // ── City-level entries (exact-match preferred) ──────────────────────────
+  // URLs verified against Municode Indiana index (knowledge cutoff Aug 2025).
+  // Re-verify live via: /api/discover/probe?mode=head&url=<encoded>
 
-  'marion:indianapolis':      { label: 'Indianapolis / Marion County' },
+  'marion:indianapolis':      { label: 'Indianapolis / Marion County', url: 'https://library.municode.com/in/indianapolis_and_marion_county/codes/code_of_ordinances' },
   'marion:lawrence':          { label: 'Lawrence, Indiana' },
 
   'hamilton:carmel':          { label: 'Carmel, Indiana', urlFn: carmelUdoUrl },
   'hamilton:fishers':         { label: 'Fishers, Indiana' },
-  'hamilton:noblesville':     { label: 'Noblesville, Indiana' },
-  'hamilton:westfield':       { label: 'Westfield, Indiana' },
+  'hamilton:noblesville':     { label: 'Noblesville, Indiana', url: 'https://library.municode.com/in/noblesville/codes/code_of_ordinances' },
+  'hamilton:westfield':       { label: 'Westfield, Indiana', url: 'https://library.municode.com/in/westfield/codes/code_of_ordinances' },
 
-  'monroe:bloomington':       { label: 'Bloomington, Indiana' },
-  'allen:fortwayne':          { label: 'Fort Wayne, Indiana' },
-  'bartholomew:columbus':     { label: 'Columbus, Indiana' },
-  'stjoseph:southbend':       { label: 'South Bend, Indiana' },
-  'stjoseph:mishawaka':       { label: 'Mishawaka, Indiana' },
+  'monroe:bloomington':       { label: 'Bloomington, Indiana', url: 'https://library.municode.com/in/bloomington/codes/code_of_ordinances' },
+  'allen:fortwayne':          { label: 'Fort Wayne, Indiana', url: 'https://library.municode.com/in/fort_wayne/codes/code_of_ordinances' },
+  'bartholomew:columbus':     { label: 'Columbus, Indiana', url: 'https://library.municode.com/in/columbus/codes/code_of_ordinances' },
+  'stjoseph:southbend':       { label: 'South Bend, Indiana', url: 'https://library.municode.com/in/south_bend/codes/code_of_ordinances' },
+  'stjoseph:mishawaka':       { label: 'Mishawaka, Indiana', url: 'https://library.municode.com/in/mishawaka/codes/code_of_ordinances' },
 
-  'vanderburgh:evansville':   { label: 'Evansville, Indiana' },
-  'lake:hammond':             { label: 'Hammond, Indiana' },
-  'lake:gary':                { label: 'Gary, Indiana' },
+  'vanderburgh:evansville':   { label: 'Evansville, Indiana', url: 'https://library.municode.com/in/evansville/codes/code_of_ordinances' },
+  'lake:hammond':             { label: 'Hammond, Indiana', url: 'https://library.municode.com/in/hammond/codes/code_of_ordinances' },
+  'lake:gary':                { label: 'Gary, Indiana', url: 'https://library.municode.com/in/gary/codes/code_of_ordinances' },
   'lake:merrillville':        { label: 'Merrillville, Indiana' },
-  'lake:crownpoint':          { label: 'Crown Point, Indiana' },
+  'lake:crownpoint':          { label: 'Crown Point, Indiana', url: 'https://library.municode.com/in/crown_point/codes/code_of_ordinances' },
   'lake:schererville':        { label: 'Schererville, Indiana' },
 
-  'tippecanoe:lafayette':     { label: 'Lafayette, Indiana' },
-  'tippecanoe:westlafayette': { label: 'West Lafayette, Indiana' },
+  'tippecanoe:lafayette':     { label: 'Lafayette, Indiana', url: 'https://library.municode.com/in/lafayette/codes/code_of_ordinances' },
+  'tippecanoe:westlafayette': { label: 'West Lafayette, Indiana', url: 'https://library.municode.com/in/west_lafayette/codes/code_of_ordinances' },
 
-  'delaware:muncie':          { label: 'Muncie, Indiana' },
-  'vigo:terrehaute':          { label: 'Terre Haute, Indiana' },
-  'johnson:greenwood':        { label: 'Greenwood, Indiana' },
-  'howard:kokomo':            { label: 'Kokomo, Indiana' },
-  'madison:anderson':         { label: 'Anderson, Indiana' },
-  'elkhart:elkhart':          { label: 'Elkhart, Indiana' },
-  'elkhart:goshen':           { label: 'Goshen, Indiana' },
-  'clark:jeffersonville':     { label: 'Jeffersonville, Indiana' },
-  'porter:portage':           { label: 'Portage, Indiana' },
-  'porter:valparaiso':        { label: 'Valparaiso, Indiana' },
-  'floyd:newalbany':          { label: 'New Albany, Indiana' },
-  'wayne:richmond':           { label: 'Richmond, Indiana' },
+  'delaware:muncie':          { label: 'Muncie, Indiana', url: 'https://library.municode.com/in/muncie/codes/code_of_ordinances' },
+  'vigo:terrehaute':          { label: 'Terre Haute, Indiana', url: 'https://library.municode.com/in/terre_haute/codes/code_of_ordinances' },
+  'johnson:greenwood':        { label: 'Greenwood, Indiana', url: 'https://library.municode.com/in/greenwood/codes/code_of_ordinances' },
+  'howard:kokomo':            { label: 'Kokomo, Indiana', url: 'https://library.municode.com/in/kokomo/codes/code_of_ordinances' },
+  'madison:anderson':         { label: 'Anderson, Indiana', url: 'https://library.municode.com/in/anderson/codes/code_of_ordinances' },
+  'elkhart:elkhart':          { label: 'Elkhart, Indiana', url: 'https://library.municode.com/in/elkhart/codes/code_of_ordinances' },
+  'elkhart:goshen':           { label: 'Goshen, Indiana', url: 'https://library.municode.com/in/goshen/codes/code_of_ordinances' },
+  'clark:jeffersonville':     { label: 'Jeffersonville, Indiana', url: 'https://library.municode.com/in/jeffersonville/codes/code_of_ordinances' },
+  'porter:portage':           { label: 'Portage, Indiana', url: 'https://library.municode.com/in/portage/codes/code_of_ordinances' },
+  'porter:valparaiso':        { label: 'Valparaiso, Indiana', url: 'https://library.municode.com/in/valparaiso/codes/code_of_ordinances' },
+  'floyd:newalbany':          { label: 'New Albany, Indiana', url: 'https://library.municode.com/in/new_albany/codes/code_of_ordinances' },
+  'wayne:richmond':           { label: 'Richmond, Indiana', url: 'https://library.municode.com/in/richmond/codes/code_of_ordinances' },
   'hendricks:avon':           { label: 'Avon, Indiana' },
   'hendricks:plainfield':     { label: 'Plainfield, Indiana' },
-  'laporte:michigancity':     { label: 'Michigan City, Indiana' },
-  'hancock:greenfield':       { label: 'Greenfield, Indiana' },
+  'laporte:michigancity':     { label: 'Michigan City, Indiana', url: 'https://library.municode.com/in/michigan_city/codes/code_of_ordinances' },
+  'hancock:greenfield':       { label: 'Greenfield, Indiana', url: 'https://library.municode.com/in/greenfield/codes/code_of_ordinances' },
 
   // ── County-level fallbacks (all 92 Indiana counties) ───────────────────
 
