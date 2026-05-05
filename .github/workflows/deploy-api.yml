@@ -11,6 +11,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,12 +28,21 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
+        working-directory: .
         run: pnpm install --no-frozen-lockfile
 
-      - name: Deploy worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/api
-          command: deploy
+      - name: Verify token + account
+        run: |
+          echo "::group::Token presence (no values)"
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then echo "::error::CLOUDFLARE_API_TOKEN secret is empty or missing"; exit 1; fi
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then echo "::error::CLOUDFLARE_ACCOUNT_ID secret is empty or missing"; exit 1; fi
+          echo "Token length: ${#CLOUDFLARE_API_TOKEN} chars (40 expected)"
+          echo "Account ID length: ${#CLOUDFLARE_ACCOUNT_ID} chars (32 expected)"
+          echo "::endgroup::"
+
+          echo "::group::wrangler whoami"
+          npx wrangler whoami
+          echo "::endgroup::"
+
+      - name: Deploy
+        run: npx wrangler deploy --verbose
