@@ -1,0 +1,19 @@
+{
+  "name": "indiana-gis",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.3",
+    "typescript-eslint": "^8.13.0"
+  },
+  "packageManager": "pnpm@9.12.3"
+}

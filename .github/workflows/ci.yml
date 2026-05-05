@@ -12,18 +12,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "pnpm"
 
-      - name: Verify index.html exists at repo root
-        run: test -f index.html || (echo "::error::index.html missing — GitHub Pages deploy will break" && exit 1)
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Verify apps/web/index.html exists
+        run: test -f apps/web/index.html || (echo "::error::apps/web/index.html missing — Pages deploy will break" && exit 1)
 
       - name: Syntax-check asset JS files
         run: |
           shopt -s nullglob
           fail=0
-          for f in assets/*.js; do
+          for f in apps/web/assets/*.js; do
             if ! node --check "$f"; then
               echo "::error file=$f::syntax error"
               fail=1
@@ -31,12 +37,12 @@ jobs:
           done
           exit $fail
 
-      - name: Extract and syntax-check inline JS in index.html
+      - name: Extract and syntax-check inline JS in apps/web/index.html
         run: |
           node <<'EOF'
           const fs = require('fs');
           const { execSync } = require('child_process');
-          const html = fs.readFileSync('index.html', 'utf8');
+          const html = fs.readFileSync('apps/web/index.html', 'utf8');
           const re = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;
           const blocks = [...html.matchAll(re)].map(m => m[1]);
           if (blocks.length === 0) {
@@ -62,6 +68,10 @@ jobs:
       - name: HTML validation
         uses: Cyb3r-Jak3/html5validator-action@v7.2.0
         with:
-          root: .
+          root: apps/web
           match: "index.html"
+        continue-on-error: true
+
+      - name: Turbo build + lint
+        run: pnpm turbo run build lint --continue
         continue-on-error: true
