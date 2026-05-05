@@ -7,7 +7,16 @@
       "Bash(gh api:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh workflow list:*)",
-      "Bash(gh workflow view:*)"
+      "Bash(gh workflow view:*)",
+      "Bash(npx wrangler d1 list)",
+      "Bash(npx wrangler d1 list:*)",
+      "Bash(npx wrangler d1 info:*)",
+      "Bash(npx wrangler secret list)",
+      "Bash(npx wrangler secret list:*)",
+      "Bash(npx wrangler pages project list)",
+      "Bash(npx wrangler pages deployment list:*)",
+      "Bash(npx wrangler whoami)",
+      "Bash(npx wrangler whoami:*)"
     ]
   }
 }
