@@ -1,9 +1,0 @@
-name = "mapnova-api"
-main = "src/index.ts"
-compatibility_date = "2024-10-22"
-workers_dev = true
-
-# Custom route api.mapnova.org/* is configured via the Cloudflare dashboard
-# (Workers & Pages → mapnova-api → Settings → Triggers → Add Custom Domain)
-# rather than here, because zone-level routes require zone-edit permission
-# on the deploy API token, which the standard "Edit Workers" template lacks.
