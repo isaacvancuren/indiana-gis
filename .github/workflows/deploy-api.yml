@@ -45,4 +45,4 @@ jobs:
           echo "::endgroup::"
 
       - name: Deploy
-        run: npx wrangler deploy --verbose
+        run: npx wrangler deploy
