@@ -1,5 +1,4 @@
 export type Env = {
-  // DB: D1Database
-  // KV: KVNamespace
-  // R2: R2Bucket
+  DB: D1Database
+  CLERK_SECRET_KEY: string
 }
