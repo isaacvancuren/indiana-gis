@@ -182,6 +182,53 @@ const MUNICIPAL_GIS_SERVERS = {
         {svc:'https://gis.cityoffortwayne.org/arcgis/rest/services/Public/Parks/FeatureServer', ids:[0], name:'Fort Wayne Parks', cat:'civic'}
       ]
     }
+  },
+  // Madison County — Anderson (county seat; services3.arcgis.com/4UkreHBazssuvI82 confirmed in county-gis-servers.js:madison)
+  madison: {
+    anderson: {
+      name: 'Anderson',
+      layers: [
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/Parcels/FeatureServer', ids:[0], name:'Anderson Parcels', cat:'parcels'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/AddressPoints/FeatureServer', ids:[0], name:'Anderson Address Points', cat:'parcels'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/Zoning2020/FeatureServer', ids:[0], name:'Anderson Zoning (2020)', cat:'zoning'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/Anderson_Floodplains/FeatureServer', ids:[0], name:'Anderson Floodplains', cat:'hydrology'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/Streets/FeatureServer', ids:[0], name:'Anderson Streets', cat:'transportation'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/City_Limits/FeatureServer', ids:[0], name:'Anderson City Limits', cat:'districts'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/Districts_Ord14_24/FeatureServer', ids:[0], name:'Anderson Districts (Ord 14-24)', cat:'districts'},
+        {svc:'https://services3.arcgis.com/4UkreHBazssuvI82/arcgis/rest/services/City_Owned_Properties/FeatureServer', ids:[0], name:'Anderson City-Owned Properties', cat:'poi'}
+      ]
+    }
+  },
+  // Wayne County — Richmond (county seat; services3.arcgis.com/fhBemP00ea7p7i0U confirmed in county-layer-engines.js:WAYNE_LAYERS)
+  wayne: {
+    richmond: {
+      name: 'Richmond',
+      layers: [
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Richmond_Parcels_v2/FeatureServer', ids:[0], name:'Richmond Parcels', cat:'parcels'},
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Historic_Richmond_Conservation_District/FeatureServer', ids:[0], name:'Richmond Historic Conservation District', cat:'zoning'},
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Richmond_Opportunity_Zone/FeatureServer', ids:[0], name:'Richmond Opportunity Zone', cat:'zoning'},
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Outdoor_Refreshment_Area/FeatureServer', ids:[0], name:'Richmond Outdoor Refreshment Area', cat:'districts'},
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Richmond_City_Limits/FeatureServer', ids:[0], name:'Richmond City Limits', cat:'districts'},
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Richmond_Certified_Technology_Park/FeatureServer', ids:[0], name:'Richmond Certified Technology Park', cat:'districts'},
+        {svc:'https://services3.arcgis.com/fhBemP00ea7p7i0U/arcgis/rest/services/Park_and_Recreation_Facilities_public/FeatureServer', ids:[0], name:'Richmond Parks & Recreation', cat:'civic'}
+      ]
+    }
+  },
+  // Floyd County — New Albany (county seat; services.arcgis.com/EAoy39bcmpweKJ4f confirmed in county-layer-engines.js:FLOYD_LAYERS)
+  floyd: {
+    newalbany: {
+      name: 'New Albany',
+      layers: [
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/Floyd_County_Parcel_view/FeatureServer', ids:[0], name:'New Albany / Floyd Co. Parcels', cat:'parcels'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/Address_Points_view/FeatureServer', ids:[0], name:'New Albany Address Points', cat:'parcels'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/New_Albany_Zoning_view/FeatureServer', ids:[0], name:'New Albany Zoning', cat:'zoning'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/New_Albany_Planning_Fringe_view/FeatureServer', ids:[0], name:'New Albany Planning Fringe', cat:'zoning'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/Floyd_County_TIF_Districts_view/FeatureServer', ids:[0], name:'New Albany TIF Districts', cat:'zoning'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/DNR_Floodplain_for_Floyd_County/FeatureServer', ids:[0], name:'New Albany DNR Floodplain', cat:'hydrology'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/Road_Centerlines_view/FeatureServer', ids:[0], name:'New Albany Road Centerlines', cat:'transportation'},
+        {svc:'https://services.arcgis.com/EAoy39bcmpweKJ4f/arcgis/rest/services/Floyd_County_Cities_view/FeatureServer', ids:[0], name:'Floyd County Cities', cat:'civic'}
+      ]
+    }
   }
 };
 
