@@ -1,5 +1,3 @@
 export type Env = {
-  // DB: D1Database
-  // KV: KVNamespace
-  // R2: R2Bucket
+  DISCOVERY_CACHE: KVNamespace
 }
