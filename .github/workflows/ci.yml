@@ -6,9 +6,15 @@ on:
   push:
     branches: [main]
 
+# Default GITHUB_TOKEN to read-only. Steps that need writes must elevate per-job.
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 

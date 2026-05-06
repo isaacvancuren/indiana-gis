@@ -8,9 +8,15 @@ on:
       - ".github/workflows/deploy-api.yml"
   workflow_dispatch: {}
 
+# Default GITHUB_TOKEN to read-only. Cloudflare deploy uses CLOUDFLARE_API_TOKEN, not GITHUB_TOKEN.
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: apps/api
