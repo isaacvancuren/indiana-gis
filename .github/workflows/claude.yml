@@ -34,3 +34,9 @@ jobs:
           # The action defaults to creating a new branch named claude/<issue-or-pr>-<slug>
           # and opening a pull request with the changes.
           branch_prefix: "claude/"
+        env:
+          # Pass Cloudflare credentials so the agent can run wrangler
+          # commands (d1, kv, secret list/create, deploy diagnostics).
+          # Resource creates are gated by .claude/settings.json allow-list.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
