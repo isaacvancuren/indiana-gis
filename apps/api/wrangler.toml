@@ -8,6 +8,9 @@ workers_dev = true
 # rather than here, because zone-level routes require zone-edit permission
 # on the deploy API token, which the standard "Edit Workers" template lacks.
 
+[triggers]
+crons = ["0 3 * * *"]
+
 # KV namespace for discovery caching.
 # Setup (one-time, done in the Cloudflare dashboard after first deploy):
 #   Workers & Pages → KV → Create namespace → name it "mapnova-discovery-cache"
@@ -15,3 +18,16 @@ workers_dev = true
 [[kv_namespaces]]
 binding = "DISCOVERY_CACHE"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# D1 database (mapnova production).
+# Setup: Workers & Pages → D1 → your database → copy the database ID below.
+[[d1_databases]]
+binding = "DB"
+database_name = "mapnova"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# R2 bucket for daily backups.
+# Setup: R2 → Create bucket → name it "mapnova-backups" → no public access needed.
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "mapnova-backups"
