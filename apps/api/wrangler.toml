@@ -15,3 +15,10 @@ workers_dev = true
 [[kv_namespaces]]
 binding = "DISCOVERY_CACHE"
 id = "fcafc7d60f044b819c46a76f361c4a7a"
+
+# D1 database for Phase 1+ persistence (users, projects, future tables).
+# Provisioned 2026-05-06 via Cloudflare dashboard; binding consumed by PR #50.
+[[d1_databases]]
+binding = "DB"
+database_name = "mapnova"
+database_id = "233b1c9d-16c6-40cc-93a6-8c482a666839"
