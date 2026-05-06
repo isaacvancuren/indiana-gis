@@ -21,6 +21,27 @@ function makeMockKV(initial: Record<string, string> = {}): KVNamespace {
   } as unknown as KVNamespace
 }
 
+function makeMockRateLimit(allow = true): RateLimit {
+  return {
+    limit: vi.fn(async () => ({ success: allow })),
+  } as unknown as RateLimit
+}
+
+// Stateful mock that allows `limit` requests then blocks
+function makeMockRateLimitStateful(limitCount: number): RateLimit {
+  let count = 0
+  return {
+    limit: vi.fn(async () => ({ success: ++count <= limitCount })),
+  } as unknown as RateLimit
+}
+
+function makeEnv(opts: { allow?: boolean; kv?: KVNamespace } = {}) {
+  return {
+    DISCOVERY_CACHE: opts.kv ?? makeMockKV(),
+    RATE_LIMIT_DISCOVER: makeMockRateLimit(opts.allow ?? true),
+  }
+}
+
 // ─── isAllowedHost ───────────────────────────────────────────────────────────
 
 describe('isAllowedHost', () => {
@@ -66,6 +87,65 @@ describe('isAllowedHost', () => {
   })
 })
 
+// ─── Rate limiting middleware ─────────────────────────────────────────────────
+
+describe('Rate limiting on /api/discover/*', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('allows request when rate limiter returns success', async () => {
+    const res = await app.fetch(
+      new Request('http://localhost/api/discover/county/unknowncounty'),
+      makeEnv({ allow: true }),
+    )
+    expect(res.status).toBe(200)
+  })
+
+  it('returns 429 with Retry-After header when rate limiter blocks', async () => {
+    const res = await app.fetch(
+      new Request('http://localhost/api/discover/county/marion'),
+      makeEnv({ allow: false }),
+    )
+    expect(res.status).toBe(429)
+    expect(res.headers.get('Retry-After')).toBe('60')
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toMatch(/rate limit/i)
+  })
+
+  it('returns 429 on the 31st request (stateful mock, 30-req limit)', async () => {
+    const kv = makeMockKV()
+    const rateLimit = makeMockRateLimitStateful(30)
+    const env = { DISCOVERY_CACHE: kv, RATE_LIMIT_DISCOVER: rateLimit }
+
+    // First 30 requests should succeed (unknown county returns 200 without upstream calls)
+    for (let i = 1; i <= 30; i++) {
+      const res = await app.fetch(
+        new Request('http://localhost/api/discover/county/unknowncounty'),
+        env,
+      )
+      expect(res.status).toBe(200)
+    }
+
+    // 31st request must be blocked
+    const res = await app.fetch(
+      new Request('http://localhost/api/discover/county/unknowncounty'),
+      env,
+    )
+    expect(res.status).toBe(429)
+    expect(res.headers.get('Retry-After')).toBe('60')
+  })
+
+  it('does not apply rate limiting to /health', async () => {
+    // health route has no rate limiter — passes even with allow=false in env
+    const res = await app.fetch(
+      new Request('http://localhost/health'),
+      makeEnv({ allow: false }),
+    )
+    expect(res.status).toBe(200)
+  })
+})
+
 // ─── GET /api/discover/probe ─────────────────────────────────────────────────
 
 describe('GET /api/discover/probe', () => {
@@ -74,17 +154,13 @@ describe('GET /api/discover/probe', () => {
   })
 
   it('returns 400 for missing url', async () => {
-    const res = await app.fetch(new Request('http://localhost/api/discover/probe'), {
-      DISCOVERY_CACHE: makeMockKV(),
-    })
+    const res = await app.fetch(new Request('http://localhost/api/discover/probe'), makeEnv())
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for non-https url', async () => {
     const url = encodeURIComponent('http://gis1.hamiltoncounty.in.gov/arcgis/rest/services?f=json')
-    const res = await app.fetch(new Request(`http://localhost/api/discover/probe?url=${url}`), {
-      DISCOVERY_CACHE: makeMockKV(),
-    })
+    const res = await app.fetch(new Request(`http://localhost/api/discover/probe?url=${url}`), makeEnv())
     expect(res.status).toBe(400)
     const body = (await res.json()) as { error: string }
     expect(body.error).toMatch(/https/i)
@@ -92,12 +168,20 @@ describe('GET /api/discover/probe', () => {
 
   it('returns 403 for disallowed host', async () => {
     const url = encodeURIComponent('https://evil.com/arcgis/rest/services?f=json')
-    const res = await app.fetch(new Request(`http://localhost/api/discover/probe?url=${url}`), {
-      DISCOVERY_CACHE: makeMockKV(),
-    })
+    const res = await app.fetch(new Request(`http://localhost/api/discover/probe?url=${url}`), makeEnv())
     expect(res.status).toBe(403)
     const body = (await res.json()) as { error: string }
     expect(body.error).toMatch(/not allowed/i)
+  })
+
+  it('returns 429 when rate limiter blocks', async () => {
+    const url = encodeURIComponent('https://gis1.hamiltoncounty.in.gov/arcgis/rest/services?f=json')
+    const res = await app.fetch(
+      new Request(`http://localhost/api/discover/probe?url=${url}`),
+      makeEnv({ allow: false }),
+    )
+    expect(res.status).toBe(429)
+    expect(res.headers.get('Retry-After')).toBe('60')
   })
 
   it('returns cached:true on KV cache hit', async () => {
@@ -107,7 +191,7 @@ describe('GET /api/discover/probe', () => {
 
     const res = await app.fetch(
       new Request(`http://localhost/api/discover/probe?url=${encodeURIComponent(probeUrl)}`),
-      { DISCOVERY_CACHE: kv },
+      makeEnv({ kv }),
     )
     expect(res.status).toBe(200)
     const body = (await res.json()) as Record<string, unknown>
@@ -120,9 +204,7 @@ describe('GET /api/discover/probe', () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(abortErr)
 
     const probeUrl = encodeURIComponent('https://gis1.hamiltoncounty.in.gov/arcgis/rest/services?f=json')
-    const res = await app.fetch(new Request(`http://localhost/api/discover/probe?url=${probeUrl}`), {
-      DISCOVERY_CACHE: makeMockKV(),
-    })
+    const res = await app.fetch(new Request(`http://localhost/api/discover/probe?url=${probeUrl}`), makeEnv())
     expect(res.status).toBe(502)
     const body = (await res.json()) as { error: string }
     expect(body.error).toMatch(/Upstream error/i)
@@ -137,9 +219,10 @@ describe('GET /api/discover/county/:slug', () => {
   })
 
   it('returns 200 with empty sources for unknown county slug', async () => {
-    const res = await app.fetch(new Request('http://localhost/api/discover/county/unknowncounty'), {
-      DISCOVERY_CACHE: makeMockKV(),
-    })
+    const res = await app.fetch(
+      new Request('http://localhost/api/discover/county/unknowncounty'),
+      makeEnv(),
+    )
     expect(res.status).toBe(200)
     const body = (await res.json()) as { slug: string; sources: unknown[]; errors: string[] }
     expect(body.slug).toBe('unknowncounty')
@@ -156,9 +239,10 @@ describe('GET /api/discover/county/:slug', () => {
     }
     const kv = makeMockKV({ 'discover:county:marion': JSON.stringify(cached) })
 
-    const res = await app.fetch(new Request('http://localhost/api/discover/county/marion'), {
-      DISCOVERY_CACHE: kv,
-    })
+    const res = await app.fetch(
+      new Request('http://localhost/api/discover/county/marion'),
+      makeEnv({ kv }),
+    )
     expect(res.status).toBe(200)
     const body = (await res.json()) as Record<string, unknown>
     expect(body['cached']).toBe(true)
@@ -180,9 +264,10 @@ describe('GET /api/discover/county/:slug', () => {
       new Response(JSON.stringify({ services: [], folders: [] }), { status: 200 }),
     )
 
-    const res = await app.fetch(new Request('http://localhost/api/discover/county/marion?refresh=1'), {
-      DISCOVERY_CACHE: kv,
-    })
+    const res = await app.fetch(
+      new Request('http://localhost/api/discover/county/marion?refresh=1'),
+      makeEnv({ kv }),
+    )
     expect(res.status).toBe(200)
     const body = (await res.json()) as Record<string, unknown>
     // Result should NOT be the stale cached version
