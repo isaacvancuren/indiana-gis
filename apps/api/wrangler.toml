@@ -8,6 +8,10 @@ workers_dev = true
 # rather than here, because zone-level routes require zone-edit permission
 # on the deploy API token, which the standard "Edit Workers" template lacks.
 
+# Required Worker secrets (set via `wrangler secret put <name>`):
+#   SENTRY_DSN_API  — Sentry DSN for the API worker; Sentry is disabled when unset
+#   WORKER_VERSION  — set in CI from git SHA via wrangler deploy --var WORKER_VERSION:$(git rev-parse --short HEAD)
+
 # KV namespace for discovery caching.
 # Setup (one-time, done in the Cloudflare dashboard after first deploy):
 #   Workers & Pages → KV → Create namespace → name it "mapnova-discovery-cache"
