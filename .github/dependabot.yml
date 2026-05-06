@@ -1,25 +1,53 @@
 version: 2
 updates:
+  # Root npm — workspace tooling
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    groups:
+      # Bundle non-major bumps so review attention isn't fragmented.
+      patches-and-minors:
+        update-types: [patch, minor]
 
+  # API worker
   - package-ecosystem: npm
     directory: /apps/api
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    groups:
+      patches-and-minors:
+        update-types: [patch, minor]
 
+  # Shared package
   - package-ecosystem: npm
     directory: /packages/shared
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    groups:
+      patches-and-minors:
+        update-types: [patch, minor]
 
+  # GitHub Actions — keep these on tight rotation; supply chain matters.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions-patches-and-minors:
+        update-types: [patch, minor]

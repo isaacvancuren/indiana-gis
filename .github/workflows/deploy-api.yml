@@ -8,6 +8,11 @@ on:
       - ".github/workflows/deploy-api.yml"
   workflow_dispatch: {}
 
+# Serialize deploys: never run two at once on the same branch.
+concurrency:
+  group: deploy-api-${{ github.ref }}
+  cancel-in-progress: false
+
 # Default GITHUB_TOKEN to read-only. Cloudflare deploy uses CLOUDFLARE_API_TOKEN, not GITHUB_TOKEN.
 permissions:
   contents: read
@@ -15,6 +20,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     defaults:

@@ -1,1 +1,29 @@
+# Default owner for everything in the repo.
 * @isaacvancuren
+
+# Security-critical paths — explicit ownership for emphasis. Combined with
+# branch protection (require code owner review), changes to these files
+# cannot be merged without owner approval, even if other reviewers approve.
+
+# Workflows define what runs in CI, what secrets are exposed, and what tokens
+# the Claude agent receives. Tampering here = credential exposure.
+/.github/workflows/                @isaacvancuren
+/.github/dependabot.yml            @isaacvancuren
+/.github/CODEOWNERS                @isaacvancuren
+
+# Cloudflare Worker config — bindings, compatibility flags, deployment target.
+/apps/api/wrangler.toml            @isaacvancuren
+
+# Cloudflare Pages security headers / CSP.
+/apps/web/_headers                 @isaacvancuren
+
+# Allow-list for what the Claude agent is permitted to run via Bash. Expansion
+# of this file is a privilege escalation; it must be reviewed by the owner.
+/.claude/settings.json             @isaacvancuren
+
+# Security policy + incident log.
+/SECURITY.md                       @isaacvancuren
+/INCIDENT_RESPONSE.md              @isaacvancuren
+
+# Architecture decisions that lock in stack choices.
+/docs/adr/                         @isaacvancuren

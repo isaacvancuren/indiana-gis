@@ -8,13 +8,26 @@ on:
   pull_request_review_comment:
     types: [created]
 
+# Cancel an in-flight Claude run if a newer trigger arrives on the same issue/PR.
+concurrency:
+  group: claude-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   claude:
+    # Only the repo owner can trigger this action. Defense-in-depth against any
+    # future scenario where a non-owner gains comment access (visibility change,
+    # added collaborator, compromised account). The agent consumes Claude Code
+    # OAuth credits + has Cloudflare API access via env, so trigger access must
+    # match the trust model.
     if: |
-      (github.event_name == 'issues' && contains(github.event.issue.body, '@claude')) ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
+      github.actor == github.repository_owner && (
+        (github.event_name == 'issues' && contains(github.event.issue.body, '@claude')) ||
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
+      )
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
       issues: write
