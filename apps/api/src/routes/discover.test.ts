@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import app from '../index'
+import { app } from '../index'
 import { isAllowedHost } from './discover'
 
 // Minimal KV mock — only the methods discover.ts uses
