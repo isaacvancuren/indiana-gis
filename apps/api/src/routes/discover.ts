@@ -1,34 +1,46 @@
-import { Hono } from 'hono'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import type { Env } from '../env'
 
-type Layer = {
-  id: number
-  name: string
-  geometryType?: string
-  defaultVisibility?: boolean
-}
+// ─── Zod schemas (used for OpenAPI spec + TypeScript types) ──────────────────
 
-type ServiceInfo = {
-  name: string
-  type: string
-  layers: Layer[]
-}
+const LayerSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  geometryType: z.string().optional(),
+  defaultVisibility: z.boolean().optional(),
+})
 
-type SourceResult = {
-  host: string
-  rest_root: string
-  services: ServiceInfo[]
-}
+const ServiceInfoSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  layers: z.array(LayerSchema),
+})
 
-type CountyResult = {
-  slug: string
-  fetched_at: string
-  cached?: boolean
-  sources: SourceResult[]
-  errors: string[]
-}
+const SourceResultSchema = z.object({
+  host: z.string(),
+  rest_root: z.string(),
+  services: z.array(ServiceInfoSchema),
+})
 
-// Per-county known ArcGIS REST roots (derived from county-gis-servers.js and county-parcel-apis.js)
+const CountyResultSchema = z.object({
+  slug: z.string(),
+  fetched_at: z.string(),
+  cached: z.boolean().optional(),
+  sources: z.array(SourceResultSchema),
+  errors: z.array(z.string()),
+})
+
+const ErrorSchema = z.object({ error: z.string() })
+
+// ─── Internal types ───────────────────────────────────────────────────────────
+
+type Layer = z.infer<typeof LayerSchema>
+type ServiceInfo = z.infer<typeof ServiceInfoSchema>
+type SourceResult = z.infer<typeof SourceResultSchema>
+type CountyResult = z.infer<typeof CountyResultSchema>
+
+// ─── Per-county known ArcGIS REST roots ──────────────────────────────────────
+
 const COUNTY_SOURCES: Record<string, { host: string; rest_root: string }[]> = {
   marion: [
     { host: 'gis.indy.gov', rest_root: 'https://gis.indy.gov/server/rest/services' },
@@ -206,29 +218,86 @@ async function checkRateLimit(kv: KVNamespace, ip: string): Promise<boolean> {
   return true
 }
 
-const discover = new Hono<{ Bindings: Env }>()
+// ─── Route definitions ────────────────────────────────────────────────────────
 
-discover.get('/api/discover/county/:slug', async c => {
+const countyRoute = createRoute({
+  method: 'get',
+  path: '/api/discover/county/{slug}',
+  request: {
+    params: z.object({ slug: z.string().describe('County slug, e.g. "marion"') }),
+    query: z.object({ refresh: z.string().optional().describe('Pass "1" to bypass cache') }),
+  },
+  responses: {
+    200: {
+      content: { 'application/json': { schema: CountyResultSchema } },
+      description: 'ArcGIS service discovery result for the requested county',
+    },
+    429: {
+      content: { 'application/json': { schema: ErrorSchema } },
+      description: 'Rate limit exceeded',
+    },
+  },
+})
+
+const probeRoute = createRoute({
+  method: 'get',
+  path: '/api/discover/probe',
+  request: {
+    query: z.object({
+      url: z.string().optional().describe('ArcGIS REST endpoint URL to probe (must be https)'),
+    }),
+  },
+  responses: {
+    200: {
+      content: { 'application/json': { schema: z.record(z.unknown()) } },
+      description: 'Proxied ArcGIS JSON response',
+    },
+    400: {
+      content: { 'application/json': { schema: ErrorSchema } },
+      description: 'Bad request (missing or invalid URL)',
+    },
+    403: {
+      content: { 'application/json': { schema: ErrorSchema } },
+      description: 'Host not in allowlist',
+    },
+    429: {
+      content: { 'application/json': { schema: ErrorSchema } },
+      description: 'Rate limit exceeded',
+    },
+    502: {
+      content: { 'application/json': { schema: ErrorSchema } },
+      description: 'Upstream ArcGIS server error',
+    },
+  },
+})
+
+// ─── Router ───────────────────────────────────────────────────────────────────
+
+const discover = new OpenAPIHono<{ Bindings: Env }>()
+
+discover.openapi(countyRoute, async c => {
   const kv = c.env.DISCOVERY_CACHE
-  const slug = c.req.param('slug').toLowerCase()
-  const refresh = c.req.query('refresh') === '1'
+  const { slug } = c.req.valid('param')
+  const { refresh } = c.req.valid('query')
+  const slugLower = slug.toLowerCase()
+  const doRefresh = refresh === '1'
 
   const ip = c.req.header('CF-Connecting-IP') ?? c.req.header('X-Forwarded-For') ?? 'unknown'
   if (!(await checkRateLimit(kv, ip))) {
     return c.json({ error: 'Rate limit exceeded' }, 429)
   }
 
-  const cacheKey = `discover:county:${slug}`
+  const cacheKey = `discover:county:${slugLower}`
 
-  if (!refresh) {
+  if (!doRefresh) {
     const hit = (await kv.get(cacheKey, 'json')) as CountyResult | null
     if (hit) return c.json({ ...hit, cached: true })
   }
 
-  const sources = COUNTY_SOURCES[slug]
+  const sources = COUNTY_SOURCES[slugLower]
   if (!sources) {
     const result: CountyResult = {
-      slug,
+      slug: slugLower,
       fetched_at: new Date().toISOString(),
       sources: [],
       errors: ['no known REST root'],
@@ -246,7 +315,7 @@ discover.get('/api/discover/county/:slug', async c => {
   }
 
   const payload: CountyResult = {
-    slug,
+    slug: slugLower,
     fetched_at: new Date().toISOString(),
     sources: sourceResults,
     errors,
@@ -256,8 +325,8 @@ discover.get('/api/discover/county/:slug', async c => {
   return c.json(payload)
 })
 
-discover.get('/api/discover/probe', async c => {
-  const rawUrl = c.req.query('url')
+discover.openapi(probeRoute, async c => {
+  const { url: rawUrl } = c.req.valid('query')
   if (!rawUrl) return c.json({ error: 'Missing url parameter' }, 400)
 
   let dest: URL
