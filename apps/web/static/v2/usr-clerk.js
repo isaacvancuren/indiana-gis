@@ -69,7 +69,19 @@
         console.error('[MNClerk] Clerk SDK loaded but window.Clerk is undefined');
         return;
       }
-      window.Clerk.load().then(function() {
+      // Configure Clerk to land users back in-app immediately after auth.
+      // Without these, OAuth (Google/Microsoft) flows go:
+      //   user → /sso-callback → Clerk Account Portal "completing…" → app
+      // The middle step is the "secondary screen" the user complained about.
+      // Setting all the redirect URLs to '/' skips the Account Portal entirely.
+      window.Clerk.load({
+        signInUrl: '/',
+        signUpUrl: '/',
+        afterSignInUrl: '/',
+        afterSignUpUrl: '/',
+        signInForceRedirectUrl: '/',
+        signUpForceRedirectUrl: '/',
+      }).then(function() {
         var u = window.Clerk.user;
         console.log('[MNClerk] SDK loaded. signedIn=' + !!u + (u ? ' user=' + u.id : ''));
         resolveReady(window.Clerk);
@@ -134,7 +146,13 @@
         btn.type = 'button';
         btn.textContent = 'Sign in';
         btn.style.cssText = 'background:#1d4ed8;border:none;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font:500 12px sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.3)';
-        btn.onclick = function(){ Clerk.openSignIn(); };
+        btn.onclick = function(){
+          Clerk.openSignIn({
+            afterSignInUrl: '/',
+            afterSignUpUrl: '/',
+            redirectUrl: '/',
+          });
+        };
         w.appendChild(btn);
       }
     }
@@ -169,7 +187,16 @@
     },
 
     signIn: function() {
-      readyPromise.then(function(Clerk){ Clerk.openSignIn(); });
+      readyPromise.then(function(Clerk){
+        // Open as MODAL with explicit redirect URLs so OAuth lands directly
+        // back on mapnova.org instead of bouncing through Clerk's hosted
+        // Account Portal "completing sign-in…" interstitial page.
+        Clerk.openSignIn({
+          afterSignInUrl: '/',
+          afterSignUpUrl: '/',
+          redirectUrl: '/',
+        });
+      });
     },
 
     signOut: function() {
