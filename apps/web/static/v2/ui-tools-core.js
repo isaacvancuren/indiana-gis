@@ -447,57 +447,74 @@
       MNT.clearSelection();
     };
 
+    // Layers we should NEVER consider as selection candidates (the tool engine's
+    // own scratch + output layers, plus tile layers).
+    MNT._isToolOwnedLayer = function(layer){
+      if (!layer) return true;
+      if (layer === MNT.drawLayer || layer === MNT.measLayer || layer === MNT.selLayer) return true;
+      if (layer === MNT._tempLayer || layer === MNT._tempLine || layer === MNT._tempVertices) return true;
+      // Tile layers, basemaps, anything with a tilePattern URL — never selectable.
+      if (typeof layer.getUrl === 'function' || layer instanceof L_.TileLayer) return true;
+      return false;
+    };
+
+    // A feature is "selectable" if it has bounds + a setStyle method (so we can
+    // visually highlight it). Previously we required f.feature.properties which
+    // is the Leaflet GeoJSON convention — but parcels rendered as plain L.polygon
+    // (not via L.geoJSON) lack that property, so they were silently invisible to
+    // selection. Permissive matcher: accept any layer with bounds + setStyle.
+    MNT._isSelectableFeature = function(f){
+      if (!f) return false;
+      if (typeof f.getBounds !== 'function') return false;
+      if (typeof f.setStyle !== 'function') return false;
+      return true;
+    };
+
+    MNT._eachSelectableFeature = function(visit){
+      map.eachLayer(function(layer){
+        if (MNT._isToolOwnedLayer(layer)) return;
+        if (layer && layer._layers && typeof layer.eachLayer === 'function'){
+          layer.eachLayer(function(f){
+            if (MNT._isSelectableFeature(f)) visit(f);
+          });
+        } else if (MNT._isSelectableFeature(layer)){
+          // Top-level selectable layer (a polygon added directly to map, not in a group)
+          visit(layer);
+        }
+      });
+    };
+
     MNT._findFeatureAt = function(latlng){
       var hit = null;
-      map.eachLayer(function(layer){
-        if(hit) return;
-        if(layer && layer._layers && typeof layer.eachLayer === 'function'){
-          layer.eachLayer(function(f){
-            if(hit) return;
-            if(f && typeof f.getBounds === 'function'){
-              try {
-                if(f.getBounds().contains(latlng) && f.feature && f.feature.properties){ hit = f; }
-              } catch(_e){}
-            }
-          });
-        }
+      MNT._eachSelectableFeature(function(f){
+        if (hit) return;
+        try {
+          if (f.getBounds().contains(latlng)) hit = f;
+        } catch(_e){}
       });
       return hit;
     };
+
     MNT._findFeaturesInBounds = function(bounds){
       var hits = [];
-      map.eachLayer(function(layer){
-        if(layer && layer._layers && typeof layer.eachLayer === 'function'){
-          layer.eachLayer(function(f){
-            if(f && typeof f.getBounds === 'function'){
-              try {
-                if(f.feature && f.feature.properties){
-                  var fb = f.getBounds();
-                  if(bounds.intersects(fb) && bounds.contains(fb.getCenter())) hits.push(f);
-                }
-              } catch(_e){}
-            }
-          });
-        }
+      MNT._eachSelectableFeature(function(f){
+        try {
+          var fb = f.getBounds();
+          if (bounds.intersects(fb) && bounds.contains(fb.getCenter())) hits.push(f);
+        } catch(_e){}
       });
       return hits;
     };
+
     MNT._findFeaturesIntersectingPolygon = function(polyLatLngs){
-      // Check if polygon's bounds-center is inside drawn polygon (simple but works for parcels)
       var polyL = L_.polygon(polyLatLngs);
       var polyBnds = polyL.getBounds();
       var hits = [];
-      map.eachLayer(function(layer){
-        if(layer && layer._layers && typeof layer.eachLayer === 'function'){
-          layer.eachLayer(function(f){
-            if(f && typeof f.getBounds === 'function' && f.feature && f.feature.properties){
-              try {
-                var c = f.getBounds().getCenter();
-                if(polyBnds.contains(c) && MNT._pointInPolygon(c, polyLatLngs)) hits.push(f);
-              } catch(_e){}
-            }
-          });
-        }
+      MNT._eachSelectableFeature(function(f){
+        try {
+          var c = f.getBounds().getCenter();
+          if (polyBnds.contains(c) && MNT._pointInPolygon(c, polyLatLngs)) hits.push(f);
+        } catch(_e){}
       });
       return hits;
     };
