@@ -5675,6 +5675,8 @@ window.selectParcel = function(p, layer) {
 <script src="static/v2/usr-favorites.js?v=2"></script>
 <!-- Clerk auth (additive — coexists with Supabase; Supabase removal will follow once Clerk is verified). -->
 <script src="static/v2/usr-clerk.js?v=3" defer></script>
+<!-- Custom profile modal: Display name, Company, Title, Phone, Bio — saves to Clerk unsafeMetadata -->
+<script src="static/v2/usr-clerk-profile.js?v=1" defer></script>
 <style id="mn2-clerk-takeover">
   /* Hide the legacy Supabase auth UI in favor of Clerk's UserButton.
    * Visual elements only — Supabase JS still runs in the background; full
