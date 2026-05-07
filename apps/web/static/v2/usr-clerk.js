@@ -101,9 +101,12 @@
     if (document.getElementById('mn2-clerk-widget')) return;
     var w = document.createElement('div');
     w.id = 'mn2-clerk-widget';
+    // Top-right; vertically centered against the existing header action group
+    // (Print / Export / Share / Analytics). Sits just clear of those buttons.
     w.style.cssText = [
-      'position:fixed', 'top:10px', 'right:10px', 'z-index:9999',
+      'position:fixed', 'top:14px', 'right:14px', 'z-index:9999',
       'display:flex', 'align-items:center', 'gap:8px',
+      'pointer-events:auto',
     ].join(';');
     document.body.appendChild(w);
 
