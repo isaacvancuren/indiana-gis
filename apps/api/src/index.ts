@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { captureMessage } from '@sentry/cloudflare'
 import type { Env } from './env'
 import { withSentry, sentryConfig } from './middleware/sentry'
+import { originGuard } from './middleware/originGuard'
 import health from './routes/health'
 import discover from './routes/discover'
 
@@ -16,6 +17,9 @@ app.use('*', async (c, next) => {
     captureMessage(`Slow request: ${c.req.method} ${c.req.path} (${ms}ms)`, 'warning')
   }
 })
+
+// Origin allow-list on /api/* only. /health stays open for monitoring + uptime checks.
+app.use('/api/*', originGuard)
 
 app.route('/', health)
 app.route('/', discover)
