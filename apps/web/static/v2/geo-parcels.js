@@ -1,4 +1,4 @@
-/* mn-county-parcels.js - Per-county parcel ArcGIS endpoints
+/* mn2-county-parcels.js - Per-county parcel ArcGIS endpoints
    Dynamically loads the GDITAdmin public parcel catalog from ArcGIS Online (1077+ items).
    This catalog covers all 50 states with per-county FeatureServer/MapServer endpoints
    maintained by GDIT (General Dynamics Information Technology).
@@ -42,7 +42,7 @@
         const m = item.title.match(/^Parcels - ([A-Z]{2}) - (.+)$/);
         if (!m) return;
         const [, st, county] = m;
-        if (/statewide/i.test(county)) return; // statewides handled by mn-state-sources
+        if (/statewide/i.test(county)) return; // statewides handled by mn2-state-sources
         const key = county.replace(/\s+(County|Parish|City|Borough)$/i,'')
                           .toLowerCase().replace(/[^a-z0-9]/g,'');
         byState[st] = byState[st] || [];
@@ -61,7 +61,7 @@
       });
       _catalog = byState;
       window.MN_COUNTY_PARCELS = byState;
-      console.log("[mn-county-parcels] loaded", Object.keys(byState).length, "states,",
+      console.log("[mn2-county-parcels] loaded", Object.keys(byState).length, "states,",
         Object.values(byState).reduce((a,v)=>a+v.length,0), "counties");
       return byState;
     })();

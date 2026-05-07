@@ -149,77 +149,77 @@
       },
 
       _ensurePanel: function(){
-        if (document.getElementById('mn-inq-list')) return;
-        var html = '<div id="mn-inq-list" class="mn-inq-list" style="display:none">'
-          +   '<div class="mn-inq-hdr">'
+        if (document.getElementById('mn2-inq-list')) return;
+        var html = '<div id="mn2-inq-list" class="mn2-inq-list" style="display:none">'
+          +   '<div class="mn2-inq-hdr">'
           +     '<i class="fas fa-list"></i> '
           +     '<span>Inquiry List</span>'
-          +     '<span class="mn-inq-count" id="mn-inq-count">0</span>'
-          +     '<div class="mn-inq-actions">'
-          +       '<button title="Add all to active project" id="mn-inq-add-proj"><i class="fas fa-folder-plus"></i></button>'
-          +       '<button title="Clear list" id="mn-inq-clear"><i class="fas fa-eraser"></i></button>'
-          +       '<button title="Hide" id="mn-inq-hide"><i class="fas fa-times"></i></button>'
+          +     '<span class="mn2-inq-count" id="mn2-inq-count">0</span>'
+          +     '<div class="mn2-inq-actions">'
+          +       '<button title="Add all to active project" id="mn2-inq-add-proj"><i class="fas fa-folder-plus"></i></button>'
+          +       '<button title="Clear list" id="mn2-inq-clear"><i class="fas fa-eraser"></i></button>'
+          +       '<button title="Hide" id="mn2-inq-hide"><i class="fas fa-times"></i></button>'
           +     '</div>'
           +   '</div>'
-          +   '<div id="mn-inq-body" class="mn-inq-body"></div>'
+          +   '<div id="mn2-inq-body" class="mn2-inq-body"></div>'
           + '</div>';
         var wrap = document.createElement('div');
         wrap.innerHTML = html;
         document.body.appendChild(wrap.firstElementChild);
 
-        var css = '.mn-inq-list{position:fixed;right:12px;bottom:80px;width:340px;max-height:55vh;'
+        var css = '.mn2-inq-list{position:fixed;right:12px;bottom:80px;width:340px;max-height:55vh;'
           + 'background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:10px;'
           + 'box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:5500;display:flex;flex-direction:column;'
           + 'font:13px/1.4 system-ui,sans-serif;overflow:hidden}'
-          + '.mn-inq-hdr{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1e293b;'
+          + '.mn2-inq-hdr{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1e293b;'
           + 'border-bottom:1px solid #334155;font-weight:600}'
-          + '.mn-inq-hdr .mn-inq-count{margin-left:4px;background:#0ea5e9;color:#fff;border-radius:10px;'
+          + '.mn2-inq-hdr .mn2-inq-count{margin-left:4px;background:#0ea5e9;color:#fff;border-radius:10px;'
           + 'padding:1px 8px;font-size:11px}'
-          + '.mn-inq-actions{margin-left:auto;display:flex;gap:4px}'
-          + '.mn-inq-actions button{background:#334155;color:#e2e8f0;border:0;border-radius:6px;'
+          + '.mn2-inq-actions{margin-left:auto;display:flex;gap:4px}'
+          + '.mn2-inq-actions button{background:#334155;color:#e2e8f0;border:0;border-radius:6px;'
           + 'width:28px;height:28px;cursor:pointer}'
-          + '.mn-inq-actions button:hover{background:#475569}'
-          + '.mn-inq-body{flex:1;overflow-y:auto;padding:6px}'
-          + '.mn-inq-row{padding:7px 8px;margin-bottom:5px;background:#1e293b;border:1px solid #334155;'
+          + '.mn2-inq-actions button:hover{background:#475569}'
+          + '.mn2-inq-body{flex:1;overflow-y:auto;padding:6px}'
+          + '.mn2-inq-row{padding:7px 8px;margin-bottom:5px;background:#1e293b;border:1px solid #334155;'
           + 'border-left:3px solid #facc15;border-radius:6px;cursor:pointer;position:relative}'
-          + '.mn-inq-row:hover{background:#273449}'
-          + '.mn-inq-row .o{font-weight:600;color:#fde047;margin-bottom:2px;padding-right:60px}'
-          + '.mn-inq-row .a{color:#94a3b8;font-size:12px;padding-right:60px}'
-          + '.mn-inq-row .meta{color:#64748b;font-size:11px;margin-top:3px}'
-          + '.mn-inq-row .rm{position:absolute;top:6px;right:6px;background:#475569;color:#fff;border:0;'
+          + '.mn2-inq-row:hover{background:#273449}'
+          + '.mn2-inq-row .o{font-weight:600;color:#fde047;margin-bottom:2px;padding-right:60px}'
+          + '.mn2-inq-row .a{color:#94a3b8;font-size:12px;padding-right:60px}'
+          + '.mn2-inq-row .meta{color:#64748b;font-size:11px;margin-top:3px}'
+          + '.mn2-inq-row .rm{position:absolute;top:6px;right:6px;background:#475569;color:#fff;border:0;'
           + 'border-radius:4px;width:24px;height:24px;cursor:pointer;font-size:11px}'
-          + '.mn-inq-row .rm:hover{background:#dc2626}'
-          + '.mn-inq-row .det{position:absolute;top:6px;right:34px;background:#475569;color:#fff;border:0;'
+          + '.mn2-inq-row .rm:hover{background:#dc2626}'
+          + '.mn2-inq-row .det{position:absolute;top:6px;right:34px;background:#475569;color:#fff;border:0;'
           + 'border-radius:4px;width:24px;height:24px;cursor:pointer;font-size:11px}'
-          + '.mn-inq-row .det:hover{background:#0ea5e9}'
-          + '.mn-inq-empty{color:#64748b;text-align:center;padding:18px;font-style:italic}'
-          + '#mn-inq-fab{position:fixed;right:14px;bottom:18px;background:#0ea5e9;color:#fff;border:0;'
+          + '.mn2-inq-row .det:hover{background:#0ea5e9}'
+          + '.mn2-inq-empty{color:#64748b;text-align:center;padding:18px;font-style:italic}'
+          + '#mn2-inq-fab{position:fixed;right:14px;bottom:18px;background:#0ea5e9;color:#fff;border:0;'
           + 'border-radius:24px;padding:10px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4);'
           + 'z-index:5499;font-weight:600;display:none}'
-          + '#mn-inq-fab:hover{background:#0284c7}'
-          + '#mn-inq-fab .b{background:#fff;color:#0ea5e9;border-radius:10px;padding:1px 7px;margin-left:6px;font-size:11px}';
+          + '#mn2-inq-fab:hover{background:#0284c7}'
+          + '#mn2-inq-fab .b{background:#fff;color:#0ea5e9;border-radius:10px;padding:1px 7px;margin-left:6px;font-size:11px}';
         var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
         var fab = document.createElement('button');
-        fab.id = 'mn-inq-fab';
-        fab.innerHTML = '<i class="fas fa-list"></i> Inquiry List <span class="b" id="mn-inq-fab-count">0</span>';
+        fab.id = 'mn2-inq-fab';
+        fab.innerHTML = '<i class="fas fa-list"></i> Inquiry List <span class="b" id="mn2-inq-fab-count">0</span>';
         document.body.appendChild(fab);
         fab.onclick = function(){ INQ.openPanel(); };
 
-        document.getElementById('mn-inq-hide').onclick = function(){ INQ.closePanel(); };
-        document.getElementById('mn-inq-clear').onclick = function(){
+        document.getElementById('mn2-inq-hide').onclick = function(){ INQ.closePanel(); };
+        document.getElementById('mn2-inq-clear').onclick = function(){
           if (confirm('Clear the inquiry list? Highlights will be removed.')) INQ.clear();
         };
-        document.getElementById('mn-inq-add-proj').onclick = function(){ INQ.addAllToProject(); };
+        document.getElementById('mn2-inq-add-proj').onclick = function(){ INQ.addAllToProject(); };
       },
 
       render: function(){
         INQ._ensurePanel();
-        var body = document.getElementById('mn-inq-body');
-        var count = document.getElementById('mn-inq-count');
-        var fabCount = document.getElementById('mn-inq-fab-count');
-        var fab = document.getElementById('mn-inq-fab');
-        var panel = document.getElementById('mn-inq-list');
+        var body = document.getElementById('mn2-inq-body');
+        var count = document.getElementById('mn2-inq-count');
+        var fabCount = document.getElementById('mn2-inq-fab-count');
+        var fab = document.getElementById('mn2-inq-fab');
+        var panel = document.getElementById('mn2-inq-list');
         if (!body) return;
         count.textContent = INQ.items.length;
         if (fabCount) fabCount.textContent = INQ.items.length;
@@ -229,7 +229,7 @@
         }
 
         if (INQ.items.length === 0) {
-          body.innerHTML = '<div class="mn-inq-empty">No parcels selected.<br><small>Use a selection tool or click parcels.</small></div>';
+          body.innerHTML = '<div class="mn2-inq-empty">No parcels selected.<br><small>Use a selection tool or click parcels.</small></div>';
           return;
         }
         var html = '';
@@ -238,7 +238,7 @@
           if (it.parid && it.parid !== '—') meta.push('PID: ' + it.parid);
           if (it.county) meta.push(it.county);
           if (it.acres) meta.push((+it.acres).toFixed(2) + ' ac');
-          html += '<div class="mn-inq-row" data-key="'+ escAttr(it.key) +'">'
+          html += '<div class="mn2-inq-row" data-key="'+ escAttr(it.key) +'">'
                +   '<div class="o">' + escHtml(it.owner) + '</div>'
                +   '<div class="a">' + escHtml(it.addr) + '</div>'
                +   '<div class="meta">' + escHtml(meta.join(' · ')) + '</div>'
@@ -248,7 +248,7 @@
         });
         body.innerHTML = html;
 
-        Array.from(body.querySelectorAll('.mn-inq-row')).forEach(function(row){
+        Array.from(body.querySelectorAll('.mn2-inq-row')).forEach(function(row){
           row.onclick = function(e){
             var btn = e.target.closest('button');
             var k = row.getAttribute('data-key');
@@ -264,15 +264,15 @@
 
       openPanel: function(){
         INQ._ensurePanel();
-        var p = document.getElementById('mn-inq-list');
+        var p = document.getElementById('mn2-inq-list');
         if (p) p.style.display = 'flex';
-        var fab = document.getElementById('mn-inq-fab');
+        var fab = document.getElementById('mn2-inq-fab');
         if (fab) fab.style.display = 'none';
       },
       closePanel: function(){
-        var p = document.getElementById('mn-inq-list');
+        var p = document.getElementById('mn2-inq-list');
         if (p) p.style.display = 'none';
-        var fab = document.getElementById('mn-inq-fab');
+        var fab = document.getElementById('mn2-inq-fab');
         if (fab && INQ.items.length > 0) fab.style.display = 'block';
       }
     };
@@ -374,10 +374,10 @@
     /* Add to Project button on parcel detail */
     function ensureAddToProjectBtn(){
       var detail = document.getElementById('parcel-detail');
-      if (!detail || document.getElementById('mn-add-parcel-proj')) return;
+      if (!detail || document.getElementById('mn2-add-parcel-proj')) return;
       var btn = document.createElement('button');
-      btn.id = 'mn-add-parcel-proj';
-      btn.className = 'mn-add-proj-btn';
+      btn.id = 'mn2-add-parcel-proj';
+      btn.className = 'mn2-add-proj-btn';
       btn.innerHTML = '<i class="fas fa-folder-plus"></i> Add to Active Project';
       btn.onclick = function(){
         var p = window._selectedLiveParcel || window.selectedParcel;
@@ -399,9 +399,9 @@
         if (window.toast) window.toast('Parcel saved to project.', 2500);
       };
       detail.insertBefore(btn, detail.firstChild);
-      var css = '.mn-add-proj-btn{display:block;width:calc(100% - 16px);margin:8px;padding:10px;'
+      var css = '.mn2-add-proj-btn{display:block;width:calc(100% - 16px);margin:8px;padding:10px;'
         + 'background:#0ea5e9;color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;'
-        + 'font-size:14px}.mn-add-proj-btn:hover{background:#0284c7}';
+        + 'font-size:14px}.mn2-add-proj-btn:hover{background:#0284c7}';
       var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     }
     var detailEl = document.getElementById('parcel-detail');

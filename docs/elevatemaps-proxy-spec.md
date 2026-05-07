@@ -9,7 +9,7 @@
 
 ### How `getOwnershipConfig(cKey)` decides the tier
 
-`getOwnershipConfig` (`apps/web/js/app.js:762`) uses a simple priority ladder:
+`getOwnershipConfig` (`apps/web/static/v2/app.js:762`) uses a simple priority ladder:
 
 ```
 Tier 1 → if (EM_LAYER92[cKey])  return { tier: 1, url: EM_BASE + em + '/MapServer/92/query' }
@@ -155,7 +155,7 @@ A 401/403 or `{ error: 'auth' }` response causes the frontend to fall back to Ti
 
 ### Expanding `EM_LAYER92`
 
-Once the proxy is live and auth is confirmed to work, the remaining 18 counties can be added to `EM_LAYER92` one by one (or all at once) in `apps/web/assets/county-parcel-apis.js` and `apps/web/js/app.js`. No other frontend change is needed.
+Once the proxy is live and auth is confirmed to work, the remaining 18 counties can be added to `EM_LAYER92` one by one (or all at once) in `apps/web/static/v2/county-parcel-apis.js` and `apps/web/static/v2/app.js`. No other frontend change is needed.
 
 ---
 

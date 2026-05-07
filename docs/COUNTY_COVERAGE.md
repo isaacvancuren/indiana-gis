@@ -1,7 +1,7 @@
 # Indiana County Data Coverage
 
 **Audited:** 2026-05-05  
-**Source files:** `apps/web/assets/county-metadata.js`, `county-gis-servers.js`, `municipal-gis-servers.js`, `county-parcel-apis.js`, `mn-schneider-fallback.js`, `mn-zoning-ordinances.js`
+**Source files:** `apps/web/static/v2/county-metadata.js`, `county-gis-servers.js`, `municipal-gis-servers.js`, `county-parcel-apis.js`, `mn-schneider-fallback.js`, `mn-zoning-ordinances.js`
 
 ## Coverage Matrix
 

@@ -1,4 +1,4 @@
-// assets/county-parcel-apis.js
+// static/v2/geo-county-apis.js
 // Extracted from index.html (TIER 1+2 county parcel API registry).
 // Defines: EM_LAYER92, EM_BASE, L92_FIELDS, COUNTY_PARCEL_APIS as window globals.
 (function(){

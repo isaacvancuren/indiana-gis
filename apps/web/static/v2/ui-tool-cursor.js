@@ -7,7 +7,7 @@
  *   1. Wraps window.selectParcelLive so it is a no-op while a tool is active.
  *      Prevents parcel popup from stealing clicks meant for measure/draw/select.
  *   2. Wraps legacy window.activateTool / window.clearMeasure to toggle the
- *      same #map.mn-tool-active class that MNT.setMode uses, so the cursor
+ *      same #map.mn2-tool-active class that MNT.setMode uses, so the cursor
  *      and CSS state stay consistent across legacy and modern tool engines.
  *   3. On boot, ensures the map starts in inquire mode (no class).
  */
@@ -26,8 +26,8 @@
   function setToolClass(on) {
     var el = mapEl();
     if (!el) return;
-    if (on) el.classList.add('mn-tool-active');
-    else el.classList.remove('mn-tool-active');
+    if (on) el.classList.add('mn2-tool-active');
+    else el.classList.remove('mn2-tool-active');
   }
 
   function wrapSelectParcel() {
@@ -80,10 +80,10 @@
     var el = mapEl();
     if (!el) return;
     var active = isToolActive();
-    var have = el.classList.contains('mn-tool-active');
+    var have = el.classList.contains('mn2-tool-active');
     if (active !== have) {
-      if (active) el.classList.add('mn-tool-active');
-      else el.classList.remove('mn-tool-active');
+      if (active) el.classList.add('mn2-tool-active');
+      else el.classList.remove('mn2-tool-active');
     }
     if (!active) {
       // Inline cursor wins over CSS — kill any stale tool-cursor.
@@ -95,7 +95,7 @@
       //   leaflet-crosshair: added by Leaflet during box-zoom (shift-drag)
       //                      and by Leaflet.Draw while a shape handler is active
       //   tool-active / select-active: legacy CSS rules in app.css
-      // If a real tool is active, mn-tool-active is the canonical class.
+      // If a real tool is active, mn2-tool-active is the canonical class.
       if (el.classList.contains('leaflet-crosshair')) el.classList.remove('leaflet-crosshair');
       if (el.classList.contains('tool-active')) el.classList.remove('tool-active');
       if (el.classList.contains('select-active')) el.classList.remove('select-active');

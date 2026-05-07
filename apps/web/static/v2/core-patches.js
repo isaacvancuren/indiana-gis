@@ -32,7 +32,7 @@
       MNT.__legacySyncWrapped = true;
       return true;
     } catch(e){
-      console.warn('[mn-bugfixes] setMode wrap failed:', e);
+      console.warn('[mn2-bugfixes] setMode wrap failed:', e);
       return false;
     }
   }
@@ -78,7 +78,7 @@
       INQ.__fieldsPatched = true;
       return true;
     } catch(e){
-      console.warn('[mn-bugfixes] INQ patch failed:', e);
+      console.warn('[mn2-bugfixes] INQ patch failed:', e);
       return false;
     }
   }

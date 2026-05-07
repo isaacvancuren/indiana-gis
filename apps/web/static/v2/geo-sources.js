@@ -1,4 +1,4 @@
-/* mn-state-sources.js - Confirmed statewide parcel sources for non-IN states
+/* mn2-state-sources.js - Confirmed statewide parcel sources for non-IN states
    Each source uses a public ArcGIS REST FeatureService with envelope queries.
    Add new states by extending the SOURCES object below and committing.
 */
@@ -302,7 +302,7 @@ NH: {
     Object.keys(SOURCES).forEach(function(code){
       window.MNStates.registerSource(code, SOURCES[code]);
     });
-    console.log("[mn-state-sources] registered:", Object.keys(SOURCES));
+    console.log("[mn2-state-sources] registered:", Object.keys(SOURCES));
   }
   reg();
 })();

@@ -1,9 +1,9 @@
-/* mn-parcel-cache.js
+/* mn2-parcel-cache.js
    IndexedDB write-through cache for IGIO statewide parcel search.
 
    Schema
    ------
-   DB:    mn-parcel-cache  (version 1)
+   DB:    mn2-parcel-cache  (version 1)
    Store: parcels
      keyPath: pid
      Indices:
@@ -22,7 +22,7 @@
      evict()                 → void               (remove records older than 7 days)
 */
 (function () {
-  var DB_NAME    = 'mn-parcel-cache';
+  var DB_NAME    = 'mn2-parcel-cache';
   var DB_VERSION = 1;
   var STORE      = 'parcels';
   var TTL_MS     = 7 * 24 * 60 * 60 * 1000;

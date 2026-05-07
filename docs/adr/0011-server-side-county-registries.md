@@ -6,7 +6,7 @@
 
 ## Context
 
-Today, the project's most valuable competitive asset — hardcoded GIS service URLs, ArcGIS layer registries, parcel API mappings, and zoning ordinance metadata for all 92 Indiana counties — lives in `apps/web/assets/county-*.js` and `municipal-gis-servers.js`. These files are shipped to every browser that loads `mapnova.org` and were public from the project's inception until the 2026-05-06 visibility flip.
+Today, the project's most valuable competitive asset — hardcoded GIS service URLs, ArcGIS layer registries, parcel API mappings, and zoning ordinance metadata for all 92 Indiana counties — lives in `apps/web/static/v2/county-*.js` and `municipal-gis-servers.js`. These files are shipped to every browser that loads `mapnova.org` and were public from the project's inception until the 2026-05-06 visibility flip.
 
 ADR 0008 established that hardcoded county registries are the right architecture (universal layer-fetching does not work; per-county discovery is the only reliable path). That ADR is correct and not being relitigated. The question this ADR addresses is: **where does that data live**, not whether it should be hardcoded.
 
@@ -41,7 +41,7 @@ The frontend will fetch the registry for whichever county the user is viewing, o
 
 **Phase C:** delete the static JS modules from the production bundle.
 
-- Once registries are exclusively served via API and the frontend has been verified for at least 30 days, remove the `apps/web/assets/county-gis-servers.js`, `county-layer-engines.js`, `municipal-gis-servers.js`, `mn-zoning-ordinances.js`, `county-parcel-apis.js`, `county-metadata.js` from the deployed bundle. Keep them in the repo (under `apps/api/seeds/` or similar) as the canonical source for re-seeding.
+- Once registries are exclusively served via API and the frontend has been verified for at least 30 days, remove the `apps/web/static/v2/county-gis-servers.js`, `county-layer-engines.js`, `municipal-gis-servers.js`, `mn-zoning-ordinances.js`, `county-parcel-apis.js`, `county-metadata.js` from the deployed bundle. Keep them in the repo (under `apps/api/seeds/` or similar) as the canonical source for re-seeding.
 
 ## Trade-offs accepted
 

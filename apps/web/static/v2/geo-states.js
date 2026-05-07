@@ -1,4 +1,4 @@
-/* mn-states.js - Multi-state parcel infrastructure for Mapnova
+/* mn2-states.js - Multi-state parcel infrastructure for Mapnova
    Provides STATES registry, state-switcher UI, and per-state parcel data routing.
    Indiana remains default; all other states are wired progressively.
 */
@@ -155,13 +155,13 @@
           return Promise.resolve(new Response(JSON.stringify({type:"FeatureCollection",features:[]}),{headers:{"content-type":"application/json"}}));
         }
       }
-    } catch(e){ console.warn("[mn-states] fetch hook error", e); }
+    } catch(e){ console.warn("[mn2-states] fetch hook error", e); }
     return origFetch(input, init);
   };
 
   // ----- GDIT PER-COUNTY FALLBACK -----
   // For states with no statewide ESRI source, the GDIT catalog
-  // (window.MN_COUNTY_PARCELS, populated by mn-county-parcels.js) often has
+  // (window.MN_COUNTY_PARCELS, populated by mn2-county-parcels.js) often has
   // per-county FeatureServers. Probe the layer schema, run an envelope query,
   // and normalize the response into the same GeoJSON shape the rest of the
   // app expects.
@@ -332,16 +332,16 @@
 
   // ----- STATE-SWITCHER UI -----
   function _injectUI(){
-    if (document.getElementById("mn-state-switcher")) return;
+    if (document.getElementById("mn2-state-switcher")) return;
     var host = document.querySelector(".leaflet-top.leaflet-right") || document.body;
     var wrap = document.createElement("div");
-    wrap.id = "mn-state-switcher";
+    wrap.id = "mn2-state-switcher";
     wrap.style.cssText = "position:absolute;top:8px;right:48px;z-index:1000;background:#fff;border:1px solid #ccc;border-radius:4px;padding:4px 6px;font:13px/1.2 system-ui,sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.2);";
     var label = document.createElement("span");
     label.textContent = "State: ";
     label.style.cssText = "margin-right:4px;color:#444;";
     var sel = document.createElement("select");
-    sel.id = "mn-state-select";
+    sel.id = "mn2-state-select";
     sel.style.cssText = "border:none;background:transparent;font:inherit;color:#222;cursor:pointer;";
     var keys = Object.keys(STATES).sort(function(a,b){ return STATES[a].n.localeCompare(STATES[b].n); });
     keys.forEach(function(k){
@@ -403,5 +403,5 @@
   });
   // bootstrap initial active
   window.__activeState = getActive();
-  console.log("[mn-states] loaded; active=", window.__activeState, "; sources=", Object.keys(SOURCES));
+  console.log("[mn2-states] loaded; active=", window.__activeState, "; sources=", Object.keys(SOURCES));
 })();

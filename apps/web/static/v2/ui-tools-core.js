@@ -1,6 +1,6 @@
 /* Mapnova Tool Engine — extracted from index.html on 2026-04-30.
    This is the implementation for the MNTools facade declared inline in
-   index.html. Loaded via <script src="assets/mn-tools-impl.js" defer> in
+   index.html. Loaded via <script src="static/v2/ui-tools-core.js" defer> in
    index.html. Do NOT inline this back into index.html. */
 
 (function(){
@@ -169,7 +169,7 @@
       var item = {id:'m'+Date.now(), type:'line', pts:pts, lengthM:len, layer:poly};
       var midIdx = Math.floor(pts.length/2);
       var lblPos = pts[midIdx];
-      item.label = L_.marker(lblPos, {icon:L_.divIcon({className:'mn-meas-label',html:'<span style="background:#0891b2;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;">'+MNT.fmtDist(len)+'</span>'})}).addTo(MNT.measLayer);
+      item.label = L_.marker(lblPos, {icon:L_.divIcon({className:'mn2-meas-label',html:'<span style="background:#0891b2;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;">'+MNT.fmtDist(len)+'</span>'})}).addTo(MNT.measLayer);
       MNT.measurements.push(item);
       MNT.renderMeasList();
     };
@@ -201,14 +201,14 @@
       var poly = L_.polygon(pts, {color:'#06b6d4',weight:2,fillColor:'#06b6d4',fillOpacity:0.15}).addTo(MNT.measLayer);
       var item = {id:'m'+Date.now(), type:'area', pts:pts, areaSqm:sqm, perimM:perim, layer:poly};
       var center = poly.getBounds().getCenter();
-      item.label = L_.marker(center, {icon:L_.divIcon({className:'mn-meas-label',html:'<span style="background:#0891b2;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;">'+MNT.fmtArea(sqm)+'</span>'})}).addTo(MNT.measLayer);
+      item.label = L_.marker(center, {icon:L_.divIcon({className:'mn2-meas-label',html:'<span style="background:#0891b2;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;">'+MNT.fmtArea(sqm)+'</span>'})}).addTo(MNT.measLayer);
       MNT.measurements.push(item);
       MNT.renderMeasList();
     };
     MNT.dblclick_meas_area = function(e){ MNT._finishCurrent(); };
 
     MNT.renderMeasList = function(){
-      var el = document.getElementById('mn-meas-list');
+      var el = document.getElementById('mn2-meas-list');
       if(!el) return;
       if(MNT.measurements.length===0){ el.innerHTML=''; return; }
       var html = '<div style="font-size:11px;color:#aaa;margin-bottom:4px;font-weight:600;letter-spacing:.5px;">SAVED MEASUREMENTS ('+MNT.measurements.length+')</div>';
@@ -218,17 +218,17 @@
         html += '<div style="display:flex;align-items:center;gap:5px;padding:4px 6px;background:rgba(255,255,255,0.04);border-radius:5px;margin-bottom:3px;">'
               + '<i class="fas '+icon+'" style="color:#06b6d4;font-size:11px;"></i>'
               + '<span style="flex:1;font-size:12px;color:#e2e8f0;">'+val+'</span>'
-              + '<button data-mn-meas-zoom="'+m.id+'" title="Zoom" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:2px;"><i class="fas fa-search-plus" style="font-size:11px;"></i></button>'
-              + '<button data-mn-meas-del="'+m.id+'" title="Delete" style="background:none;border:none;color:#f87171;cursor:pointer;padding:2px;"><i class="fas fa-times" style="font-size:11px;"></i></button>'
+              + '<button data-mn2-meas-zoom="'+m.id+'" title="Zoom" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:2px;"><i class="fas fa-search-plus" style="font-size:11px;"></i></button>'
+              + '<button data-mn2-meas-del="'+m.id+'" title="Delete" style="background:none;border:none;color:#f87171;cursor:pointer;padding:2px;"><i class="fas fa-times" style="font-size:11px;"></i></button>'
               + '</div>';
       });
       el.innerHTML = html;
     };
     document.addEventListener('click', function(ev){
-      var z = ev.target.closest('[data-mn-meas-zoom]');
-      if(z){ var id = z.getAttribute('data-mn-meas-zoom'); var m = MNT.measurements.find(function(x){return x.id===id;}); if(m && m.layer && m.layer.getBounds) map.fitBounds(m.layer.getBounds(), {padding:[40,40]}); return; }
-      var d = ev.target.closest('[data-mn-meas-del]');
-      if(d){ var id2 = d.getAttribute('data-mn-meas-del'); var idx = MNT.measurements.findIndex(function(x){return x.id===id2;}); if(idx>-1){ var m2 = MNT.measurements[idx]; try{MNT.measLayer.removeLayer(m2.layer);}catch(e){} try{MNT.measLayer.removeLayer(m2.label);}catch(e){} MNT.measurements.splice(idx,1); MNT.renderMeasList(); } }
+      var z = ev.target.closest('[data-mn2-meas-zoom]');
+      if(z){ var id = z.getAttribute('data-mn2-meas-zoom'); var m = MNT.measurements.find(function(x){return x.id===id;}); if(m && m.layer && m.layer.getBounds) map.fitBounds(m.layer.getBounds(), {padding:[40,40]}); return; }
+      var d = ev.target.closest('[data-mn2-meas-del]');
+      if(d){ var id2 = d.getAttribute('data-mn2-meas-del'); var idx = MNT.measurements.findIndex(function(x){return x.id===id2;}); if(idx>-1){ var m2 = MNT.measurements[idx]; try{MNT.measLayer.removeLayer(m2.layer);}catch(e){} try{MNT.measLayer.removeLayer(m2.label);}catch(e){} MNT.measurements.splice(idx,1); MNT.renderMeasList(); } }
     });
 
     var origRender = MNT.renderMeasList;
@@ -238,7 +238,7 @@
       MNT.measurements.forEach(function(m){
         var val = m.type==='line' ? MNT.fmtDist(m.lengthM) : MNT.fmtArea(m.areaSqm);
         if(m.label && m.label.setIcon){
-          m.label.setIcon(L_.divIcon({className:'mn-meas-label', html:'<span style="background:#0891b2;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;">'+val+'</span>'}));
+          m.label.setIcon(L_.divIcon({className:'mn2-meas-label', html:'<span style="background:#0891b2;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;">'+val+'</span>'}));
         }
       });
     };
@@ -382,11 +382,11 @@
     // ===== Text Box =====
     MNT.start_draw_text = function(){};
     MNT.click_draw_text = function(e){
-      var ti = document.getElementById('mn-draw-textinput');
+      var ti = document.getElementById('mn2-draw-textinput');
       var txt = (ti && ti.value && ti.value.trim()) || prompt('Label text:', '');
       if(!txt) { MNT.returnToInquire(); return; }
       var color = MNT.drawColor;
-      var marker = L_.marker(e.latlng, {icon:L_.divIcon({className:'mn-text-label',html:'<span style="background:rgba(0,0,0,0.7);color:'+color+';padding:3px 8px;border-radius:4px;font-size:13px;font-weight:600;border:1px solid '+color+';white-space:nowrap;">'+txt.replace(/[<>&]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;"}[c];})+'</span>'})}).addTo(MNT.drawLayer);
+      var marker = L_.marker(e.latlng, {icon:L_.divIcon({className:'mn2-text-label',html:'<span style="background:rgba(0,0,0,0.7);color:'+color+';padding:3px 8px;border-radius:4px;font-size:13px;font-weight:600;border:1px solid '+color+';white-space:nowrap;">'+txt.replace(/[<>&]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;"}[c];})+'</span>'})}).addTo(MNT.drawLayer);
       MNT.annotations.push({id:'a'+Date.now(), type:'text', layer:marker, color:color, text:txt});
       if(ti) ti.value = '';
       MNT.returnToInquire();

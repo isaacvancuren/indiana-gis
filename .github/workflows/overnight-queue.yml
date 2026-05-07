@@ -106,7 +106,7 @@ jobs:
                 '**STEP 4 — Hard constraints (from CLAUDE.md):**',
                 '- Do not push to `main`.',
                 '- No new build step. No new framework dependency.',
-                '- Single-file HTML constraint applies — modifications go in `index.html` plus existing `assets/*.js` modules.',
+                '- Single-file HTML constraint applies — modifications go in `index.html` plus existing `static/v2/*.js` modules.',
                 '- Do not edit CLAUDE.md autonomously; propose changes via a separate PR.',
                 '- Do not bump version numbers unless explicitly asked.',
                 '',

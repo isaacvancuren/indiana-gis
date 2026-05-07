@@ -8,8 +8,8 @@
  *   #tb-save-draw   -> persist all drawings to active project
  *   #tb-sel-save    -> persist selected parcels to active project
  *
- * The actual save logic lives in mn-project-features.js (saveMeasurement,
- * saveAnnotation) and mn-multiselect-projects.js (INQ.addAllToProject for
+ * The actual save logic lives in mn2-project-features.js (saveMeasurement,
+ * saveAnnotation) and mn2-multiselect-projects.js (INQ.addAllToProject for
  * parcels). This module is just the wiring + a couple of resilience
  * niceties (toast on no-active-project, idempotent click binding).
  */
@@ -23,7 +23,7 @@
   function toast(msg, icon){
     if (typeof window.notify === 'function') return window.notify(msg, icon || 'fa-info-circle');
     if (typeof window.toast === 'function') return window.toast(msg);
-    console.log('[mn-tool-actions]', msg);
+    console.log('[mn2-tool-actions]', msg);
   }
 
   function activeProjectId(){
