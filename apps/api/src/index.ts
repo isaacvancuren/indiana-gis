@@ -4,6 +4,7 @@ import type { Env } from './env'
 import { withSentry, sentryConfig } from './middleware/sentry'
 import { originGuard } from './middleware/originGuard'
 import { discoverCountyLimit, discoverProbeLimit } from './middleware/rateLimit'
+import { handleBackup } from './cron/backup'
 import health from './routes/health'
 import discover from './routes/discover'
 import projects from './routes/projects'
@@ -38,6 +39,10 @@ export default withSentry(
   {
     async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
       return app.fetch(request, env, ctx)
+    },
+    async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+      // Daily D1 → R2 backup. waitUntil so the cron event resolves immediately.
+      ctx.waitUntil(handleBackup(env))
     },
   },
 )
