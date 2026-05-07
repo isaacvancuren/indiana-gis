@@ -1,0 +1,131 @@
+name: Vision Driver
+
+# Daily autonomous task generator. Reads PRODUCT_VISION.md, STYLE_GUIDE.md,
+# the recent state of the repo, and proposes the next 3 high-leverage tasks
+# as new GitHub Issues with the `claude:overnight` label so the existing
+# overnight queue picks them up at 07:00 UTC.
+#
+# Schedule: 06:00 UTC daily, an hour before the overnight queue. So a same-day
+# turnaround is: 06:00 issues filed → 07:00 queue dispatches @claude → agent
+# opens draft PRs → owner wakes up to a fresh batch.
+#
+# Skip switch: include `[skip vision]` in the latest commit message on main
+# to suppress that day's run. Useful when you want to manually direct the
+# next sprint without algorithm input.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      max_issues:
+        description: "Max issues to file in this run"
+        type: string
+        default: "3"
+
+concurrency:
+  group: vision-driver
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  drive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Skip-switch check
+        id: skip
+        run: |
+          last_msg=$(git log -1 --pretty=%B)
+          if echo "$last_msg" | grep -qiE '\[skip vision\]'; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping vision-driver run because latest commit contains [skip vision]"
+          else
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Claude Code (vision-driver mode)
+        if: steps.skip.outputs.skipped == 'false'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The action runs Claude Code with the prompt below. The prompt
+          # tells Claude to read the vision + style + state, propose 3
+          # high-leverage tasks, and file each as a GitHub issue with the
+          # claude:overnight label.
+          prompt: |
+            You are the Vision Driver for the mapnova project.
+
+            Step 1 — load context:
+            - docs/PRODUCT_VISION.md
+            - docs/STYLE_GUIDE.md
+            - docs/AGENT_RULEBOOK.md
+            - CLAUDE.md
+            - All ADRs in docs/adr/
+            - Recent commits: git log --oneline -20
+            - Recent issues: gh issue list --limit 50 --state all
+            - Recent PRs: gh pr list --limit 30 --state all
+
+            Step 2 — pick high-leverage tasks:
+            Identify up to ${{ github.event.inputs.max_issues || '3' }}
+            high-leverage tasks the project should ship next. "High-leverage"
+            means: directly serves the PRIMARY USER from PRODUCT_VISION.md,
+            advances the NORTH STAR METRIC, doesn't already have an open issue
+            or PR, and can ship in a single PR (under ~500 lines net change).
+
+            Skip these (do not file):
+            - Anything matching the OUT-OF-SCOPE list in VISION § 9 (escalate
+              instead by mentioning it in your final summary; do NOT file an issue)
+            - Tasks already in an open issue or open PR (search before filing)
+            - Speculative/exploratory work — only ship-able tasks
+            - Anything that requires owner credentials, dashboard access, or
+              external service signups
+
+            Step 3 — file the issues:
+            For each task, create a GitHub issue via `gh issue create` with:
+            - Title: "[vision-driver YYYY-MM-DD] <short title>"
+            - Labels: claude:overnight (apply via --label)
+            - Body containing:
+              ## Why this matters
+              <1-2 sentence link to PRODUCT_VISION.md value>
+
+              ## Acceptance criteria
+              <bullet list of testable criteria>
+
+              ## Files likely to touch
+              <list>
+
+              ## Out-of-scope for this issue
+              <bullet list — what this PR explicitly will NOT include>
+
+              ---
+              Filed automatically by .github/workflows/vision-driver.yml on
+              <date>. Edit or close if not aligned.
+
+            Step 4 — final summary:
+            After filing, post a single comment on the most recent issue you
+            created summarizing all N issues filed, plus any task you SKIPPED
+            because it required owner escalation per VISION § 9.
+
+            Hard constraints:
+            - Maximum ${{ github.event.inputs.max_issues || '3' }} issues per run.
+            - Do NOT modify any code or open any PRs in this run. Issues only.
+            - Do NOT edit existing issues.
+            - If PRODUCT_VISION.md still has TODO placeholders in critical
+              sections (§1 Who, §2 Jobs, §6 Pricing), file ONE issue titled
+              "[vision-driver] Owner: please fill in PRODUCT_VISION.md TODOs"
+              and stop. The agent's output quality depends on a filled vision.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

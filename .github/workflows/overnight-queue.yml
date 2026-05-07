@@ -44,6 +44,11 @@ jobs:
                 color: '1f6feb',
                 description: 'Tell @claude to skip planning and open a draft PR with code',
               },
+              {
+                name: 'claude:trivial',
+                color: '7b8794',
+                description: 'Low-risk task (typo, padding, copy, color) — agent skips plan-first and ships directly',
+              },
             ];
             for (const label of desired) {
               try {
@@ -80,17 +85,29 @@ jobs:
                 core.info(`#${issue.number} already dispatched, skipping.`);
                 continue;
               }
-              const body = [
+              const isTrivial = issue.labels.some(l => l.name === 'claude:trivial');
+              const isImplement = issue.labels.some(l => l.name === 'claude:implement');
+              const skipPlanFirst = isTrivial || isImplement;
+
+              const baseLines = [
                 '<!-- overnight-queue:dispatched -->',
                 '@claude implement this issue.',
                 '',
-                'Read CLAUDE.md first. Then follow these rules **in order**:',
+                'Read `docs/AGENT_RULEBOOK.md` first (it loads `PRODUCT_VISION.md`, `STYLE_GUIDE.md`, `CLAUDE.md`, and ADRs in priority order). Then follow these rules **in order**:',
                 '',
                 '**STEP 1 — Branch and PR setup (always):**',
                 '- Create a feature branch named exactly `issue-' + issue.number + '-<short-slug>`.',
                 '- Open a **draft PR** before writing code. Use the issue title + " (#' + issue.number + ')" as the PR title.',
                 '- Reference this issue in the PR body with `Closes #' + issue.number + '`.',
                 '',
+              ];
+
+              const planFirstLines = skipPlanFirst ? [
+                '**STEP 2 — Skip plan-first (this issue is labeled `' + (isTrivial ? 'claude:trivial' : 'claude:implement') + '`):**',
+                '- Go straight to implementation. No "wait for approval" step.',
+                '- Still post a brief summary as the first PR comment so the owner can review the diff.',
+                '',
+              ] : [
                 '**STEP 2 — Plan first (DO NOT SKIP):**',
                 '- Post a plan as the first PR comment. The plan must include:',
                 '  1. The files you will modify or create',
@@ -98,24 +115,31 @@ jobs:
                 '  3. Any architecture decisions and the alternatives considered',
                 '  4. Any external dependencies (URLs, APIs, secrets)',
                 '- After posting the plan, **stop and wait** for an "approved" or "go" comment from @isaacvancuren before writing any code.',
-                '- Exception: if the issue body explicitly says "skip plan-first" or "implement directly", you may skip Step 2. Otherwise plan-first is mandatory.',
                 '',
                 '**STEP 3 — Ambiguity:**',
                 '- If the task is ambiguous or has more than one reasonable approach, list the options in the plan comment and stop. Do not pick one yourself unless the issue body explicitly grants you authority to.',
                 '',
-                '**STEP 4 — Hard constraints (from CLAUDE.md):**',
+              ];
+
+              const tailLines = [
+                '**STEP 4 — Hard constraints (from CLAUDE.md + AGENT_RULEBOOK):**',
                 '- Do not push to `main`.',
-                '- No new build step. No new framework dependency.',
+                '- No new build step. No new framework dependency without owner approval.',
                 '- Single-file HTML constraint applies — modifications go in `index.html` plus existing `static/v2/*.js` modules.',
-                '- Do not edit CLAUDE.md autonomously; propose changes via a separate PR.',
+                '- Do not edit CLAUDE.md or PRODUCT_VISION.md autonomously; propose changes via a separate PR.',
                 '- Do not bump version numbers unless explicitly asked.',
+                '- Escalate (post a comment, do not write code) if the task touches auth, billing, the database schema, canary tokens, or anything in PRODUCT_VISION.md § 9.',
                 '',
                 '**STEP 5 — Quality gate:**',
                 '- Before requesting review, run `node --check` on every JS file you touched (and on inline `<script>` blocks if you touched `index.html`). The CI workflow will catch this if you forget, but catch it yourself first.',
                 '- Watch for smart quotes (`U+2018`, `U+2019`, `U+201C`, `U+201D`) — they are syntax errors in JS string literals. Use ASCII `\'` and `"` only.',
-              ].join('\n');
+                '- No literal merge conflict markers anywhere — CI grep will reject the PR.',
+                '- Style guide compliance — colors from `STYLE_GUIDE.md` token list, spacing from the scale, no new font families.',
+              ];
+
+              const body = baseLines.concat(planFirstLines, tailLines).join('\n');
               await github.rest.issues.createComment({
                 owner, repo, issue_number: issue.number, body,
               });
-              core.info(`Dispatched @claude on #${issue.number}.`);
+              core.info(`Dispatched @claude on #${issue.number}` + (skipPlanFirst ? ' (skip plan-first)' : ''));
             }
