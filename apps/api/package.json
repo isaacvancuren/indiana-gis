@@ -15,7 +15,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
     "@mapnova/shared": "workspace:*",
-    "@sentry/cloudflare": "^8.37.1",
+    "@sentry/cloudflare": "^10.51.0",
     "drizzle-orm": "^0.36.4",
     "hono": "^4.6.0",
     "jose": "^5.9.6",
