@@ -649,14 +649,23 @@
     };
 
     // ===== Click Select (multi) =====
-    MNT.start_sel_click = function(){};
+    MNT.start_sel_click = function(){
+      // Auto-diagnostic on every selection-tool activation. Surfaces matcher
+      // health to console so we can see at a glance whether the tool engine
+      // is finding any selectable features. If 0, selection won't work even
+      // if every other piece of the chain runs correctly.
+      try { MNT._diagnose(); } catch(_e){}
+    };
     MNT.click_sel_click = function(e){
       var f = MNT._findFeatureAt(e.latlng);
+      console.log('[MNT sel-click] at', e.latlng, '→ hit:', !!f, f ? f._leaflet_id : null);
       if(f) MNT._toggleSelection(f);
+      else console.warn('[MNT sel-click] no feature found under cursor. If parcels are visible on the map but this logs no hit, the matcher is missing the parcel layer type.');
     };
 
     // ===== Box Select =====
     MNT.start_sel_box = function(){
+      try { MNT._diagnose(); } catch(_e){}
       try { map.dragging.disable(); } catch(e){}
       MNT._mouseDownHandler = function(e){
         MNT._dragStart = e.latlng;
@@ -685,6 +694,7 @@
 
     // ===== Line Select =====
     MNT.start_sel_line = function(){
+      try { MNT._diagnose(); } catch(_e){}
       MNT._tempPts = [];
       MNT._tempLayer = L_.polyline([], {color:'#fbbf24',weight:3,dashArray:'6,4'}).addTo(map);
       MNT._tempVertices = L_.layerGroup().addTo(map);
@@ -709,6 +719,8 @@
 
     // ===== Poly Select =====
     MNT.start_sel_poly = function(){
+      try { MNT._diagnose(); } catch(_e){}
+      console.log('[MNT sel-poly] activated. Click 3+ points then double-click to finish. Watch for "_findFeaturesIntersectingPolygon → N hits" log on dblclick.');
       MNT._tempPts = [];
       MNT._tempLayer = L_.polygon([], {color:'#fbbf24',weight:2,fillColor:'#fbbf24',fillOpacity:0.15,dashArray:'4,6'}).addTo(map);
       MNT._tempVertices = L_.layerGroup().addTo(map);
@@ -733,6 +745,9 @@
 
     // Initial badge
     MNT._updateSelBadge();
-    console.log('[MNT] Tool engine initialized');
+    // Force debug logging on by default so we always see hit counts in
+    // console — turn off with `MNT.debug = false` after verifying selection.
+    MNT.debug = true;
+    console.log('[MNT] Tool engine initialized; debug logging ON. Set MNT.debug=false to silence.');
   } // end initMNT
 })();
