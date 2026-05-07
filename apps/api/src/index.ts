@@ -5,6 +5,7 @@ import { withSentry, sentryConfig } from './middleware/sentry'
 import { originGuard } from './middleware/originGuard'
 import health from './routes/health'
 import discover from './routes/discover'
+import projects from './routes/projects'
 
 export const app = new Hono<{ Bindings: Env }>()
 
@@ -23,6 +24,7 @@ app.use('/api/*', originGuard)
 
 app.route('/', health)
 app.route('/', discover)
+app.route('/api/projects', projects)
 
 export default withSentry(
   (env: Env) => sentryConfig(env),
