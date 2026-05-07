@@ -97,16 +97,36 @@
     document.head.appendChild(s);
   }
 
+  function fullName(u) {
+    if (!u) return '';
+    // Prefer Clerk.user.fullName (concatenated first+last from OAuth).
+    // Fall back to firstName + lastName, then to primary email's local part.
+    if (u.fullName) return u.fullName;
+    var parts = [];
+    if (u.firstName) parts.push(u.firstName);
+    if (u.lastName) parts.push(u.lastName);
+    if (parts.length) return parts.join(' ');
+    var email = u.primaryEmailAddress && u.primaryEmailAddress.emailAddress;
+    if (email) {
+      var local = email.split('@')[0];
+      // Title-case "isaacv" → "Isaacv"; better than the raw email handle
+      return local.charAt(0).toUpperCase() + local.slice(1);
+    }
+    return 'Signed in';
+  }
+
   function mountWidget(Clerk) {
     if (document.getElementById('mn2-clerk-widget')) return;
     var w = document.createElement('div');
     w.id = 'mn2-clerk-widget';
-    // Top-right; vertically centered against the existing header action group
-    // (Print / Export / Share / Analytics). Sits just clear of those buttons.
+    // Top-right; aligned with the existing header action group (Print /
+    // Export / Share / Analytics). Vertically centered, properly padded so
+    // the avatar circle sits cleanly in the corner.
     w.style.cssText = [
-      'position:fixed', 'top:14px', 'right:14px', 'z-index:9999',
-      'display:flex', 'align-items:center', 'gap:8px',
+      'position:fixed', 'top:12px', 'right:18px', 'z-index:9999',
+      'display:flex', 'align-items:center', 'gap:10px',
       'pointer-events:auto',
+      'height:40px',  // Fixed height matches header buttons; avatar centers within
     ].join(';');
     document.body.appendChild(w);
 
@@ -115,32 +135,43 @@
       while (w.firstChild) w.removeChild(w.firstChild);
 
       if (Clerk.user) {
+        // Full name beside the avatar.
+        var nameEl = document.createElement('span');
+        nameEl.id = 'mn2-clerk-name';
+        nameEl.textContent = fullName(Clerk.user);
+        nameEl.style.cssText = 'color:#dde4f0;font:500 13px -apple-system,system-ui,sans-serif;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,0.5);';
+        w.appendChild(nameEl);
+
         // Use Clerk's prebuilt UserButton — gives the standard avatar UX:
         // click avatar → menu opens with profile + sign out + manage account.
         // Keeps sign-out behind a click instead of always showing a button.
         if (typeof Clerk.mountUserButton === 'function') {
           var slot = document.createElement('div');
           slot.id = 'mn2-clerk-userbutton';
+          // The slot is a flex item; make it a square so the avatar centers.
+          slot.style.cssText = 'display:flex;align-items:center;justify-content:center;width:36px;height:36px;';
           w.appendChild(slot);
           Clerk.mountUserButton(slot, {
-            // Avatar-only display; profile + sign-out hide behind click.
             afterSignOutUrl: window.location.origin,
             appearance: {
               elements: {
-                userButtonAvatarBox: { width: '36px', height: '36px' },
+                userButtonAvatarBox: 'width:36px;height:36px;',
+                rootBox: 'display:flex;align-items:center;',
               },
             },
           });
         } else {
-          // Fallback if mountUserButton isn't available — just show name
-          // (no inline sign-out button per user preference; sign out via
-          // browser-only mechanisms like clearing cookies).
-          var u = Clerk.user;
-          var name = u.firstName || (u.primaryEmailAddress && u.primaryEmailAddress.emailAddress) || 'Signed in';
-          var p = document.createElement('div');
-          p.style.cssText = 'background:rgba(14,20,32,0.92);border:1px solid #1a2d40;border-radius:6px;padding:6px 12px;font:12px sans-serif;color:#dde4f0;backdrop-filter:blur(6px)';
-          p.textContent = 'Hi, ' + name;
-          w.appendChild(p);
+          // Fallback initials avatar
+          var initials = (function(){
+            var n = fullName(Clerk.user) || 'U';
+            var bits = n.split(/\s+/).filter(Boolean).slice(0, 2);
+            return bits.map(function(s){ return s.charAt(0).toUpperCase(); }).join('') || 'U';
+          })();
+          var fallback = document.createElement('div');
+          fallback.style.cssText = 'width:36px;height:36px;border-radius:50%;background:#1d4ed8;color:#fff;font:600 14px sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+          fallback.textContent = initials;
+          fallback.title = 'Click to manage account';
+          w.appendChild(fallback);
         }
       } else {
         // Sign-in button for unauth state
