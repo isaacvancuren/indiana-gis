@@ -398,47 +398,103 @@
     };
 
     // ===== Selection helpers =====
-    MNT._highlightStyle = {color:'#fbbf24', weight:3, fillColor:'#fbbf24', fillOpacity:0.35};
+    // Highlights are decoupled from the underlying parcel layer's setStyle
+    // capability. Each selected feature gets a "halo" overlay (yellow polygon
+    // sized to the feature's bounds) added to MNT.selLayer. This works for:
+    //  - L.geoJSON-derived parcels (have setStyle, but halo is more visible)
+    //  - Plain L.polygon parcels (have setStyle but no feature.properties)
+    //  - Esri-leaflet feature layers (any of the above)
+    //  - Any future layer type that exposes getBounds()
+    // We still call setStyle() if available so the parcel itself recolors,
+    // but the halo guarantees visual feedback even when setStyle is absent.
+    MNT._highlightStyle = { color: '#fbbf24', weight: 3, fillColor: '#fbbf24', fillOpacity: 0.35 };
     MNT._origStyles = {};
+    MNT._haloByFeatureId = {}; // featureId → halo overlay polygon
+    MNT._haloPersist = true;   // halos remain after tool deactivates
+
+    MNT._buildHalo = function(featureLayer){
+      try {
+        var b = featureLayer.getBounds();
+        // Use the feature's actual latlngs if it's a Polygon; else fall back
+        // to the bounding rectangle. Latlngs gives an exact-shape highlight;
+        // bounds gives a rectangle which is fine but coarser.
+        var latlngs = null;
+        if (typeof featureLayer.getLatLngs === 'function') {
+          try { latlngs = featureLayer.getLatLngs(); } catch (_e) {}
+        }
+        if (latlngs && latlngs.length) {
+          return L_.polygon(latlngs, MNT._highlightStyle);
+        }
+        return L_.rectangle(b, MNT._highlightStyle);
+      } catch (_e) {
+        return null;
+      }
+    };
+
     MNT._addToSelection = function(featureLayer){
       var id = featureLayer._leaflet_id;
-      if(MNT.selection.has(id)) return false;
+      if (MNT.selection.has(id)) return false;
       MNT.selection.add(id);
+      // Try to recolor the underlying parcel (graceful no-op if not supported)
       try {
-        var orig = {color:featureLayer.options.color, weight:featureLayer.options.weight, fillColor:featureLayer.options.fillColor, fillOpacity:featureLayer.options.fillOpacity};
-        MNT._origStyles[id] = {layer: featureLayer, orig: orig};
-        featureLayer.setStyle(MNT._highlightStyle);
-        if(featureLayer.bringToFront) featureLayer.bringToFront();
-      } catch(e){}
+        var opts = featureLayer.options || {};
+        var orig = { color: opts.color, weight: opts.weight, fillColor: opts.fillColor, fillOpacity: opts.fillOpacity };
+        MNT._origStyles[id] = { layer: featureLayer, orig: orig };
+        if (typeof featureLayer.setStyle === 'function') {
+          featureLayer.setStyle(MNT._highlightStyle);
+        }
+        if (typeof featureLayer.bringToFront === 'function') {
+          featureLayer.bringToFront();
+        }
+      } catch (_e) {}
+      // Always add a halo overlay — guarantees visible feedback even if the
+      // underlying layer can't be styled.
+      var halo = MNT._buildHalo(featureLayer);
+      if (halo) {
+        halo.addTo(MNT.selLayer);
+        try { halo.bringToFront(); } catch (_e) {}
+        MNT._haloByFeatureId[id] = halo;
+      }
       MNT._updateSelBadge();
       return true;
     };
+
     MNT._removeFromSelection = function(featureLayer){
       var id = featureLayer._leaflet_id;
-      if(!MNT.selection.has(id)) return false;
+      if (!MNT.selection.has(id)) return false;
       MNT.selection.delete(id);
       try {
         var rec = MNT._origStyles[id];
-        if(rec) featureLayer.setStyle(rec.orig);
+        if (rec && typeof rec.layer.setStyle === 'function') rec.layer.setStyle(rec.orig);
         delete MNT._origStyles[id];
-      } catch(e){}
+      } catch (_e) {}
+      var halo = MNT._haloByFeatureId[id];
+      if (halo) {
+        try { MNT.selLayer.removeLayer(halo); } catch (_e) {}
+        delete MNT._haloByFeatureId[id];
+      }
       MNT._updateSelBadge();
       return true;
     };
+
     MNT._toggleSelection = function(featureLayer){
-      if(MNT.selection.has(featureLayer._leaflet_id)) MNT._removeFromSelection(featureLayer);
+      if (MNT.selection.has(featureLayer._leaflet_id)) MNT._removeFromSelection(featureLayer);
       else MNT._addToSelection(featureLayer);
     };
     MNT._updateSelBadge = function(){
       var b = document.getElementById('sel-count-badge');
-      if(b) b.textContent = MNT.selection.size;
+      if (b) b.textContent = MNT.selection.size;
     };
     MNT.clearSelection = function(){
       Object.keys(MNT._origStyles).forEach(function(id){
         var rec = MNT._origStyles[id];
-        try { rec.layer.setStyle(rec.orig); } catch(e){}
+        try { if (typeof rec.layer.setStyle === 'function') rec.layer.setStyle(rec.orig); } catch (_e) {}
+      });
+      Object.keys(MNT._haloByFeatureId).forEach(function(id){
+        try { MNT.selLayer.removeLayer(MNT._haloByFeatureId[id]); } catch (_e) {}
       });
       MNT._origStyles = {};
+      MNT._haloByFeatureId = {};
       MNT.selection.clear();
       MNT._updateSelBadge();
     };
@@ -458,15 +514,11 @@
       return false;
     };
 
-    // A feature is "selectable" if it has bounds + a setStyle method (so we can
-    // visually highlight it). Previously we required f.feature.properties which
-    // is the Leaflet GeoJSON convention — but parcels rendered as plain L.polygon
-    // (not via L.geoJSON) lack that property, so they were silently invisible to
-    // selection. Permissive matcher: accept any layer with bounds + setStyle.
+    // A feature is "selectable" if it has bounds. We no longer require setStyle
+    // — halo overlays handle visual feedback for non-stylable layers.
     MNT._isSelectableFeature = function(f){
       if (!f) return false;
       if (typeof f.getBounds !== 'function') return false;
-      if (typeof f.setStyle !== 'function') return false;
       return true;
     };
 

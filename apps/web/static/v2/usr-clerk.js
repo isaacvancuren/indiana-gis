@@ -91,30 +91,51 @@
     w.id = 'mn2-clerk-widget';
     w.style.cssText = [
       'position:fixed', 'top:10px', 'right:10px', 'z-index:9999',
-      'background:rgba(14,20,32,0.92)', 'border:1px solid #1a2d40',
-      'border-radius:6px', 'padding:6px 10px',
-      'font:12px -apple-system,system-ui,sans-serif', 'color:#dde4f0',
       'display:flex', 'align-items:center', 'gap:8px',
-      'backdrop-filter:blur(6px)', '-webkit-backdrop-filter:blur(6px)',
-      'box-shadow:0 2px 8px rgba(0,0,0,0.3)',
     ].join(';');
     document.body.appendChild(w);
 
     function render() {
+      // Clear and re-render based on auth state
+      while (w.firstChild) w.removeChild(w.firstChild);
+
       if (Clerk.user) {
-        var u = Clerk.user;
-        var name = u.firstName || (u.primaryEmailAddress && u.primaryEmailAddress.emailAddress) || 'Signed in';
-        w.innerHTML =
-          '<span style="opacity:.7">Hi,</span>' +
-          '<strong>' + escapeHtml(String(name)) + '</strong>' +
-          '<button id="mn2-clerk-signout" type="button" style="background:transparent;border:1px solid #334;color:#dde4f0;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px;">Sign out</button>';
-        var btn = document.getElementById('mn2-clerk-signout');
-        if (btn) btn.onclick = function(){ Clerk.signOut(); };
+        // Use Clerk's prebuilt UserButton — gives the standard avatar UX:
+        // click avatar → menu opens with profile + sign out + manage account.
+        // Keeps sign-out behind a click instead of always showing a button.
+        if (typeof Clerk.mountUserButton === 'function') {
+          var slot = document.createElement('div');
+          slot.id = 'mn2-clerk-userbutton';
+          w.appendChild(slot);
+          Clerk.mountUserButton(slot, {
+            // Avatar-only display; profile + sign-out hide behind click.
+            afterSignOutUrl: window.location.origin,
+            appearance: {
+              elements: {
+                userButtonAvatarBox: { width: '36px', height: '36px' },
+              },
+            },
+          });
+        } else {
+          // Fallback if mountUserButton isn't available — just show name
+          // (no inline sign-out button per user preference; sign out via
+          // browser-only mechanisms like clearing cookies).
+          var u = Clerk.user;
+          var name = u.firstName || (u.primaryEmailAddress && u.primaryEmailAddress.emailAddress) || 'Signed in';
+          var p = document.createElement('div');
+          p.style.cssText = 'background:rgba(14,20,32,0.92);border:1px solid #1a2d40;border-radius:6px;padding:6px 12px;font:12px sans-serif;color:#dde4f0;backdrop-filter:blur(6px)';
+          p.textContent = 'Hi, ' + name;
+          w.appendChild(p);
+        }
       } else {
-        w.innerHTML =
-          '<button id="mn2-clerk-signin" type="button" style="background:#1d4ed8;border:none;color:#fff;padding:5px 14px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;">Sign in</button>';
-        var btn2 = document.getElementById('mn2-clerk-signin');
-        if (btn2) btn2.onclick = function(){ Clerk.openSignIn(); };
+        // Sign-in button for unauth state
+        var btn = document.createElement('button');
+        btn.id = 'mn2-clerk-signin';
+        btn.type = 'button';
+        btn.textContent = 'Sign in';
+        btn.style.cssText = 'background:#1d4ed8;border:none;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font:500 12px sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.3)';
+        btn.onclick = function(){ Clerk.openSignIn(); };
+        w.appendChild(btn);
       }
     }
     render();
