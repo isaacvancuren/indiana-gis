@@ -3,16 +3,12 @@ import { captureMessage } from '@sentry/cloudflare'
 import type { Env } from './env'
 import { withSentry, sentryConfig } from './middleware/sentry'
 import { originGuard } from './middleware/originGuard'
-<<<<<<< HEAD
-import { discoverCountyLimit, discoverProbeLimit } from './middleware/rateLimit'
-import { handleBackup } from './cron/backup'
-=======
 import {
   discoverCountyLimit,
   discoverProbeLimit,
   projectsRateLimit,
 } from './middleware/rateLimit'
->>>>>>> 1b3fd33 (feat(api): auto-apply D1 migrations on deploy + per-user rate limit on /api/projects)
+import { handleBackup } from './cron/backup'
 import health from './routes/health'
 import discover from './routes/discover'
 import projects from './routes/projects'
