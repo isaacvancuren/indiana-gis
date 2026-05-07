@@ -514,11 +514,26 @@
       return false;
     };
 
-    // A feature is "selectable" if it has bounds. We no longer require setStyle
-    // — halo overlays handle visual feedback for non-stylable layers.
+    // A feature is "selectable" if:
+    //   1. It has bounds (so we can fit / hit-test it), AND
+    //   2. It has feature.properties (Leaflet GeoJSON convention) — this is
+    //      what distinguishes parcels (and other GeoJSON-rendered data
+    //      features) from county boundaries, neighborhood overlays, basemap
+    //      polygons, and the thousands of other map layers that happen to
+    //      have getBounds() but aren't selectable user-facing features.
+    //
+    // The diagnostic on the live map (sel-poly with debug ON) showed 14,540
+    // "selectable features" before this restriction — that included every
+    // overlay polygon on the map, not just parcels. Result: polygon-select
+    // halo'd everything inside the polygon, including non-parcels. Restoring
+    // the feature.properties filter narrows the matcher back to actual
+    // parcels (which DO have feature.properties from the GeoJSON pipeline).
+    //
+    // Halos still always work (don't depend on layer.setStyle being available).
     MNT._isSelectableFeature = function(f){
       if (!f) return false;
       if (typeof f.getBounds !== 'function') return false;
+      if (!f.feature || !f.feature.properties) return false;
       return true;
     };
 
