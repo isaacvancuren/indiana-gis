@@ -199,16 +199,8 @@ async function discoverSource(source: {
   return { result: { host, rest_root, services } }
 }
 
-// KV-based fixed-window rate limit: 60 requests per IP per minute
-async function checkRateLimit(kv: KVNamespace, ip: string): Promise<boolean> {
-  const bucket = Math.floor(Date.now() / 60000)
-  const key = `rate:${ip}:${bucket}`
-  const raw = await kv.get(key)
-  const count = raw ? parseInt(raw, 10) : 0
-  if (count >= 60) return false
-  await kv.put(key, String(count + 1), { expirationTtl: 120 })
-  return true
-}
+// Inline rate limit removed — replaced by reusable middleware in src/middleware/rateLimit.ts.
+// Per-route limits are wired from src/index.ts.
 
 const discover = new Hono<{ Bindings: Env }>()
 
@@ -216,11 +208,6 @@ discover.get('/api/discover/county/:slug', async c => {
   const kv = c.env.DISCOVERY_CACHE
   const slug = c.req.param('slug').toLowerCase()
   const refresh = c.req.query('refresh') === '1'
-
-  const ip = c.req.header('CF-Connecting-IP') ?? c.req.header('X-Forwarded-For') ?? 'unknown'
-  if (!(await checkRateLimit(kv, ip))) {
-    return c.json({ error: 'Rate limit exceeded' }, 429)
-  }
 
   const cacheKey = `discover:county:${slug}`
 
@@ -280,11 +267,6 @@ discover.get('/api/discover/probe', async c => {
   }
 
   const kv = c.env.DISCOVERY_CACHE
-
-  const ip = c.req.header('CF-Connecting-IP') ?? c.req.header('X-Forwarded-For') ?? 'unknown'
-  if (!(await checkRateLimit(kv, ip))) {
-    return c.json({ error: 'Rate limit exceeded' }, 429)
-  }
 
   // mode=head: just check HTTP status — useful for HTML pages like ordinance code hosts
   if (c.req.query('mode') === 'head') {
