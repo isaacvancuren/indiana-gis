@@ -3,6 +3,7 @@ import { captureMessage } from '@sentry/cloudflare'
 import type { Env } from './env'
 import { withSentry, sentryConfig } from './middleware/sentry'
 import { originGuard } from './middleware/originGuard'
+import { discoverCountyLimit, discoverProbeLimit } from './middleware/rateLimit'
 import health from './routes/health'
 import discover from './routes/discover'
 
@@ -20,6 +21,12 @@ app.use('*', async (c, next) => {
 
 // Origin allow-list on /api/* only. /health stays open for monitoring + uptime checks.
 app.use('/api/*', originGuard)
+
+// Per-route rate limits. Order matters — most specific first.
+// /api/discover/probe is tighter than /county/:slug because probe proxies
+// arbitrary external HTTP and is the higher-abuse-risk surface.
+app.use('/api/discover/probe', discoverProbeLimit)
+app.use('/api/discover/county/*', discoverCountyLimit)
 
 app.route('/', health)
 app.route('/', discover)
