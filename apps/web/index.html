@@ -5674,7 +5674,15 @@ window.selectParcel = function(p, layer) {
 
 <script src="static/v2/usr-favorites.js?v=2"></script>
 <!-- Clerk auth (additive — coexists with Supabase; Supabase removal will follow once Clerk is verified). -->
-<script src="static/v2/usr-clerk.js?v=1" defer></script>
+<script src="static/v2/usr-clerk.js?v=2" defer></script>
+<style id="mn2-clerk-takeover">
+  /* Hide the legacy Supabase auth UI in favor of Clerk's UserButton.
+   * Visual elements only — Supabase JS still runs in the background; full
+   * removal happens in a follow-up PR after Clerk is verified working. */
+  #mn2-user-badge,
+  #mn2-user-menu,
+  #mn2-auth-overlay { display: none !important; }
+</style>
 <script>
 (function(){
   const M = { open:false, active:new Set() };
