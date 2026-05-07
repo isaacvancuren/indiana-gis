@@ -87,9 +87,8 @@ export function rateLimit(config: RateLimitConfig): MiddlewareHandler<{ Bindings
 
 // ─── Pre-configured limiters by route group ─────────────────────────────────
 // Tighter limits on routes that proxy external content (probe) than on routes
-// that are pure cache reads (county lookups). Authenticated routes will get
-// a per-user limiter once Phase 1 (PR #121) lands; that's a one-line addition
-// using keyFn: (c) => c.var.userId.
+// that are pure cache reads (county lookups). Authenticated routes use a
+// per-user limiter (keyFn pulls c.var.userId set by requireAuth).
 
 /** /api/discover/county/:slug — 60 req/min/IP. Pure cache reads, generous. */
 export const discoverCountyLimit = rateLimit({
@@ -103,6 +102,29 @@ export const discoverProbeLimit = rateLimit({
   bucketName: 'discover-probe',
   limit: 20,
   windowSec: 60,
+})
+
+/**
+ * /api/projects/* — 120 req/min PER USER (keyed off the authenticated userId).
+ * Falls back to per-IP for the brief window between origin guard pass and auth
+ * middleware setting userId (e.g. a 401 response from missing token); per-IP
+ * still serves as a floor against unauthenticated abuse.
+ *
+ * 120/min is generous for a real human session (the project list won't be
+ * fetched that often) but tight enough that automated enumeration / scraping
+ * of a user's projects is impractical even with a stolen session token.
+ */
+export const projectsRateLimit = rateLimit({
+  bucketName: 'projects',
+  limit: 120,
+  windowSec: 60,
+  keyFn: c => {
+    // c.var.userId is set by requireAuth. If unset (auth not yet run, or token
+    // invalid), fall back to IP so we still rate-limit pre-auth requests.
+    const userId = c.get('userId' as never) as string | undefined
+    if (userId) return `u:${userId}`
+    return undefined // triggers default IP-based key in rateLimit()
+  },
 })
 
 /** Default for any future /api/* route that doesn't declare its own limit. */

@@ -3,8 +3,16 @@ import { captureMessage } from '@sentry/cloudflare'
 import type { Env } from './env'
 import { withSentry, sentryConfig } from './middleware/sentry'
 import { originGuard } from './middleware/originGuard'
+<<<<<<< HEAD
 import { discoverCountyLimit, discoverProbeLimit } from './middleware/rateLimit'
 import { handleBackup } from './cron/backup'
+=======
+import {
+  discoverCountyLimit,
+  discoverProbeLimit,
+  projectsRateLimit,
+} from './middleware/rateLimit'
+>>>>>>> 1b3fd33 (feat(api): auto-apply D1 migrations on deploy + per-user rate limit on /api/projects)
 import health from './routes/health'
 import discover from './routes/discover'
 import projects from './routes/projects'
@@ -27,8 +35,10 @@ app.use('/api/*', originGuard)
 // Per-route rate limits. Order matters — most specific first.
 // /api/discover/probe is tighter than /county/:slug because probe proxies
 // arbitrary external HTTP and is the higher-abuse-risk surface.
+// /api/projects/* uses per-user keying (falls back to per-IP for unauth requests).
 app.use('/api/discover/probe', discoverProbeLimit)
 app.use('/api/discover/county/*', discoverCountyLimit)
+app.use('/api/projects/*', projectsRateLimit)
 
 app.route('/', health)
 app.route('/', discover)

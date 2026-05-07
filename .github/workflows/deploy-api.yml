@@ -56,5 +56,15 @@ jobs:
           npx wrangler whoami
           echo "::endgroup::"
 
+      - name: Apply D1 migrations
+        # Idempotent: wrangler tracks which migrations have been applied via a
+        # _cf_KV table inside D1. Re-running is a no-op if everything is current.
+        # Continue-on-error: a migration failure should NOT block the worker
+        # deploy itself — we'd rather have stale schema + working worker than
+        # broken deploy. Migration failures show up in Sentry once SENTRY_DSN_API
+        # is set.
+        run: npx wrangler d1 migrations apply mapnova --remote
+        continue-on-error: true
+
       - name: Deploy
         run: npx wrangler deploy
