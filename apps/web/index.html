@@ -5882,13 +5882,21 @@ window.selectParcel = function(p, layer) {
       }
     });
     window.map.on('dblclick',function(e){
-      L.DomEvent.stop(e);
+      // CRITICAL: do NOT stop the event unconditionally. The new MNT tool
+      // engine (ui-tools-core.js) registers its own dblclick handler which
+      // dispatches to MNT.dblclick_<tool> for sel-poly / meas-line / etc.
+      // If this old handler stops the event, MNT never sees it and tools
+      // appear broken (polygon select draws but never finishes, etc.).
+      // Only stop the event when this old handler is actually doing work.
       var at;try{at=eval('activeTool');}catch(_){at=null;}
+      if (window.MNTools && window.MNTools.activeTool) return; // defer to MNT
       if(at==='distance'||at==='area'){
+        L.DomEvent.stop(e);
         if(window.measurePts && window.measurePts.length>0) window.measurePts.pop();
         return;
       }
       if(at!=='select-poly'||__polyPts.length<3)return;
+      L.DomEvent.stop(e);
       var poly=L.polygon(__polyPts);poly.addTo(window.map);
       var b=poly.getBounds();window.map.removeLayer(poly);
       var hits=selectInBounds(b);
