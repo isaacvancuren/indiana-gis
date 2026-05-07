@@ -528,7 +528,10 @@
       MNT._eachSelectableFeature(function(f){
         try {
           var fb = f.getBounds();
-          if (bounds.intersects(fb) && bounds.contains(fb.getCenter())) hits.push(f);
+          // Use intersection — selects any feature that overlaps the box, even
+          // partially. Standard GIS "intersect" semantics, more intuitive than
+          // "fully contained" for box-select UX.
+          if (bounds.intersects(fb)) hits.push(f);
         } catch(_e){}
       });
       if (MNT.debug) console.log('[MNT] _findFeaturesInBounds → ' + hits.length + ' hits');
@@ -541,8 +544,25 @@
       var hits = [];
       MNT._eachSelectableFeature(function(f){
         try {
-          var c = f.getBounds().getCenter();
-          if (polyBnds.contains(c) && MNT._pointInPolygon(c, polyLatLngs)) hits.push(f);
+          var fb = f.getBounds();
+          // Fast-skip: if even the bounding boxes don't intersect, no overlap possible.
+          if (!polyBnds.intersects(fb)) return;
+          // Permissive intersect: select if ANY of these is true —
+          //   (a) parcel center is inside the polygon
+          //   (b) any of parcel bounds' 4 corners is inside the polygon
+          //   (c) any polygon vertex is inside parcel bounds
+          // (a) handles parcels fully inside; (b) catches parcels with a corner
+          // poking in even when the center is outside; (c) catches parcels that
+          // are larger than the polygon (polygon vertex is inside parcel).
+          var center = fb.getCenter();
+          if (MNT._pointInPolygon(center, polyLatLngs)) { hits.push(f); return; }
+          var corners = [fb.getNorthWest(), fb.getNorthEast(), fb.getSouthWest(), fb.getSouthEast()];
+          for (var i = 0; i < corners.length; i++) {
+            if (MNT._pointInPolygon(corners[i], polyLatLngs)) { hits.push(f); return; }
+          }
+          for (var j = 0; j < polyLatLngs.length; j++) {
+            if (fb.contains(polyLatLngs[j])) { hits.push(f); return; }
+          }
         } catch(_e){}
       });
       if (MNT.debug) console.log('[MNT] _findFeaturesIntersectingPolygon → ' + hits.length + ' hits');
