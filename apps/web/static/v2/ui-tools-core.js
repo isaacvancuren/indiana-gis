@@ -470,18 +470,45 @@
       return true;
     };
 
+    // Recursive descent — Leaflet feature groups can be nested arbitrarily deep
+    // (a county layer panel may render parcels inside a featureGroup inside
+    // another featureGroup). The previous one-level traversal missed these.
     MNT._eachSelectableFeature = function(visit){
+      var seen = new WeakSet();
+      function walk(layer){
+        if (!layer || seen.has(layer)) return;
+        seen.add(layer);
+        if (MNT._isToolOwnedLayer(layer)) return;
+        // First check if the layer itself is selectable (a leaf polygon added directly)
+        if (MNT._isSelectableFeature(layer)) {
+          visit(layer);
+          // A leaf with setStyle may still be a group (LayerGroup has eachLayer too).
+          // Don't recurse further if it's a leaf shape — but L.FeatureGroup also has
+          // setStyle, so we keep walking children below.
+        }
+        // Then recurse into children if it's a group-like
+        if (layer._layers && typeof layer.eachLayer === 'function'){
+          try {
+            layer.eachLayer(function(child){ walk(child); });
+          } catch(_e){}
+        }
+      }
+      map.eachLayer(walk);
+    };
+
+    // Diagnostic: prints a one-line summary of what the matcher sees.
+    // Toggle on from the browser console: MNT.debug = true; then click sel-* tools.
+    MNT._diagnose = function(){
+      var groupCount = 0, leafCount = 0, examples = [];
       map.eachLayer(function(layer){
         if (MNT._isToolOwnedLayer(layer)) return;
-        if (layer && layer._layers && typeof layer.eachLayer === 'function'){
-          layer.eachLayer(function(f){
-            if (MNT._isSelectableFeature(f)) visit(f);
-          });
-        } else if (MNT._isSelectableFeature(layer)){
-          // Top-level selectable layer (a polygon added directly to map, not in a group)
-          visit(layer);
+        if (layer && layer._layers && typeof layer.eachLayer === 'function') {
+          groupCount++;
+          if (examples.length < 3) examples.push(layer);
         }
       });
+      MNT._eachSelectableFeature(function(){ leafCount++; });
+      console.log('[MNT diag] map has ' + groupCount + ' non-tool groups, ' + leafCount + ' selectable features. Examples:', examples);
     };
 
     MNT._findFeatureAt = function(latlng){
@@ -492,6 +519,7 @@
           if (f.getBounds().contains(latlng)) hit = f;
         } catch(_e){}
       });
+      if (MNT.debug) console.log('[MNT] _findFeatureAt', latlng, 'hit=', !!hit);
       return hit;
     };
 
@@ -503,6 +531,7 @@
           if (bounds.intersects(fb) && bounds.contains(fb.getCenter())) hits.push(f);
         } catch(_e){}
       });
+      if (MNT.debug) console.log('[MNT] _findFeaturesInBounds → ' + hits.length + ' hits');
       return hits;
     };
 
@@ -516,6 +545,7 @@
           if (polyBnds.contains(c) && MNT._pointInPolygon(c, polyLatLngs)) hits.push(f);
         } catch(_e){}
       });
+      if (MNT.debug) console.log('[MNT] _findFeaturesIntersectingPolygon → ' + hits.length + ' hits');
       return hits;
     };
     MNT._pointInPolygon = function(pt, polyLatLngs){
