@@ -87,3 +87,15 @@ jobs:
       - name: Turbo build + lint
         run: pnpm turbo run build lint --continue
         continue-on-error: true
+
+      - name: Block conflict markers in source files
+        # Targeted defense against the regression in commit bfe94b5: literal
+        # <<<<<<< / ======= / >>>>>>> markers slipped into apps/api/src/index.ts
+        # via an unresolved rebase. This grep ensures it can never happen again
+        # in source files, even if the broader TS typecheck stays advisory.
+        run: |
+          if grep -rEn '^(<{7}|>{7})' apps/ packages/ .github/workflows/ 2>/dev/null; then
+            echo "::error::Found unresolved merge conflict markers above. Resolve before merging."
+            exit 1
+          fi
+          echo "No conflict markers found."
