@@ -4607,7 +4607,11 @@ window.updateCountyAnalytics = updateCountyAnalytics;
     return;
   }
   const key = Object.keys(INDIANA_COUNTIES).find(k => INDIANA_COUNTIES[k] === activeCounty);
-  if (key) {
+  // Belt-and-suspenders: re-check activeCounty is still truthy + has .name.
+  // Reported error: "Cannot read properties of null (reading 'name')" at
+  // line 4617 — implies activeCounty got nulled after the early !activeCounty
+  // guard above. Optional chaining + fallback prevents the throw.
+  if (key && activeCounty && activeCounty.name) {
     const ssEl = document.getElementById("state-sel");
     const csyEl = document.getElementById("country-sel");
     if (ssEl) { ssEl.value = "indiana"; ssEl.dispatchEvent(new Event("change")); }
@@ -4688,13 +4692,22 @@ function overlayClick(e,el){if(e.target===el)el.classList.remove('on');}
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  NOTIFICATIONS
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-let notifT;
+// `var` (not `let`) so this is hoisted with undefined as the initial value.
+// Earlier code paths can call notify() before this block executes (e.g.,
+// select-element change handlers firing during initial DOM hydration); with
+// `let` that hits the temporal-dead-zone and throws "Cannot access 'notifT'
+// before initialization." With var, clearTimeout(undefined) is a safe no-op.
+var notifT;
 function notify(msg, icon='fa-circle-check'){
-  document.getElementById('notif').querySelector('i').className='fas '+icon;
-  document.getElementById('notif-msg').textContent=msg;
-  document.getElementById('notif').classList.add('on');
+  var n = document.getElementById('notif');
+  if (!n) return;
+  var i = n.querySelector('i');
+  if (i) i.className = 'fas ' + icon;
+  var m = document.getElementById('notif-msg');
+  if (m) m.textContent = msg;
+  n.classList.add('on');
   clearTimeout(notifT);
-  notifT=setTimeout(()=>document.getElementById('notif').classList.remove('on'),2800);
+  notifT = setTimeout(function(){ n.classList.remove('on'); }, 2800);
 }
 
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
