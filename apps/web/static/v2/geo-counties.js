@@ -1,4 +1,4 @@
-/* mn-state-counties.js
+/* mn2-state-counties.js
    Dynamic county loader for non-Indiana states.
    - Hooks #state-sel changes
    - Fetches counties from US Census TIGERweb (authoritative federal source)
@@ -9,7 +9,7 @@
 */
 (function(){
   var TIGER_URL = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/13/query';
-  var CACHE_PREFIX = 'mn-counties-v1:';
+  var CACHE_PREFIX = 'mn2-counties-v1:';
   var inFlight = {};
 
   function slugToCode(slug){
@@ -155,7 +155,7 @@
       setCountiesOnDropdown(info.n, counties);
       bindCountyChange();
     }).catch(function(err){
-      console.warn('[mn-state-counties] fetch failed for '+code, err);
+      console.warn('[mn2-state-counties] fetch failed for '+code, err);
       setNoCountiesError('Could not load counties');
     });
   }
@@ -172,7 +172,7 @@
     if(stateSel.value && stateSel.value !== 'indiana'){
       handleStateChange(stateSel.value);
     }
-    console.log('[mn-state-counties] initialized');
+    console.log('[mn2-state-counties] initialized');
   }
 
   if(document.readyState === 'loading'){

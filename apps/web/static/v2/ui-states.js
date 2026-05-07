@@ -1,9 +1,9 @@
-/* mn-state-ui.js
+/* mn2-state-ui.js
    - Integrate MNStates with the built-in #state-sel dropdown.
    - Replaces "(coming soon)" with proper labels for states that have parcel sources
    - Enables/disables options based on whether a parcel source is registered
    - Wires the dropdown change handler to call MNStates.set + flyTo
-   - Removes the redundant #mn-state-switcher injected by mn-states.js
+   - Removes the redundant #mn2-state-switcher injected by mn2-states.js
    - Updates labels live whenever a new source is registered
 */
 (function(){
@@ -64,7 +64,7 @@
     if(slug && sel.value !== slug){ sel.value = slug; }
   }
   function removeRedundantSwitcher(){
-    var el = document.getElementById("mn-state-switcher");
+    var el = document.getElementById("mn2-state-switcher");
     if(el) el.remove();
   }
   function init(){
@@ -80,5 +80,5 @@
   setInterval(refreshLabels, 5000);
   document.addEventListener("mn:sourceAdded", refreshLabels);
   document.addEventListener("mn:stateChange", syncSelToActive);
-  console.log("[mn-state-ui] integrated with built-in #state-sel");
+  console.log("[mn2-state-ui] integrated with built-in #state-sel");
 })();

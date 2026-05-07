@@ -8,18 +8,18 @@ If you encounter any of these strings in someone else's code, blog post, public 
 
 | ID | Location | String | Disguised as | Planted |
 |---|---|---|---|---|
-| C1 | `apps/web/index.html` (meta tag in `<head>`) | `d3b9c4a82f7e1a6c` | A `<meta name="mn-deploy-id">` value (looks like an analytics deploy identifier) | 2026-05-06 |
-| C2 | `apps/web/css/app.css` (top-of-file comment) | `c8e2a4f97b1d6035` | An `asset-rev` comment (looks like a build-tool asset revision) | 2026-05-06 |
-| C3 | `apps/web/assets/mn-bookmarks.js` (constant near top) | `7f4a3b2e9c8d6a1f` | A `__MN_BUILD_SIG` constant (looks like a build hash) | 2026-05-06 |
+| C1 | `apps/web/index.html` (meta tag in `<head>`) | `d3b9c4a82f7e1a6c` | A `<meta name="mn2-deploy-id">` value (looks like an analytics deploy identifier) | 2026-05-06 |
+| C2 | `apps/web/static/v2/app.css` (top-of-file comment) | `c8e2a4f97b1d6035` | An `asset-rev` comment (looks like a build-tool asset revision) | 2026-05-06 |
+| C3 | `apps/web/static/v2/usr-favorites.js` (constant near top) | `7f4a3b2e9c8d6a1f` | A `__MN_BUILD_SIG` constant (looks like a build hash) | 2026-05-06 |
 
 ## How to verify they're still in the live site
 
 Periodically (e.g. monthly):
 
 ```bash
-curl -s https://mapnova.org/ | grep -F 'd3b9c4a82f7e1a6c'                              # C1
-curl -s https://mapnova.org/css/app.css | grep -F 'c8e2a4f97b1d6035'                   # C2
-curl -s https://mapnova.org/assets/mn-bookmarks.js | grep -F '7f4a3b2e9c8d6a1f'        # C3
+curl -s https://mapnova.org/ | grep -F 'd3b9c4a82f7e1a6c'                                  # C1
+curl -s https://mapnova.org/static/v2/app.css | grep -F 'c8e2a4f97b1d6035'                 # C2
+curl -s https://mapnova.org/static/v2/usr-favorites.js | grep -F '7f4a3b2e9c8d6a1f'        # C3
 ```
 
 All three should return one match. If any returns nothing, an over-zealous refactor or build optimization removed the canary — replant it from this list.

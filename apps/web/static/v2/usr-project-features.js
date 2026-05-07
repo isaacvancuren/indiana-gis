@@ -88,7 +88,7 @@
   function notify(msg){
     if (typeof window.toast === 'function') return window.toast(msg);
     if (window.MNHistory && typeof window.MNHistory.toast === 'function') return window.MNHistory.toast(msg);
-    console.log('[mn-project-features]', msg);
+    console.log('[mn2-project-features]', msg);
   }
 
   async function saveAnnotation(ann){
@@ -143,11 +143,11 @@
   }
 
   function renderToolbarButton(){
-    var panel = $('mn-meas-panel-content') || $('mn-meas-body') || $('mn-meas-list');
+    var panel = $('mn2-meas-panel-content') || $('mn2-meas-body') || $('mn2-meas-list');
     if (!panel) return;
-    if ($('mn-save-all-to-proj')) return;
+    if ($('mn2-save-all-to-proj')) return;
     var btn = document.createElement('button');
-    btn.id = 'mn-save-all-to-proj';
+    btn.id = 'mn2-save-all-to-proj';
     btn.type = 'button';
     btn.innerHTML = '<i class="fas fa-folder-plus"></i> Save All to Active Project';
     btn.style.cssText = 'display:block;width:100%;margin:6px 0;padding:6px 10px;background:#0e1726;border:1px solid #1e3a5f;border-radius:5px;color:#67e8f9;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.3px;';
@@ -156,17 +156,17 @@
   }
 
   function injectMeasRowButtons(){
-    var list = $('mn-meas-list');
+    var list = $('mn2-meas-list');
     if (!list) return;
-    var rows = list.querySelectorAll('[data-mn-meas-zoom]');
+    var rows = list.querySelectorAll('[data-mn2-meas-zoom]');
     rows.forEach(function(zoomBtn){
-      var id = zoomBtn.getAttribute('data-mn-meas-zoom');
+      var id = zoomBtn.getAttribute('data-mn2-meas-zoom');
       var rowEl = zoomBtn.parentElement;
-      if (!rowEl || rowEl.querySelector('[data-mn-meas-save]')) return;
+      if (!rowEl || rowEl.querySelector('[data-mn2-meas-save]')) return;
       var m = (window.MNTools.measurements || []).find(function(x){ return x.id === id; });
       var saved = m && m._projectFeatureId;
       var saveBtn = document.createElement('button');
-      saveBtn.setAttribute('data-mn-meas-save', id);
+      saveBtn.setAttribute('data-mn2-meas-save', id);
       saveBtn.title = saved ? 'Saved to active project' : 'Save to active project';
       saveBtn.innerHTML = saved ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-folder-plus"></i>';
       saveBtn.style.cssText = 'background:none;border:none;color:'+(saved?'#22c55e':'#67e8f9')+';cursor:pointer;padding:0 4px;font-size:12px;';
@@ -176,7 +176,7 @@
         if (m._projectFeatureId) { notify('Already saved to project.'); return; }
         saveMeasurement(m).then(function(r){ if (r) injectMeasRowButtons(); });
       });
-      var delBtn = rowEl.querySelector('[data-mn-meas-del]');
+      var delBtn = rowEl.querySelector('[data-mn2-meas-del]');
       if (delBtn) rowEl.insertBefore(saveBtn, delBtn);
       else rowEl.appendChild(saveBtn);
     });
@@ -194,11 +194,11 @@
   }
 
   function ensureAnnotationsPanel(){
-    if ($('mn-annot-list')) return $('mn-annot-list');
-    var drawOpts = $('mn-draw-opts');
+    if ($('mn2-annot-list')) return $('mn2-annot-list');
+    var drawOpts = $('mn2-draw-opts');
     if (!drawOpts) return null;
     var box = document.createElement('div');
-    box.id = 'mn-annot-list';
+    box.id = 'mn2-annot-list';
     box.style.cssText = 'margin-top:8px;padding:6px;background:rgba(255,255,255,0.03);border-radius:5px;font-size:11px;';
     drawOpts.appendChild(box);
     return box;
@@ -216,11 +216,11 @@
       var saved = !!a._projectFeatureId;
       var icon = a.type === 'text' ? 'fa-font' : (a.type === 'polyline' ? 'fa-route' : 'fa-draw-polygon');
       var label = a.type === 'text' ? (a.text || 'text') : a.type;
-      html += '<div data-mn-annot-row="' + a.id + '" style="display:flex;align-items:center;gap:5px;padding:4px 6px;background:rgba(255,255,255,0.04);border-radius:5px;margin-bottom:3px;">'
+      html += '<div data-mn2-annot-row="' + a.id + '" style="display:flex;align-items:center;gap:5px;padding:4px 6px;background:rgba(255,255,255,0.04);border-radius:5px;margin-bottom:3px;">'
             + '<i class="fas ' + icon + '" style="color:' + (a.color || '#06b6d4') + ';font-size:11px;"></i>'
             + '<span style="flex:1;font-size:11px;color:#e2e8f0;">' + escapeHtml(label) + '</span>'
-            + '<button data-mn-annot-save="' + a.id + '" title="' + (saved?'Saved to project':'Save to project') + '" style="background:none;border:none;color:' + (saved?'#22c55e':'#67e8f9') + ';cursor:pointer;padding:0 4px;font-size:12px;"><i class="fas ' + (saved?'fa-check-circle':'fa-folder-plus') + '"></i></button>'
-            + '<button data-mn-annot-del="' + a.id + '" title="Delete" style="background:none;border:none;color:#f87171;cursor:pointer;padding:0 4px;font-size:11px;"><i class="fas fa-times"></i></button>'
+            + '<button data-mn2-annot-save="' + a.id + '" title="' + (saved?'Saved to project':'Save to project') + '" style="background:none;border:none;color:' + (saved?'#22c55e':'#67e8f9') + ';cursor:pointer;padding:0 4px;font-size:12px;"><i class="fas ' + (saved?'fa-check-circle':'fa-folder-plus') + '"></i></button>'
+            + '<button data-mn2-annot-del="' + a.id + '" title="Delete" style="background:none;border:none;color:#f87171;cursor:pointer;padding:0 4px;font-size:11px;"><i class="fas fa-times"></i></button>'
             + '</div>';
     });
     box.innerHTML = html;
@@ -230,9 +230,9 @@
     if (window.__mnAnnotEventsBound) return;
     window.__mnAnnotEventsBound = true;
     document.addEventListener('click', function(ev){
-      var s = ev.target.closest('[data-mn-annot-save]');
+      var s = ev.target.closest('[data-mn2-annot-save]');
       if (s) {
-        var id = s.getAttribute('data-mn-annot-save');
+        var id = s.getAttribute('data-mn2-annot-save');
         var a = (window.MNTools.annotations || []).find(function(x){ return x.id === id; });
         if (a) {
           if (a._projectFeatureId) { notify('Already saved to project.'); return; }
@@ -240,9 +240,9 @@
         }
         return;
       }
-      var d = ev.target.closest('[data-mn-annot-del]');
+      var d = ev.target.closest('[data-mn2-annot-del]');
       if (d) {
-        var id2 = d.getAttribute('data-mn-annot-del');
+        var id2 = d.getAttribute('data-mn2-annot-del');
         var idx = (window.MNTools.annotations || []).findIndex(function(x){ return x.id === id2; });
         if (idx >= 0) {
           var a2 = window.MNTools.annotations[idx];

@@ -20,7 +20,7 @@
  * IGIO fallback + Beacon deep-link continue to work.
  *
  * Probes are cached in sessionStorage so repeated county selects don't
- * re-probe. Cache key: 'mn-schneider-probe:<county>'. Value: JSON
+ * re-probe. Cache key: 'mn2-schneider-probe:<county>'. Value: JSON
  * { ts, ok, config? }.
  */
 (function(){
@@ -49,7 +49,7 @@
 
   function cacheGet(county) {
     try {
-      const raw = sessionStorage.getItem('mn-schneider-probe:' + county);
+      const raw = sessionStorage.getItem('mn2-schneider-probe:' + county);
       if (!raw) return null;
       const j = JSON.parse(raw);
       if (!j || (j.ts && Date.now() - j.ts > CACHE_TTL_MS)) return null;
@@ -57,7 +57,7 @@
     } catch(_e) { return null; }
   }
   function cacheSet(county, val) {
-    try { sessionStorage.setItem('mn-schneider-probe:' + county, JSON.stringify(Object.assign({ ts: Date.now() }, val))); } catch(_e){}
+    try { sessionStorage.setItem('mn2-schneider-probe:' + county, JSON.stringify(Object.assign({ ts: Date.now() }, val))); } catch(_e){}
   }
 
   function fetchJson(url) {
@@ -197,7 +197,7 @@
     if (cfg) {
       window.COUNTY_PARCEL_APIS = window.COUNTY_PARCEL_APIS || {};
       window.COUNTY_PARCEL_APIS[key] = cfg;
-      console.log('[mn-schneider-fallback] auto-registered', stateCode, key, '→', cfg.url);
+      console.log('[mn2-schneider-fallback] auto-registered', stateCode, key, '→', cfg.url);
       try { window.dispatchEvent(new CustomEvent('mn:county-config-added', { detail: { county: key, state: stateCode, source: 'schneider-fallback' } })); } catch(_e){}
       try {
         if (typeof window.notify === 'function') {

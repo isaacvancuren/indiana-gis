@@ -1,4 +1,4 @@
-// assets/county-gis-servers.js
+// static/v2/geo-county-gis.js
 // Extracted from index.html (county GIS layer registry).
 // Defines window.COUNTY_GIS_SERVERS for use by inline parcel-engine code.
 // See CLAUDE.md for extraction methodology.

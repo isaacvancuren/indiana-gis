@@ -1,4 +1,4 @@
-// assets/municipal-gis-servers.js
+// static/v2/geo-municipal-gis.js
 // Extracted from index.html (municipal/city ArcGIS layer registry).
 // Defines window.MUNICIPAL_GIS_SERVERS for inline parcel-engine code.
 (function(){

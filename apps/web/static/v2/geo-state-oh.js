@@ -1,4 +1,4 @@
-/* mn-state-OH.js - Ohio statewide parcels via OGRIP AGOL endpoint */
+/* mn2-state-OH.js - Ohio statewide parcels via OGRIP AGOL endpoint */
 (function(){
   function reg(){
     if (!window.MNStates || !window.MNStates.registerSource) {
@@ -21,7 +21,7 @@
         longitude: null
       }
     });
-    console.log("[mn-state-OH] registered Ohio parcels source");
+    console.log("[mn2-state-OH] registered Ohio parcels source");
   }
   reg();
 })();

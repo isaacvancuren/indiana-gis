@@ -1,4 +1,4 @@
-// assets/mn-bookmarks.js
+// static/v2/usr-favorites.js
 // Extracted from index.html (bookmarks, history, Supabase client init).
 // Self-contained IIFE.
 
@@ -29,7 +29,7 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
     __sbcPromise = (async () => {
       if(!window.supabase || !window.supabase.createClient) return null;
       const c = window.supabase.createClient('https://pcalrousicyuyiyoppqt.supabase.co', 'sb_publishable_mFKL1y755kJphEu231y8AA_KgV3W6xe', {
-        auth: { storageKey: 'mn-ov-sbc-' + Math.random().toString(36).slice(2), persistSession: false, autoRefreshToken: false }
+        auth: { storageKey: 'mn2-ov-sbc-' + Math.random().toString(36).slice(2), persistSession: false, autoRefreshToken: false }
       });
       try {
         const raw = localStorage.getItem('sb-pcalrousicyuyiyoppqt-auth-token');
@@ -50,7 +50,7 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
   function esc(s){ return String(s||'').replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
   function fmtDate(d){ try{ return new Date(d).toLocaleString(); }catch(e){return d;} }
   function toast(msg, ms){
-    const el = $('mn-toast'); if(!el) return;
+    const el = $('mn2-toast'); if(!el) return;
     el.textContent = msg;
     el.classList.add('open');
     clearTimeout(window.__mnToastT);
@@ -61,48 +61,48 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
   window.MNHistory = {
     open: async function(){
       await sbcInit();
-      $('mn-history-back').classList.add('open');
-      $('mn-history-body').innerHTML = '<div class="mn-empty">Loading&</div>';
-      const u = curUser(); if(!u){ $('mn-history-body').innerHTML = '<div class="mn-empty">Please sign in to view history.</div>'; return; }
+      $('mn2-history-back').classList.add('open');
+      $('mn2-history-body').innerHTML = '<div class="mn2-empty">Loading&</div>';
+      const u = curUser(); if(!u){ $('mn2-history-body').innerHTML = '<div class="mn2-empty">Please sign in to view history.</div>'; return; }
       try {
         const { data, error } = await sbc().from('user_history').select('*').eq('user_id', u.id).order('created_at',{ascending:false}).limit(100);
         if(error) throw error;
-        if(!data || data.length === 0){ $('mn-history-body').innerHTML = '<div class="mn-empty">No activity yet. Start exploring counties and parcels — your history will appear here.</div>'; return; }
+        if(!data || data.length === 0){ $('mn2-history-body').innerHTML = '<div class="mn2-empty">No activity yet. Start exploring counties and parcels — your history will appear here.</div>'; return; }
         const rows = data.map(h => {
           const icon = h.event_type==='login'?'fa-sign-in-alt':h.event_type==='view_county'?'fa-map':h.event_type==='view_parcel'?'fa-home':h.event_type==='session_start'?'fa-power-off':'fa-circle';
           const sub = (h.county? h.county+' " ':'') + fmtDate(h.created_at);
-          return '<div class="mn-row"><div class="mn-row-icon"><i class="fas '+icon+'"></i></div><div class="mn-row-main"><div class="mn-row-title">'+esc(h.event_type||'event')+'</div><div class="mn-row-sub">'+esc(sub)+'</div></div></div>';
+          return '<div class="mn2-row"><div class="mn2-row-icon"><i class="fas '+icon+'"></i></div><div class="mn2-row-main"><div class="mn2-row-title">'+esc(h.event_type||'event')+'</div><div class="mn2-row-sub">'+esc(sub)+'</div></div></div>';
         }).join('');
-        $('mn-history-body').innerHTML = '<div class="mn-list">'+rows+'</div>';
+        $('mn2-history-body').innerHTML = '<div class="mn2-list">'+rows+'</div>';
       } catch(e){
-        $('mn-history-body').innerHTML = '<div class="mn-empty" style="color:#fca5a5;">Error loading history: '+esc(e.message||e)+'</div>';
+        $('mn2-history-body').innerHTML = '<div class="mn2-empty" style="color:#fca5a5;">Error loading history: '+esc(e.message||e)+'</div>';
       }
     },
-    close: function(){ $('mn-history-back').classList.remove('open'); }
+    close: function(){ $('mn2-history-back').classList.remove('open'); }
   };
 
   window.MNBookmarks = {
     open: async function(){
       await sbcInit();
-      $('mn-bookmarks-back').classList.add('open');
-      $('mn-bookmarks-body').innerHTML = '<div class="mn-empty">Loading&</div>';
-      const u = curUser(); if(!u){ $('mn-bookmarks-body').innerHTML = '<div class="mn-empty">Please sign in to view bookmarks.</div>'; return; }
+      $('mn2-bookmarks-back').classList.add('open');
+      $('mn2-bookmarks-body').innerHTML = '<div class="mn2-empty">Loading&</div>';
+      const u = curUser(); if(!u){ $('mn2-bookmarks-body').innerHTML = '<div class="mn2-empty">Please sign in to view bookmarks.</div>'; return; }
       try {
         const { data, error } = await sbc().from('bookmarks').select('*').eq('user_id', u.id).order('created_at',{ascending:false});
         if(error) throw error;
-        if(!data || data.length === 0){ $('mn-bookmarks-body').innerHTML = '<div class="mn-empty">No bookmarks yet. Bookmark a parcel from the Parcel panel to save it.</div>'; return; }
+        if(!data || data.length === 0){ $('mn2-bookmarks-body').innerHTML = '<div class="mn2-empty">No bookmarks yet. Bookmark a parcel from the Parcel panel to save it.</div>'; return; }
         const rows = data.map(b => {
           const sub = [b.county, b.city, b.parcel_id].filter(Boolean).join(' " ');
           const hasGeo = (b.lat && b.lng);
           const goBtn = hasGeo ? '<button onclick="MNBookmarks.fly('+b.lat+','+b.lng+')"><i class="fas fa-location-arrow"></i> Go</button>' : '';
-          return '<div class="mn-row"><div class="mn-row-icon"><i class="fas fa-bookmark"></i></div><div class="mn-row-main"><div class="mn-row-title">'+esc(b.label||'(no label)')+'</div><div class="mn-row-sub">'+esc(sub||fmtDate(b.created_at))+'</div></div><div class="mn-row-actions">'+goBtn+'<button onclick="MNBookmarks.del('+b.id+')"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="mn2-row"><div class="mn2-row-icon"><i class="fas fa-bookmark"></i></div><div class="mn2-row-main"><div class="mn2-row-title">'+esc(b.label||'(no label)')+'</div><div class="mn2-row-sub">'+esc(sub||fmtDate(b.created_at))+'</div></div><div class="mn2-row-actions">'+goBtn+'<button onclick="MNBookmarks.del('+b.id+')"><i class="fas fa-trash"></i></button></div></div>';
         }).join('');
-        $('mn-bookmarks-body').innerHTML = '<div class="mn-list">'+rows+'</div>';
+        $('mn2-bookmarks-body').innerHTML = '<div class="mn2-list">'+rows+'</div>';
       } catch(e){
-        $('mn-bookmarks-body').innerHTML = '<div class="mn-empty" style="color:#fca5a5;">Error loading bookmarks: '+esc(e.message||e)+'</div>';
+        $('mn2-bookmarks-body').innerHTML = '<div class="mn2-empty" style="color:#fca5a5;">Error loading bookmarks: '+esc(e.message||e)+'</div>';
       }
     },
-    close: function(){ $('mn-bookmarks-back').classList.remove('open'); },
+    close: function(){ $('mn2-bookmarks-back').classList.remove('open'); },
     fly: function(lat,lng){
       try { if((getLeafletMap()||window.map)){ (getLeafletMap()||window.map).setView([lat,lng], 18); MNBookmarks.close(); toast('Flying to bookmark&'); } } catch(e){}
     },
@@ -118,12 +118,12 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
     
     open: async function(){
       await sbcInit();
-      $('mn-projects-back').classList.add('open');
+      $('mn2-projects-back').classList.add('open');
       this.state.view = 'list';
-      $('mn-projects-title').textContent = 'My Projects';
-      $('mn-projects-new-btn').style.display = '';
-      const u = curUser(); if(!u){ $('mn-projects-body').innerHTML = '<div class="mn-empty">Please sign in to view your projects.</div>'; return; }
-      $('mn-projects-body').innerHTML = '<div class="mn-empty">Loading&</div>';
+      $('mn2-projects-title').textContent = 'My Projects';
+      $('mn2-projects-new-btn').style.display = '';
+      const u = curUser(); if(!u){ $('mn2-projects-body').innerHTML = '<div class="mn2-empty">Please sign in to view your projects.</div>'; return; }
+      $('mn2-projects-body').innerHTML = '<div class="mn2-empty">Loading&</div>';
       try {
         const { data: owned, error: e1 } = await sbc().from('projects').select('*').eq('user_id', u.id).order('updated_at',{ascending:false});
         if(e1) throw e1;
@@ -139,17 +139,17 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
         
         const all = [...(owned||[]), ...shared];
         if(all.length === 0){
-          $('mn-projects-body').innerHTML = '<div class="mn-empty"><i class="fas fa-folder-open" style="font-size:32px;color:#3b82f6;margin-bottom:12px;display:block;"></i>No projects yet.<br><br>Click <strong>+ New Project</strong> to start. Then use the draw tools on the map to add shapes, measurements, or selected parcels to your project.</div>';
+          $('mn2-projects-body').innerHTML = '<div class="mn2-empty"><i class="fas fa-folder-open" style="font-size:32px;color:#3b82f6;margin-bottom:12px;display:block;"></i>No projects yet.<br><br>Click <strong>+ New Project</strong> to start. Then use the draw tools on the map to add shapes, measurements, or selected parcels to your project.</div>';
           return;
         }
         const ownedRows = (owned||[]).map(p => MNProjects._rowHtml(p, false)).join('');
         const sharedRows = shared.map(p => MNProjects._rowHtml(p, true)).join('');
         let html = '';
-        if(owned && owned.length) html += '<div class="mn-label" style="margin:0 0 8px 4px;">Owned ('+owned.length+')</div><div class="mn-list" style="margin-bottom:18px;">'+ownedRows+'</div>';
-        if(shared.length) html += '<div class="mn-label" style="margin:0 0 8px 4px;">Shared with me ('+shared.length+')</div><div class="mn-list">'+sharedRows+'</div>';
-        $('mn-projects-body').innerHTML = html;
+        if(owned && owned.length) html += '<div class="mn2-label" style="margin:0 0 8px 4px;">Owned ('+owned.length+')</div><div class="mn2-list" style="margin-bottom:18px;">'+ownedRows+'</div>';
+        if(shared.length) html += '<div class="mn2-label" style="margin:0 0 8px 4px;">Shared with me ('+shared.length+')</div><div class="mn2-list">'+sharedRows+'</div>';
+        $('mn2-projects-body').innerHTML = html;
       } catch(e){
-        $('mn-projects-body').innerHTML = '<div class="mn-empty" style="color:#fca5a5;">Error: '+esc(e.message||e)+'</div>';
+        $('mn2-projects-body').innerHTML = '<div class="mn2-empty" style="color:#fca5a5;">Error: '+esc(e.message||e)+'</div>';
       }
     },
     
@@ -158,10 +158,10 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
       const sharedBadge = isShared ? '<span style="font-size:10px;background:#3b82f6;color:#fff;padding:2px 6px;border-radius:3px;margin-left:6px;">SHARED ('+(p._perm||'read').toUpperCase()+')</span>' : '';
       const delBtn = isShared ? '' : '<button onclick="event.stopPropagation();MNProjects.del(\''+p.id+'\')" title="Delete"><i class="fas fa-trash"></i></button>';
       const shareBtn = isShared ? '' : '<button onclick="event.stopPropagation();MNProjects.share(\''+p.id+'\')" title="Share"><i class="fas fa-share-alt"></i></button>';
-      return '<div class="mn-row" onclick="MNProjects.detail(\''+p.id+'\')"><div class="mn-row-icon"><i class="fas fa-folder"></i></div><div class="mn-row-main"><div class="mn-row-title">'+esc(p.name)+sharedBadge+'</div><div class="mn-row-sub">'+esc(sub)+'</div></div><div class="mn-row-actions"><button onclick="event.stopPropagation();MNProjects.activate(\''+p.id+'\')" title="Activate"><i class="fas fa-play"></i></button>'+shareBtn+delBtn+'</div></div>';
+      return '<div class="mn2-row" onclick="MNProjects.detail(\''+p.id+'\')"><div class="mn2-row-icon"><i class="fas fa-folder"></i></div><div class="mn2-row-main"><div class="mn2-row-title">'+esc(p.name)+sharedBadge+'</div><div class="mn2-row-sub">'+esc(sub)+'</div></div><div class="mn2-row-actions"><button onclick="event.stopPropagation();MNProjects.activate(\''+p.id+'\')" title="Activate"><i class="fas fa-play"></i></button>'+shareBtn+delBtn+'</div></div>';
     },
     
-    close: function(){ $('mn-projects-back').classList.remove('open'); },
+    close: function(){ $('mn2-projects-back').classList.remove('open'); },
     
     newProject: async function(){
       await sbcInit();
@@ -182,9 +182,9 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
     
     detail: async function(id){
       await sbcInit();
-      $('mn-projects-title').textContent = 'Project Details';
-      $('mn-projects-new-btn').style.display = 'none';
-      $('mn-projects-body').innerHTML = '<div class="mn-empty">Loading&</div>';
+      $('mn2-projects-title').textContent = 'Project Details';
+      $('mn2-projects-new-btn').style.display = 'none';
+      $('mn2-projects-body').innerHTML = '<div class="mn2-empty">Loading&</div>';
       try {
         const { data: p, error } = await sbc().from('projects').select('*').eq('id', id).single();
         if(error) throw error;
@@ -193,32 +193,32 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
         const isOwner = p.user_id === (u&&u.id);
         let featsHtml = '';
         if(!feats || feats.length === 0){
-          featsHtml = '<div class="mn-empty" style="padding:24px;">No features yet. Activate this project then use the map drawing tools.</div>';
+          featsHtml = '<div class="mn2-empty" style="padding:24px;">No features yet. Activate this project then use the map drawing tools.</div>';
         } else {
           featsHtml = feats.map(f => {
             const v = f.properties && f.properties.value ? f.properties.value : '';
-            const labelHtml = '<input class="mn-input" style="padding:4px 8px;font-size:12px;flex:1;" value="'+esc(f.label||'')+'" onchange="MNProjects.relabel(\''+f.id+'\', this.value)" placeholder="Label this feature">';
-            return '<div class="mn-feature-row"><span class="ftype">'+esc(f.feature_type)+'</span>'+labelHtml+'<span class="fvalue">'+esc(v)+'</span><button onclick="MNProjects.flyToFeature(\''+f.id+'\')" style="background:none;border:1px solid #2b3a52;color:#67e8f9;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;"><i class="fas fa-location-arrow"></i></button><button onclick="MNProjects.delFeature(\''+f.id+'\')" style="background:none;border:1px solid #7f1d1d;color:#fca5a5;padding:3px 6px;border-radius:4px;font-size:10px;cursor:pointer;"><i class="fas fa-times"></i></button></div>';
+            const labelHtml = '<input class="mn2-input" style="padding:4px 8px;font-size:12px;flex:1;" value="'+esc(f.label||'')+'" onchange="MNProjects.relabel(\''+f.id+'\', this.value)" placeholder="Label this feature">';
+            return '<div class="mn2-feature-row"><span class="ftype">'+esc(f.feature_type)+'</span>'+labelHtml+'<span class="fvalue">'+esc(v)+'</span><button onclick="MNProjects.flyToFeature(\''+f.id+'\')" style="background:none;border:1px solid #2b3a52;color:#67e8f9;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;"><i class="fas fa-location-arrow"></i></button><button onclick="MNProjects.delFeature(\''+f.id+'\')" style="background:none;border:1px solid #7f1d1d;color:#fca5a5;padding:3px 6px;border-radius:4px;font-size:10px;cursor:pointer;"><i class="fas fa-times"></i></button></div>';
           }).join('');
         }
-        const editBtn = isOwner ? '<button class="mn-btn" onclick="MNProjects.rename(\''+p.id+'\')"><i class="fas fa-edit"></i> Rename</button>' : '';
-        const shareBtn = isOwner ? '<button class="mn-btn" onclick="MNProjects.share(\''+p.id+'\')"><i class="fas fa-share-alt"></i> Share</button>' : '';
-        const delBtn = isOwner ? '<button class="mn-btn mn-btn-danger" onclick="MNProjects.del(\''+p.id+'\')"><i class="fas fa-trash"></i> Delete</button>' : '';
-        $('mn-projects-body').innerHTML =
-          '<div class="mn-proj-detail-head">'+
-            '<div class="mn-row-icon" style="width:48px;height:48px;font-size:20px;"><i class="fas fa-folder-open"></i></div>'+
+        const editBtn = isOwner ? '<button class="mn2-btn" onclick="MNProjects.rename(\''+p.id+'\')"><i class="fas fa-edit"></i> Rename</button>' : '';
+        const shareBtn = isOwner ? '<button class="mn2-btn" onclick="MNProjects.share(\''+p.id+'\')"><i class="fas fa-share-alt"></i> Share</button>' : '';
+        const delBtn = isOwner ? '<button class="mn2-btn mn2-btn-danger" onclick="MNProjects.del(\''+p.id+'\')"><i class="fas fa-trash"></i> Delete</button>' : '';
+        $('mn2-projects-body').innerHTML =
+          '<div class="mn2-proj-detail-head">'+
+            '<div class="mn2-row-icon" style="width:48px;height:48px;font-size:20px;"><i class="fas fa-folder-open"></i></div>'+
             '<div style="flex:1;"><h3>'+esc(p.name)+'</h3><div class="desc">'+esc(p.description||'No description')+'</div><div class="desc" style="margin-top:4px;font-size:11px;">'+(p.county?esc(p.county)+' " ':'')+'Updated '+fmtDate(p.updated_at)+'</div></div>'+
           '</div>'+
           '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">'+
-            '<button class="mn-btn mn-btn-primary" onclick="MNProjects.activate(\''+p.id+'\');MNProjects.close();"><i class="fas fa-play"></i> Activate & View on Map</button>'+
-            '<button class="mn-btn" onclick="MNProjects.open()"><i class="fas fa-arrow-left"></i> Back</button>'+
+            '<button class="mn2-btn mn2-btn-primary" onclick="MNProjects.activate(\''+p.id+'\');MNProjects.close();"><i class="fas fa-play"></i> Activate & View on Map</button>'+
+            '<button class="mn2-btn" onclick="MNProjects.open()"><i class="fas fa-arrow-left"></i> Back</button>'+
             editBtn+shareBtn+delBtn+
           '</div>'+
-          '<div class="mn-label">Features ('+(feats?feats.length:0)+')</div>'+
+          '<div class="mn2-label">Features ('+(feats?feats.length:0)+')</div>'+
           '<div style="margin-top:6px;">'+featsHtml+'</div>'+
-          (isOwner ? '<div class="mn-label" style="margin-top:18px;">Add Features</div><div style="font-size:12px;color:#9ca8bd;margin-top:4px;">After activating, use the toolbar above the map to draw shapes, measure distances, or select parcels — they\'ll auto-save to this project.</div>' : '');
+          (isOwner ? '<div class="mn2-label" style="margin-top:18px;">Add Features</div><div style="font-size:12px;color:#9ca8bd;margin-top:4px;">After activating, use the toolbar above the map to draw shapes, measure distances, or select parcels — they\'ll auto-save to this project.</div>' : '');
       } catch(e){
-        $('mn-projects-body').innerHTML = '<div class="mn-empty" style="color:#fca5a5;">Error: '+esc(e.message||e)+'</div>';
+        $('mn2-projects-body').innerHTML = '<div class="mn2-empty" style="color:#fca5a5;">Error: '+esc(e.message||e)+'</div>';
       }
     },
     
@@ -258,8 +258,8 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
         if(error) throw error;
         const { data: feats } = await sbc().from('project_features').select('*').eq('project_id', id);
         MNProjects.state.current = id;
-        $('mn-active-project-name').textContent = p.name;
-        $('mn-active-project').classList.add('open');
+        $('mn2-active-project-name').textContent = p.name;
+        $('mn2-active-project').classList.add('open');
         if((getLeafletMap()||window.map) && p.view_state && p.view_state.lat){
           (getLeafletMap()||window.map).setView([p.view_state.lat, p.view_state.lng], p.view_state.zoom||12);
         }
@@ -270,7 +270,7 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
     
     deactivate: function(){
       MNProjects.state.current = null;
-      $('mn-active-project').classList.remove('open');
+      $('mn2-active-project').classList.remove('open');
       MNProjects._clearLayer();
       toast('Project deactivated.');
     },
@@ -308,7 +308,7 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
           } else {
             l = L.geoJSON(geo, { style: { color: style.color||'#06b6d4', weight: style.weight||3, fillOpacity: 0.2 }});
           }
-          if(f.label) l.bindTooltip(f.label, { permanent: true, direction: 'center', className: 'mn-feature-label' });
+          if(f.label) l.bindTooltip(f.label, { permanent: true, direction: 'center', className: 'mn2-feature-label' });
           l._mnFeatureId = f.id;
           layer.addLayer(l);
         } catch(e){}
@@ -420,7 +420,7 @@ const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
     MNProjects.saveFeature('parcel', geom, p, 'Parcel '+parcelId);
   };
   
-  ['mn-history-back','mn-bookmarks-back','mn-projects-back'].forEach(id => {
+  ['mn2-history-back','mn2-bookmarks-back','mn2-projects-back'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', function(e){ if(e.target === el) el.classList.remove('open'); });
   });

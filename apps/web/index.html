@@ -9,7 +9,7 @@
 <meta name="keywords" content="Mapnova, GIS, mapping, parcels, land data, zoning, aerial imagery, property search">
 <meta name="author" content="Mapnova">
 <meta name="theme-color" content="#080b0f">
-<meta name="mn-deploy-id" content="d3b9c4a82f7e1a6c">
+<meta name="mn2-deploy-id" content="d3b9c4a82f7e1a6c">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="canonical" href="https://mapnova.org/">
 <meta property="og:type" content="website">
@@ -53,11 +53,11 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha384-/o6I2CkkWC//PSjvWC/eYN7l3xM3tJm8ZzVkCOfp//W05QcE3mlGskpoHB6XqI+B" crossorigin="anonymous" media="print" onload="this.media='all';this.onload=null;"/><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha384-/o6I2CkkWC//PSjvWC/eYN7l3xM3tJm8ZzVkCOfp//W05QcE3mlGskpoHB6XqI+B" crossorigin="anonymous"/></noscript>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js" integrity="sha384-JP5UPxIO2Tm2o79Fb0tGYMa44jkWar53aBoCbd8ah0+LcCDoohTIYr+zIXyfGIJN" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="css/app.css?v=3">
+<link rel="stylesheet" href="static/v2/app.css?v=3">
 
   <!-- Supabase Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
-  <script src="assets/mn-sentry.js" defer></script>
+  <script src="static/v2/core-telemetry.js" defer></script>
 
 <script>
 // Early bootstrap: render user badge instantly from cached session/profile
@@ -73,22 +73,22 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
     var name = (profile && profile.display_name) || (user.email||"").split("@")[0] || "User";
     var initials = (name||"").trim().split(/\s+/).map(function(p){return p[0]||""}).join("").slice(0,2).toUpperCase() || "?";
     function paint(){
-      var badge = document.getElementById("mn-user-badge");
+      var badge = document.getElementById("mn2-user-badge");
       if (!badge) { return false; }
-      var nameEl = document.getElementById("mn-user-badge-name");
-      var avEl = document.getElementById("mn-user-avatar");
+      var nameEl = document.getElementById("mn2-user-badge-name");
+      var avEl = document.getElementById("mn2-user-avatar");
       if (nameEl) nameEl.textContent = name;
       if (avEl) {
         if (profile && profile.avatar_url) {
           avEl.innerHTML = '<img src="'+profile.avatar_url+'" alt="">';
         } else {
-          avEl.innerHTML = '<span id="mn-user-avatar-text">'+initials+'</span>';
+          avEl.innerHTML = '<span id="mn2-user-avatar-text">'+initials+'</span>';
         }
       }
       badge.style.display = "flex";
-      var ov = document.getElementById("mn-auth-overlay");
+      var ov = document.getElementById("mn2-auth-overlay");
       if (ov) ov.style.display = "none";
-      var tier = document.getElementById("mn-menu-tier");
+      var tier = document.getElementById("mn2-menu-tier");
       if (tier && profile && profile.subscription_tier) tier.textContent = String(profile.subscription_tier).toUpperCase()+" PLAN";
       return true;
     }
@@ -238,72 +238,72 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
   </div>
   <!-- Active layer filter chips -->
   <div id="filter-strip">
-      <button class="fchip mn-natfilter-btn" id="mn-natfilter-btn" type="button" onclick="window.MNNatFilter.toggle()" title="National Filters - basemaps, POIs, weather, hazards">
+      <button class="fchip mn2-natfilter-btn" id="mn2-natfilter-btn" type="button" onclick="window.MNNatFilter.toggle()" title="National Filters - basemaps, POIs, weather, hazards">
         <i class="fas fa-globe-americas"></i> NATIONAL FILTERS <i class="fas fa-chevron-down" style="font-size:9px;margin-left:4px;opacity:0.7;"></i>
       </button>
-      <div id="mn-natfilter-menu" class="mn-natfilter-menu" style="display:none;">
-        <div class="mn-natfilter-search">
+      <div id="mn2-natfilter-menu" class="mn2-natfilter-menu" style="display:none;">
+        <div class="mn2-natfilter-search">
           <i class="fas fa-magnifying-glass"></i>
-          <input type="text" id="mn-natfilter-search-input" placeholder="Search filters..." oninput="window.MNNatFilter.filter(this.value)" />
-          <button type="button" onclick="window.MNNatFilter.clearAll()" class="mn-natfilter-clear" title="Clear all"><i class="fas fa-eraser"></i></button>
+          <input type="text" id="mn2-natfilter-search-input" placeholder="Search filters..." oninput="window.MNNatFilter.filter(this.value)" />
+          <button type="button" onclick="window.MNNatFilter.clearAll()" class="mn2-natfilter-clear" title="Clear all"><i class="fas fa-eraser"></i></button>
         </div>
-        <div class="mn-natfilter-section-title"><i class="fas fa-layer-group"></i> Basemaps & Imagery</div>
-        <div class="mn-natfilter-grid" data-section="basemaps">
-          <button class="mn-natfilter-item" data-key="usgs-topo" onclick="window.MNNatFilter.toggleLayer('usgs-topo',this)"><i class="fas fa-mountain"></i> USGS Topo</button>
-          <button class="mn-natfilter-item" data-key="opentopomap" onclick="window.MNNatFilter.toggleLayer('opentopomap',this)"><i class="fas fa-mountain-sun"></i> Topo Global</button>
-          <button class="mn-natfilter-item" data-key="usgs-shaded" onclick="window.MNNatFilter.toggleLayer('usgs-shaded',this)"><i class="fas fa-image"></i> Hillshade</button>
-          <button class="mn-natfilter-item" data-key="esri-streets" onclick="window.MNNatFilter.toggleLayer('esri-streets',this)"><i class="fas fa-road"></i> Streets</button>
-          <button class="mn-natfilter-item" data-key="esri-natgeo" onclick="window.MNNatFilter.toggleLayer('esri-natgeo',this)"><i class="fas fa-compass"></i> NatGeo</button>
-          <button class="mn-natfilter-item" data-key="esri-ocean" onclick="window.MNNatFilter.toggleLayer('esri-ocean',this)"><i class="fas fa-water"></i> Ocean</button>
-          <button class="mn-natfilter-item" data-key="osm-base" onclick="window.MNNatFilter.toggleLayer('osm-base',this)"><i class="fas fa-globe"></i> OpenStreetMap</button>
-          <button class="mn-natfilter-item" data-key="osm-humanitarian" onclick="window.MNNatFilter.toggleLayer('osm-humanitarian',this)"><i class="fas fa-hand-holding-heart"></i> OSM HOT</button>
-          <button class="mn-natfilter-item" data-key="carto-light" onclick="window.MNNatFilter.toggleLayer('carto-light',this)"><i class="fas fa-sun"></i> Light</button>
-          <button class="mn-natfilter-item" data-key="carto-dark" onclick="window.MNNatFilter.toggleLayer('carto-dark',this)"><i class="fas fa-moon"></i> Dark</button>
-          <button class="mn-natfilter-item" data-key="esri-boundaries" onclick="window.MNNatFilter.toggleLayer('esri-boundaries',this)"><i class="fas fa-flag"></i> Boundaries</button>
-          <button class="mn-natfilter-item" data-key="esri-transport" onclick="window.MNNatFilter.toggleLayer('esri-transport',this)"><i class="fas fa-route"></i> Highways</button>
-                  <button class="mn-natfilter-item" data-key="imagery" onclick="window.MNNatFilter.toggleLayer('imagery',this)"><i class="fas fa-satellite"></i> Satellite</button>
-                  <button class="mn-natfilter-item" data-key="imagery-labels" onclick="window.MNNatFilter.toggleLayer('imagery-labels',this)"><i class="fas fa-tag"></i> Labels</button>
+        <div class="mn2-natfilter-section-title"><i class="fas fa-layer-group"></i> Basemaps & Imagery</div>
+        <div class="mn2-natfilter-grid" data-section="basemaps">
+          <button class="mn2-natfilter-item" data-key="usgs-topo" onclick="window.MNNatFilter.toggleLayer('usgs-topo',this)"><i class="fas fa-mountain"></i> USGS Topo</button>
+          <button class="mn2-natfilter-item" data-key="opentopomap" onclick="window.MNNatFilter.toggleLayer('opentopomap',this)"><i class="fas fa-mountain-sun"></i> Topo Global</button>
+          <button class="mn2-natfilter-item" data-key="usgs-shaded" onclick="window.MNNatFilter.toggleLayer('usgs-shaded',this)"><i class="fas fa-image"></i> Hillshade</button>
+          <button class="mn2-natfilter-item" data-key="esri-streets" onclick="window.MNNatFilter.toggleLayer('esri-streets',this)"><i class="fas fa-road"></i> Streets</button>
+          <button class="mn2-natfilter-item" data-key="esri-natgeo" onclick="window.MNNatFilter.toggleLayer('esri-natgeo',this)"><i class="fas fa-compass"></i> NatGeo</button>
+          <button class="mn2-natfilter-item" data-key="esri-ocean" onclick="window.MNNatFilter.toggleLayer('esri-ocean',this)"><i class="fas fa-water"></i> Ocean</button>
+          <button class="mn2-natfilter-item" data-key="osm-base" onclick="window.MNNatFilter.toggleLayer('osm-base',this)"><i class="fas fa-globe"></i> OpenStreetMap</button>
+          <button class="mn2-natfilter-item" data-key="osm-humanitarian" onclick="window.MNNatFilter.toggleLayer('osm-humanitarian',this)"><i class="fas fa-hand-holding-heart"></i> OSM HOT</button>
+          <button class="mn2-natfilter-item" data-key="carto-light" onclick="window.MNNatFilter.toggleLayer('carto-light',this)"><i class="fas fa-sun"></i> Light</button>
+          <button class="mn2-natfilter-item" data-key="carto-dark" onclick="window.MNNatFilter.toggleLayer('carto-dark',this)"><i class="fas fa-moon"></i> Dark</button>
+          <button class="mn2-natfilter-item" data-key="esri-boundaries" onclick="window.MNNatFilter.toggleLayer('esri-boundaries',this)"><i class="fas fa-flag"></i> Boundaries</button>
+          <button class="mn2-natfilter-item" data-key="esri-transport" onclick="window.MNNatFilter.toggleLayer('esri-transport',this)"><i class="fas fa-route"></i> Highways</button>
+                  <button class="mn2-natfilter-item" data-key="imagery" onclick="window.MNNatFilter.toggleLayer('imagery',this)"><i class="fas fa-satellite"></i> Satellite</button>
+                  <button class="mn2-natfilter-item" data-key="imagery-labels" onclick="window.MNNatFilter.toggleLayer('imagery-labels',this)"><i class="fas fa-tag"></i> Labels</button>
         </div>
-        <div class="mn-natfilter-section-title"><i class="fas fa-tree"></i> Environmental & Land Use</div>
-        <div class="mn-natfilter-grid" data-section="environment">
-          <button class="mn-natfilter-item" data-key="usgs-hydro" onclick="window.MNNatFilter.toggleLayer('usgs-hydro',this)"><i class="fas fa-droplet"></i> Hydrography</button>
-          <button class="mn-natfilter-item" data-key="usgs-nlcd" onclick="window.MNNatFilter.toggleLayer('usgs-nlcd',this)"><i class="fas fa-tree"></i> Land Cover</button>
-          <button class="mn-natfilter-item" data-key="usda-cropland" onclick="window.MNNatFilter.toggleLayer('usda-cropland',this)"><i class="fas fa-wheat-awn"></i> Cropland</button>
+        <div class="mn2-natfilter-section-title"><i class="fas fa-tree"></i> Environmental & Land Use</div>
+        <div class="mn2-natfilter-grid" data-section="environment">
+          <button class="mn2-natfilter-item" data-key="usgs-hydro" onclick="window.MNNatFilter.toggleLayer('usgs-hydro',this)"><i class="fas fa-droplet"></i> Hydrography</button>
+          <button class="mn2-natfilter-item" data-key="usgs-nlcd" onclick="window.MNNatFilter.toggleLayer('usgs-nlcd',this)"><i class="fas fa-tree"></i> Land Cover</button>
+          <button class="mn2-natfilter-item" data-key="usda-cropland" onclick="window.MNNatFilter.toggleLayer('usda-cropland',this)"><i class="fas fa-wheat-awn"></i> Cropland</button>
         </div>
-        <div class="mn-natfilter-section-title"><i class="fas fa-triangle-exclamation"></i> Hazards & Weather</div>
-        <div class="mn-natfilter-grid" data-section="hazards">
-          <button class="mn-natfilter-item" data-key="nexrad-radar" onclick="window.MNNatFilter.toggleLayer('nexrad-radar',this)"><i class="fas fa-cloud-bolt"></i> Weather Radar</button>
-          <button class="mn-natfilter-item" data-key="noaa-warnings" onclick="window.MNNatFilter.toggleLayer('noaa-warnings',this)"><i class="fas fa-triangle-exclamation"></i> NWS Warnings</button>
-          <button class="mn-natfilter-item" data-key="earthquakes" onclick="window.MNNatFilter.toggleLayer('earthquakes',this)"><i class="fas fa-house-tsunami"></i> Earthquakes</button>
-                  <button class="mn-natfilter-item" data-key="flood" onclick="window.MNNatFilter.toggleLayer('flood',this)"><i class="fas fa-house-flood-water"></i> FEMA Flood</button>
+        <div class="mn2-natfilter-section-title"><i class="fas fa-triangle-exclamation"></i> Hazards & Weather</div>
+        <div class="mn2-natfilter-grid" data-section="hazards">
+          <button class="mn2-natfilter-item" data-key="nexrad-radar" onclick="window.MNNatFilter.toggleLayer('nexrad-radar',this)"><i class="fas fa-cloud-bolt"></i> Weather Radar</button>
+          <button class="mn2-natfilter-item" data-key="noaa-warnings" onclick="window.MNNatFilter.toggleLayer('noaa-warnings',this)"><i class="fas fa-triangle-exclamation"></i> NWS Warnings</button>
+          <button class="mn2-natfilter-item" data-key="earthquakes" onclick="window.MNNatFilter.toggleLayer('earthquakes',this)"><i class="fas fa-house-tsunami"></i> Earthquakes</button>
+                  <button class="mn2-natfilter-item" data-key="flood" onclick="window.MNNatFilter.toggleLayer('flood',this)"><i class="fas fa-house-flood-water"></i> FEMA Flood</button>
         </div>
-        <div class="mn-natfilter-section-title"><i class="fas fa-location-dot"></i> Points of Interest</div>
-        <div class="mn-natfilter-grid" data-section="poi">
-          <button class="mn-natfilter-item" data-key="poi-hospital" onclick="window.MNNatFilter.toggleLayer('poi-hospital',this)"><i class="fas fa-hospital"></i> Hospitals</button>
-          <button class="mn-natfilter-item" data-key="poi-school" onclick="window.MNNatFilter.toggleLayer('poi-school',this)"><i class="fas fa-graduation-cap"></i> Schools</button>
-          <button class="mn-natfilter-item" data-key="poi-police" onclick="window.MNNatFilter.toggleLayer('poi-police',this)"><i class="fas fa-shield-halved"></i> Police</button>
-          <button class="mn-natfilter-item" data-key="poi-fire" onclick="window.MNNatFilter.toggleLayer('poi-fire',this)"><i class="fas fa-fire"></i> Fire Stations</button>
-          <button class="mn-natfilter-item" data-key="poi-airport" onclick="window.MNNatFilter.toggleLayer('poi-airport',this)"><i class="fas fa-plane"></i> Airports</button>
-          <button class="mn-natfilter-item" data-key="poi-railway" onclick="window.MNNatFilter.toggleLayer('poi-railway',this)"><i class="fas fa-train"></i> Rail Stations</button>
-          <button class="mn-natfilter-item" data-key="poi-park" onclick="window.MNNatFilter.toggleLayer('poi-park',this)"><i class="fas fa-tree-city"></i> Parks</button>
-          <button class="mn-natfilter-item" data-key="poi-fuel" onclick="window.MNNatFilter.toggleLayer('poi-fuel',this)"><i class="fas fa-gas-pump"></i> Gas Stations</button>
-          <button class="mn-natfilter-item" data-key="poi-charging" onclick="window.MNNatFilter.toggleLayer('poi-charging',this)"><i class="fas fa-charging-station"></i> EV Charging</button>
-          <button class="mn-natfilter-item" data-key="poi-bank" onclick="window.MNNatFilter.toggleLayer('poi-bank',this)"><i class="fas fa-building-columns"></i> Banks</button>
-          <button class="mn-natfilter-item" data-key="poi-grocery" onclick="window.MNNatFilter.toggleLayer('poi-grocery',this)"><i class="fas fa-cart-shopping"></i> Grocery</button>
-          <button class="mn-natfilter-item" data-key="poi-pharmacy" onclick="window.MNNatFilter.toggleLayer('poi-pharmacy',this)"><i class="fas fa-prescription-bottle-medical"></i> Pharmacy</button>
-          <button class="mn-natfilter-item" data-key="poi-restaurant" onclick="window.MNNatFilter.toggleLayer('poi-restaurant',this)"><i class="fas fa-utensils"></i> Restaurants</button>
-          <button class="mn-natfilter-item" data-key="poi-lodging" onclick="window.MNNatFilter.toggleLayer('poi-lodging',this)"><i class="fas fa-bed"></i> Lodging</button>
-          <button class="mn-natfilter-item" data-key="poi-postoffice" onclick="window.MNNatFilter.toggleLayer('poi-postoffice',this)"><i class="fas fa-envelope"></i> Post Office</button>
-          <button class="mn-natfilter-item" data-key="poi-library" onclick="window.MNNatFilter.toggleLayer('poi-library',this)"><i class="fas fa-book"></i> Library</button>
-          <button class="mn-natfilter-item" data-key="poi-worship" onclick="window.MNNatFilter.toggleLayer('poi-worship',this)"><i class="fas fa-place-of-worship"></i> Worship</button>
-          <button class="mn-natfilter-item" data-key="poi-cemetery" onclick="window.MNNatFilter.toggleLayer('poi-cemetery',this)"><i class="fas fa-cross"></i> Cemetery</button>
+        <div class="mn2-natfilter-section-title"><i class="fas fa-location-dot"></i> Points of Interest</div>
+        <div class="mn2-natfilter-grid" data-section="poi">
+          <button class="mn2-natfilter-item" data-key="poi-hospital" onclick="window.MNNatFilter.toggleLayer('poi-hospital',this)"><i class="fas fa-hospital"></i> Hospitals</button>
+          <button class="mn2-natfilter-item" data-key="poi-school" onclick="window.MNNatFilter.toggleLayer('poi-school',this)"><i class="fas fa-graduation-cap"></i> Schools</button>
+          <button class="mn2-natfilter-item" data-key="poi-police" onclick="window.MNNatFilter.toggleLayer('poi-police',this)"><i class="fas fa-shield-halved"></i> Police</button>
+          <button class="mn2-natfilter-item" data-key="poi-fire" onclick="window.MNNatFilter.toggleLayer('poi-fire',this)"><i class="fas fa-fire"></i> Fire Stations</button>
+          <button class="mn2-natfilter-item" data-key="poi-airport" onclick="window.MNNatFilter.toggleLayer('poi-airport',this)"><i class="fas fa-plane"></i> Airports</button>
+          <button class="mn2-natfilter-item" data-key="poi-railway" onclick="window.MNNatFilter.toggleLayer('poi-railway',this)"><i class="fas fa-train"></i> Rail Stations</button>
+          <button class="mn2-natfilter-item" data-key="poi-park" onclick="window.MNNatFilter.toggleLayer('poi-park',this)"><i class="fas fa-tree-city"></i> Parks</button>
+          <button class="mn2-natfilter-item" data-key="poi-fuel" onclick="window.MNNatFilter.toggleLayer('poi-fuel',this)"><i class="fas fa-gas-pump"></i> Gas Stations</button>
+          <button class="mn2-natfilter-item" data-key="poi-charging" onclick="window.MNNatFilter.toggleLayer('poi-charging',this)"><i class="fas fa-charging-station"></i> EV Charging</button>
+          <button class="mn2-natfilter-item" data-key="poi-bank" onclick="window.MNNatFilter.toggleLayer('poi-bank',this)"><i class="fas fa-building-columns"></i> Banks</button>
+          <button class="mn2-natfilter-item" data-key="poi-grocery" onclick="window.MNNatFilter.toggleLayer('poi-grocery',this)"><i class="fas fa-cart-shopping"></i> Grocery</button>
+          <button class="mn2-natfilter-item" data-key="poi-pharmacy" onclick="window.MNNatFilter.toggleLayer('poi-pharmacy',this)"><i class="fas fa-prescription-bottle-medical"></i> Pharmacy</button>
+          <button class="mn2-natfilter-item" data-key="poi-restaurant" onclick="window.MNNatFilter.toggleLayer('poi-restaurant',this)"><i class="fas fa-utensils"></i> Restaurants</button>
+          <button class="mn2-natfilter-item" data-key="poi-lodging" onclick="window.MNNatFilter.toggleLayer('poi-lodging',this)"><i class="fas fa-bed"></i> Lodging</button>
+          <button class="mn2-natfilter-item" data-key="poi-postoffice" onclick="window.MNNatFilter.toggleLayer('poi-postoffice',this)"><i class="fas fa-envelope"></i> Post Office</button>
+          <button class="mn2-natfilter-item" data-key="poi-library" onclick="window.MNNatFilter.toggleLayer('poi-library',this)"><i class="fas fa-book"></i> Library</button>
+          <button class="mn2-natfilter-item" data-key="poi-worship" onclick="window.MNNatFilter.toggleLayer('poi-worship',this)"><i class="fas fa-place-of-worship"></i> Worship</button>
+          <button class="mn2-natfilter-item" data-key="poi-cemetery" onclick="window.MNNatFilter.toggleLayer('poi-cemetery',this)"><i class="fas fa-cross"></i> Cemetery</button>
         </div>
-        <div class="mn-natfilter-footer">
-          <span id="mn-natfilter-active-count">0 active</span>
-          <button type="button" onclick="window.MNNatFilter.close()" class="mn-natfilter-done">Done</button>
+        <div class="mn2-natfilter-footer">
+          <span id="mn2-natfilter-active-count">0 active</span>
+          <button type="button" onclick="window.MNNatFilter.close()" class="mn2-natfilter-done">Done</button>
         </div>
       </div>
-      <button class="fchip mn-projects-btn" id="mn-projects-btn" type="button" onclick="if(window.MapNovaAuth&&MapNovaAuth.openProjects)MapNovaAuth.openProjects();else if(window.MNProjects&&MNProjects.open)MNProjects.open();" title="Projects"><i class="fas fa-folder-open"></i> PROJECTS</button>
+      <button class="fchip mn2-projects-btn" id="mn2-projects-btn" type="button" onclick="if(window.MapNovaAuth&&MapNovaAuth.openProjects)MapNovaAuth.openProjects();else if(window.MNProjects&&MNProjects.open)MNProjects.open();" title="Projects"><i class="fas fa-folder-open"></i> PROJECTS</button>
     </div>
   <div id="sbody">
 
@@ -477,29 +477,29 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
     <div class="tpane" id="tab-tools">
 
       <!-- ========== INQUIRE MODE (default) ========== -->
-      <div class="tsec" id="mn-inquire-sec">
-        <button id="mn-inquire-btn" class="tbtn tbtn-wide mn-active" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.45);color:#67e8f9;padding:8px;font-weight:600;">
+      <div class="tsec" id="mn2-inquire-sec">
+        <button id="mn2-inquire-btn" class="tbtn tbtn-wide mn2-active" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.45);color:#67e8f9;padding:8px;font-weight:600;">
           <i class="fas fa-mouse-pointer"></i><span>Inquire on Property</span>
         </button>
-        <div style="font-size:10px;color:#8fa3bf;margin-top:4px;text-align:center;" id="mn-mode-status">Click parcels to view info</div>
+        <div style="font-size:10px;color:#8fa3bf;margin-top:4px;text-align:center;" id="mn2-mode-status">Click parcels to view info</div>
       </div>
 
       <!-- ========== MEASUREMENT ========== -->
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-ruler"></i> Measurement</div>
         <div class="tgrid" style="grid-template-columns:1fr 1fr;">
-          <button class="tbtn" data-mn-tool="meas-line" id="tb-meas-line">
+          <button class="tbtn" data-mn2-tool="meas-line" id="tb-meas-line">
             <i class="fas fa-route"></i><span class="tl">Measure Line</span>
           </button>
-          <button class="tbtn" data-mn-tool="meas-area" id="tb-meas-area">
+          <button class="tbtn" data-mn2-tool="meas-area" id="tb-meas-area">
             <i class="fas fa-draw-polygon"></i><span class="tl">Measure Area</span>
           </button>
         </div>
         <!-- Per-tool options for measurement -->
-        <div id="mn-meas-opts" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
+        <div id="mn2-meas-opts" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
             <label style="font-size:11px;color:#aaa;width:70px;">Distance</label>
-            <select id="mn-dist-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+            <select id="mn2-dist-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
               <option value="ft">Feet</option>
               <option value="mi">Miles</option>
               <option value="m">Meters</option>
@@ -509,7 +509,7 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <label style="font-size:11px;color:#aaa;width:70px;">Area</label>
-            <select id="mn-area-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+            <select id="mn2-area-unit" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
               <option value="acres">Acres</option>
               <option value="sqft">Sq Feet</option>
               <option value="sqm">Sq Meters</option>
@@ -520,7 +520,7 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
           </div>
         </div>
         <!-- Saved measurements list -->
-        <div id="mn-meas-list" style="margin-top:8px;"></div>
+        <div id="mn2-meas-list" style="margin-top:8px;"></div>
         <div style="display:flex;gap:6px;margin-top:6px;">
           <button class="tbtn" id="tb-clear-meas" style="flex:1;" title="Remove all measurements from the map">
             <i class="fas fa-eraser"></i><span class="tl">Clear All</span>
@@ -535,30 +535,30 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-pencil-alt"></i> Draw &amp; Annotate</div>
         <div class="tgrid" style="grid-template-columns:1fr 1fr 1fr;">
-          <button class="tbtn" data-mn-tool="draw-polygon" id="tb-draw-polygon">
+          <button class="tbtn" data-mn2-tool="draw-polygon" id="tb-draw-polygon">
             <i class="fas fa-draw-polygon"></i><span class="tl">Polygon</span>
           </button>
-          <button class="tbtn" data-mn-tool="draw-freehand" id="tb-draw-freehand">
+          <button class="tbtn" data-mn2-tool="draw-freehand" id="tb-draw-freehand">
             <i class="fas fa-signature"></i><span class="tl">Freehand</span>
           </button>
-          <button class="tbtn" data-mn-tool="draw-rect" id="tb-draw-rect">
+          <button class="tbtn" data-mn2-tool="draw-rect" id="tb-draw-rect">
             <i class="fas fa-vector-square"></i><span class="tl">Shape</span>
           </button>
-          <button class="tbtn" data-mn-tool="draw-circle" id="tb-draw-circle">
+          <button class="tbtn" data-mn2-tool="draw-circle" id="tb-draw-circle">
             <i class="fas fa-circle"></i><span class="tl">Circle</span>
           </button>
-          <button class="tbtn" data-mn-tool="draw-polyline" id="tb-draw-polyline">
+          <button class="tbtn" data-mn2-tool="draw-polyline" id="tb-draw-polyline">
             <i class="fas fa-minus"></i><span class="tl">Polyline</span>
           </button>
-          <button class="tbtn" data-mn-tool="draw-text" id="tb-draw-text">
+          <button class="tbtn" data-mn2-tool="draw-text" id="tb-draw-text">
             <i class="fas fa-font"></i><span class="tl">Text Box</span>
           </button>
         </div>
         <!-- Per-tool draw options -->
-        <div id="mn-draw-opts" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
+        <div id="mn2-draw-opts" style="display:none;margin-top:6px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
             <label style="font-size:11px;color:#aaa;width:60px;">Color</label>
-            <div id="mn-draw-swatches" style="display:flex;gap:4px;flex:1;">
+            <div id="mn2-draw-swatches" style="display:flex;gap:4px;flex:1;">
               <span data-clr="#3b82f6" style="width:18px;height:18px;background:#3b82f6;border-radius:3px;cursor:pointer;border:2px solid #fff;"></span>
               <span data-clr="#ef4444" style="width:18px;height:18px;background:#ef4444;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
               <span data-clr="#22c55e" style="width:18px;height:18px;background:#22c55e;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
@@ -568,9 +568,9 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
               <span data-clr="#06b6d4" style="width:18px;height:18px;background:#06b6d4;border-radius:3px;cursor:pointer;border:2px solid transparent;"></span>
             </div>
           </div>
-          <div id="mn-draw-textinput-wrap" style="display:none;align-items:center;gap:8px;margin-top:5px;">
+          <div id="mn2-draw-textinput-wrap" style="display:none;align-items:center;gap:8px;margin-top:5px;">
             <label style="font-size:11px;color:#aaa;width:60px;">Text</label>
-            <input id="mn-draw-textinput" type="text" placeholder="Label text" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
+            <input id="mn2-draw-textinput" type="text" placeholder="Label text" style="flex:1;padding:3px 6px;border-radius:4px;border:1px solid #444;background:#1a1a2e;color:#fff;font-size:12px;">
           </div>
         </div>
         <div style="display:flex;gap:6px;margin-top:6px;">
@@ -581,23 +581,23 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
             <i class="fas fa-folder-plus"></i><span class="tl">Save to Project</span>
           </button>
         </div>
-        <div id="mn-annotations-list" style="margin-top:8px;"></div>
+        <div id="mn2-annotations-list" style="margin-top:8px;"></div>
       </div>
 
       <!-- ========== SELECTION ========== -->
       <div class="tsec">
         <div class="tsec-title"><i class="fas fa-object-group"></i> Selection</div>
         <div class="tgrid" style="grid-template-columns:1fr 1fr;">
-          <button class="tbtn" data-mn-tool="sel-click" id="tb-sel-click">
+          <button class="tbtn" data-mn2-tool="sel-click" id="tb-sel-click">
             <i class="fas fa-hand-pointer"></i><span class="tl">Click Select</span>
           </button>
-          <button class="tbtn" data-mn-tool="sel-box" id="tb-sel-box">
+          <button class="tbtn" data-mn2-tool="sel-box" id="tb-sel-box">
             <i class="fas fa-crop-simple"></i><span class="tl">Box Select</span>
           </button>
-          <button class="tbtn" data-mn-tool="sel-line" id="tb-sel-line">
+          <button class="tbtn" data-mn2-tool="sel-line" id="tb-sel-line">
             <i class="fas fa-grip-lines"></i><span class="tl">Line Select</span>
           </button>
-          <button class="tbtn" data-mn-tool="sel-poly" id="tb-sel-poly">
+          <button class="tbtn" data-mn2-tool="sel-poly" id="tb-sel-poly">
             <i class="fas fa-lasso"></i><span class="tl">Poly Select</span>
           </button>
         </div>
@@ -659,7 +659,7 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
           <button class="tbtn" onclick="openModal('plss-modal')">
             <i class="fas fa-th-large"></i><span class="tl">PLSS Lookup</span>
           </button>
-          <button class="tbtn" data-mn-tool="section-corner" id="tb-secco">
+          <button class="tbtn" data-mn2-tool="section-corner" id="tb-secco">
             <i class="fas fa-location-pin"></i><span class="tl">Sec. Corner</span>
           </button>
           <button class="tbtn tbtn-wide" onclick="openModal('drain-modal')">
@@ -1287,11 +1287,11 @@ select,input{background:#172030;color:#dde4f0;border:1px solid #1a2d40;}
   </div>
 </div></div>
 
-<script src="assets/county-gis-servers.js?v=2"></script>
-<script src="assets/municipal-gis-servers.js?v=4"></script>
-<script src="assets/county-parcel-apis.js?v=2"></script>
-<script src="assets/county-layer-engines.js?v=2"></script>
-<script src="assets/county-metadata.js?v=6"></script>
+<script src="static/v2/geo-county-gis.js?v=2"></script>
+<script src="static/v2/geo-municipal-gis.js?v=4"></script>
+<script src="static/v2/geo-county-apis.js?v=2"></script>
+<script src="static/v2/geo-county-layers.js?v=2"></script>
+<script src="static/v2/geo-county-meta.js?v=6"></script>
 <script>
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //  MAP INITIALIZATION
@@ -1731,7 +1731,7 @@ const ownerCache = {};
 let ownerCacheLoading = false;
 
 //  TIER 1: ElevateMaps Layer 92 
-// EM_LAYER92, EM_BASE, L92_FIELDS, COUNTY_PARCEL_APIS moved to assets/county-parcel-apis.js
+// EM_LAYER92, EM_BASE, L92_FIELDS, COUNTY_PARCEL_APIS moved to static/v2/geo-county-apis.js
 
 //  Get county key 
 function getCountyKey() {
@@ -2481,7 +2481,7 @@ function buildFullReport(p) { buildLiveReport(p); }
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 //  Statewide gisdata.in.gov services (confirmed live 2025) 
-// IGIO_SVC, IGIO_ADMIN, *_BASE, *_LAYERS moved to assets/county-layer-engines.js
+// IGIO_SVC, IGIO_ADMIN, *_BASE, *_LAYERS moved to static/v2/geo-county-layers.js
 
 //  Beacon counties without a public ArcGIS Online layer org (parcel data only via COUNTY_PARCEL_APIS / Beacon link fallback) 
 //   vigo, kosciusko, elkhart, cass, grant, laporte, jackson — no county-hosted ArcGIS REST
@@ -2492,7 +2492,7 @@ function buildFullReport(p) { buildLiveReport(p); }
 
 //  County GIS server registry — CONFIRMED live URLs only 
 // All URLs verified from browser via fetch() before inclusion
-// COUNTY_GIS_SERVERS moved to assets/county-gis-servers.js (loaded synchronously above this <script> block)
+// COUNTY_GIS_SERVERS moved to static/v2/geo-county-gis.js (loaded synchronously above this <script> block)
 // IndianaMap statewide fallback layers - applies to any county not in COUNTY_GIS_SERVERS / countyLayerCache
 // All layers verified live from gisdata.in.gov
 const STATEWIDE_FALLBACK_LAYERS = [
@@ -2549,7 +2549,7 @@ const STATEWIDE_FALLBACK_LAYERS = [
 // Each county may have one or more cities with their own GIS.
 // Toggling a city in the panel adds its layers as a sub-group.
 // ============================================================
-// MUNICIPAL_GIS_SERVERS moved to assets/municipal-gis-servers.js (loaded via <script src> in <head>)
+// MUNICIPAL_GIS_SERVERS moved to static/v2/geo-municipal-gis.js (loaded via <script src> in <head>)
 
 
 //  County layer registry 
@@ -2944,8 +2944,8 @@ gisLayers['imagery-labels'] = L.tileLayer('https://server.arcgisonline.com/ArcGI
           if(lat==null||lon==null) return;
           const name = (e.tags && (e.tags.name || e.tags['operator'] || e.tags.brand)) || self._label;
           const html = '<div style="background:'+self._color+';color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.5)"><i class="fas '+self._icon+'"></i></div>';
-          const icon = L.divIcon({html:html,className:'mn-poi-icon',iconSize:[24,24],iconAnchor:[12,12]});
-          L.marker([lat,lon],{icon:icon}).bindPopup('<div class="mpop"><div class="mpop-header mpop-header-poi" style="background:linear-gradient(135deg,'+self._color+'33,'+self._color+'11);border-left:4px solid '+self._color+';"><div class="mpop-addr">'+name+'</div><div class="mpop-owner">'+self._label+'</div></div></div>',{maxWidth:360,minWidth:240,className:'mn-poi-popup'}).addTo(self);
+          const icon = L.divIcon({html:html,className:'mn2-poi-icon',iconSize:[24,24],iconAnchor:[12,12]});
+          L.marker([lat,lon],{icon:icon}).bindPopup('<div class="mpop"><div class="mpop-header mpop-header-poi" style="background:linear-gradient(135deg,'+self._color+'33,'+self._color+'11);border-left:4px solid '+self._color+';"><div class="mpop-addr">'+name+'</div><div class="mpop-owner">'+self._label+'</div></div></div>',{maxWidth:360,minWidth:240,className:'mn2-poi-popup'}).addTo(self);
         });
         self._loaded = true;
         self._loading = false;
@@ -3076,30 +3076,30 @@ let _measurePreviewLine = null;
 let _measureSegLabels = [];
 
 function _getMeasPanel() {
-  let p = document.getElementById('mn-meas-panel');
+  let p = document.getElementById('mn2-meas-panel');
   if(!p) {
     p = document.createElement('div');
-    p.id = 'mn-meas-panel';
+    p.id = 'mn2-meas-panel';
     p.style.cssText = 'position:fixed;top:60px;right:10px;z-index:9999;background:#0e1420;border:1px solid rgba(6,182,212,0.4);border-radius:8px;padding:12px 16px;min-width:220px;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,0.6);display:none;font-family:Barlow,sans-serif;';
     p.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
       '<span style="font-size:12px;font-weight:700;color:var(--accent,#06b6d4);letter-spacing:.5px;"><i class=\'fas fa-ruler\'></i>&nbsp;Measurement Details</span>' +
       '<button onclick="clearMeasure()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;padding:0 0 0 12px;line-height:1;" title="Close">&times;</button>' +
-      '</div><div id="mn-meas-body" style="font-size:13px;color:#dde4f0;line-height:1.5;"></div>';
+      '</div><div id="mn2-meas-body" style="font-size:13px;color:#dde4f0;line-height:1.5;"></div>';
     document.body.appendChild(p);
   }
   return p;
 }
 function _showMeasPanel(html) {
   _getMeasPanel().style.display = 'block';
-  const b = document.getElementById('mn-meas-body');
+  const b = document.getElementById('mn2-meas-body');
   if(b) b.innerHTML = html;
 }
 function _hideMeasPanel() {
-  const p = document.getElementById('mn-meas-panel');
+  const p = document.getElementById('mn2-meas-panel');
   if(p) p.style.display = 'none';
 }
 function _fmtDist(miles) {
-  var unit=(document.getElementById('mn-dist-unit')||{}).value||'ft';
+  var unit=(document.getElementById('mn2-dist-unit')||{}).value||'ft';
   if(unit==='ft'){var ft=miles*5280; return ft<5280?ft.toFixed(0)+' ft':ft.toFixed(0)+' ft ('+(miles).toFixed(3)+' mi)';}
   if(unit==='mi') return miles.toFixed(4)+' mi';
   if(unit==='m') return (miles*1609.34).toFixed(1)+' m';
@@ -3107,7 +3107,7 @@ function _fmtDist(miles) {
   var ft=miles*5280; return ft<5280?ft.toFixed(0)+' ft':miles.toFixed(3)+' mi';
 }
 function _fmtArea(acres) {
-  var unit=(document.getElementById('mn-area-unit')||{}).value||'acres';
+  var unit=(document.getElementById('mn2-area-unit')||{}).value||'acres';
   if(unit==='acres') return acres>=1?acres.toFixed(3)+' acres':(acres*43560).toFixed(0)+' sq ft ('+(acres).toFixed(4)+' ac)';
   if(unit==='sqft') return (acres*43560).toFixed(0)+' sq ft';
   if(unit==='sqm') return (acres*4046.86).toFixed(1)+' sq m';
@@ -3117,7 +3117,7 @@ function _fmtArea(acres) {
 function _addSegLabel(pt1, pt2, text) {
   const mid = [(pt1[0]+pt2[0])/2, (pt1[1]+pt2[1])/2];
   try {
-    const lbl = L.tooltip({permanent:true,direction:'center',className:'mn-seg-label',offset:[0,0]})
+    const lbl = L.tooltip({permanent:true,direction:'center',className:'mn2-seg-label',offset:[0,0]})
       .setLatLng(mid).setContent(text).addTo(map);
     _measureSegLabels.push(lbl);
   } catch(e) {}
@@ -3131,9 +3131,9 @@ function activateTool(name, btn) {
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
   btn?.classList.add('on');
   // Cursor and overlay-pane pointer-events are managed declaratively by
-  // mn-tool-cursor.js (toggles #map.mn-tool-active based on activeTool state).
+  // mn2-tool-cursor.js (toggles #map.mn2-tool-active based on activeTool state).
   // Show units panel for measure tools
-  var unitsEl=document.getElementById('mn-meas-units');
+  var unitsEl=document.getElementById('mn2-meas-units');
   if(unitsEl) unitsEl.style.display=(name==='distance'||name==='area'||name==='rectmeas')?'block':'none';
   const hints = {
     distance: '<div style="font-size:11px;color:#8fa3bf;">Line Distance</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click to add points • Right-click or double-click to finish • ESC cancel</div>',
@@ -3143,7 +3143,7 @@ function activateTool(name, btn) {
     coordinate: '<div style="font-size:11px;color:#8fa3bf;">Coordinates</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click any location for lat/lng</div>',
     'section-corner': '<div style="font-size:11px;color:#8fa3bf;">Section Corner</div><div style="font-size:10px;color:#4a6080;margin-top:4px;">Click to record section corner</div>'
   };
-  _showMeasPanel('<div id="mn-meas-panel-content">'+(hints[name] || '<span style="font-size:11px;color:#8fa3bf;">Tool active</span>')+'</div>');
+  _showMeasPanel('<div id="mn2-meas-panel-content">'+(hints[name] || '<span style="font-size:11px;color:#8fa3bf;">Tool active</span>')+'</div>');
   document.getElementById('mout').innerHTML = hints[name] || 'Tool active.';
   var _donBtn=document.getElementById('btn-done-measure'), _exitBtn=document.getElementById('btn-exit-tool');
   if(_donBtn) _donBtn.style.display='flex';
@@ -3348,7 +3348,7 @@ function clearMeasure(){
 }
 function doneMeasure(){
   _finishMeasure();
-  var body=document.getElementById('mn-meas-body');
+  var body=document.getElementById('mn2-meas-body');
   if(body && !body.innerHTML.includes('Complete')) {
     body.innerHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1);color:#4ade80;font-size:11px;"><i class=\'fas fa-check-circle\'></i> Done &mdash; click parcel to view data</div>';
   }
@@ -3385,7 +3385,7 @@ function activateDraw(type, btn) {
   btn?.classList.add('on');
   _cancelDraw();
   btn?.classList.add('on');
-  // Cursor managed by mn-tool-cursor.js via #map.mn-tool-active class.
+  // Cursor managed by mn2-tool-cursor.js via #map.mn2-tool-active class.
   var instrMap = {
     polygon:'Click to add points • Double-click to finish',
     freehand:'Click and drag to draw freehand shape',
@@ -3489,12 +3489,12 @@ function _mnOpenSaveDialog(layer, latlng, areaAcres, distFt, type, defaultTitle)
   var objNum=_mnObjId+1;
   var defTitle=defaultTitle||(type==='textlabel'?'Text Label':'Untitled Object '+objNum);
   var areaStr=(areaAcres>0)?'<div style="font-size:22px;font-weight:700;color:#fff;text-align:center;line-height:1.1;">'+(areaAcres>=10?areaAcres.toFixed(1):areaAcres.toFixed(2))+'</div><div style="font-size:11px;color:#aaa;text-align:center;margin-bottom:8px;">acres</div>':'';
-  var colorSwatches=_MN_COLORS.map(function(c,i){return '<span onclick="document.getElementById(\'mn-save-color-sel\').value=\''+c+'\';document.querySelectorAll(\'.mn-csw\').forEach(function(x){x.style.outline=\'none\'});this.style.outline=\'3px solid #fff\';" class="mn-csw" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:'+c+';cursor:pointer;margin-right:3px;'+(i===0?'outline:3px solid #fff;':'')+'" title="'+c+'"></span>';}).join('');
+  var colorSwatches=_MN_COLORS.map(function(c,i){return '<span onclick="document.getElementById(\'mn2-save-color-sel\').value=\''+c+'\';document.querySelectorAll(\'.mn2-csw\').forEach(function(x){x.style.outline=\'none\'});this.style.outline=\'3px solid #fff\';" class="mn2-csw" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:'+c+';cursor:pointer;margin-right:3px;'+(i===0?'outline:3px solid #fff;':'')+'" title="'+c+'"></span>';}).join('');
   window._mnSaveObj = function(){
-    var t=document.getElementById('mn-save-title'); var tval=t?t.value.trim():'';
+    var t=document.getElementById('mn2-save-title'); var tval=t?t.value.trim():'';
     if(!tval){if(t)t.focus();return;}
-    var d=document.getElementById('mn-save-desc'); var dval=d?d.value.trim():'';
-    var c=document.getElementById('mn-save-color-sel'); var cval=c?c.value:'#3b82f6';
+    var d=document.getElementById('mn2-save-desc'); var dval=d?d.value.trim():'';
+    var c=document.getElementById('mn2-save-color-sel'); var cval=c?c.value:'#3b82f6';
     _mnCommitObject(layer, tval, dval, cval, type, areaAcres);
     map.closePopup();
   };
@@ -3503,16 +3503,16 @@ function _mnOpenSaveDialog(layer, latlng, areaAcres, distFt, type, defaultTitle)
     map.closePopup();
     _cancelDraw();
   };
-  var html='<div style="min-width:220px;padding:4px;font-family:inherit;">'+areaStr+'<input id="mn-save-title" value="'+defTitle+'" placeholder="Object name" style="width:100%;box-sizing:border-box;padding:5px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:13px;margin-bottom:8px;"><textarea id="mn-save-desc" placeholder="Description (optional)" style="width:100%;box-sizing:border-box;padding:4px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:12px;min-height:44px;resize:none;margin-bottom:8px;"></textarea><div style="margin-bottom:8px;"><div style="font-size:11px;color:#aaa;margin-bottom:4px;">Color</div>'+colorSwatches+'<input type="hidden" id="mn-save-color-sel" value="#3b82f6"></div><div style="display:flex;gap:6px;"><button onclick="window._mnSaveObj()" style="flex:1;padding:6px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Save as Object</button><button onclick="window._mnCancelSave()" style="padding:6px 10px;background:#333;color:#ccc;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Cancel</button></div></div>';
-  L.popup({maxWidth:280,closeButton:false,className:'mn-draw-pop'}).setLatLng(latlng).setContent(html).openOn(map);
-  setTimeout(function(){var t=document.getElementById('mn-save-title');if(t){t.select();}},100);
+  var html='<div style="min-width:220px;padding:4px;font-family:inherit;">'+areaStr+'<input id="mn2-save-title" value="'+defTitle+'" placeholder="Object name" style="width:100%;box-sizing:border-box;padding:5px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:13px;margin-bottom:8px;"><textarea id="mn2-save-desc" placeholder="Description (optional)" style="width:100%;box-sizing:border-box;padding:4px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:12px;min-height:44px;resize:none;margin-bottom:8px;"></textarea><div style="margin-bottom:8px;"><div style="font-size:11px;color:#aaa;margin-bottom:4px;">Color</div>'+colorSwatches+'<input type="hidden" id="mn2-save-color-sel" value="#3b82f6"></div><div style="display:flex;gap:6px;"><button onclick="window._mnSaveObj()" style="flex:1;padding:6px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Save as Object</button><button onclick="window._mnCancelSave()" style="padding:6px 10px;background:#333;color:#ccc;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Cancel</button></div></div>';
+  L.popup({maxWidth:280,closeButton:false,className:'mn2-draw-pop'}).setLatLng(latlng).setContent(html).openOn(map);
+  setTimeout(function(){var t=document.getElementById('mn2-save-title');if(t){t.select();}},100);
 }
 
 function _mnCommitObject(layer, title, desc, color, type, areaAcres){
   var id='mnobj_'+(++_mnObjId);
   if(layer.setStyle) layer.setStyle({color:color,fillColor:color,fillOpacity:.15,weight:2});
   else if(layer.setIcon){
-    if(type!=='textlabel'){var icon=L.divIcon({className:'mn-marker-icon',html:'<div style="width:14px;height:14px;border-radius:50%;background:'+color+';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5);"></div>',iconAnchor:[7,7]});layer.setIcon(icon);}
+    if(type!=='textlabel'){var icon=L.divIcon({className:'mn2-marker-icon',html:'<div style="width:14px;height:14px;border-radius:50%;background:'+color+';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5);"></div>',iconAnchor:[7,7]});layer.setIcon(icon);}
   }
   var obj={id:id,layer:layer,title:title,desc:desc,color:color,visible:true,type:type,area:areaAcres||0};
   _mnObjects.push(obj);
@@ -3524,7 +3524,7 @@ function _mnCommitObject(layer, title, desc, color, type, areaAcres){
 }
 
 function _mnRenderList(){
-  var el=document.getElementById('mn-annotations-list'); if(!el) return;
+  var el=document.getElementById('mn2-annotations-list'); if(!el) return;
   if(_mnObjects.length===0){el.innerHTML='';return;}
   var html='<div style="font-size:11px;color:#aaa;margin-bottom:4px;font-weight:600;letter-spacing:.5px;">OBJECTS ('+_mnObjects.length+')</div>';
   _mnObjects.forEach(function(obj){
@@ -3567,28 +3567,28 @@ document.addEventListener('click',function(ev){
   var btn=ev.target.closest('[data-mnact]');
   if(btn){var id=btn.getAttribute('data-mnid'),act=btn.getAttribute('data-mnact');if(id&&act){if(act==='zoom')_mnZoomTo(id);else if(act==='toggle')_mnToggleVisible(id);else if(act==='edit')_mnEditObject(id);else if(act==='delete')_mnDeleteObject(id);}return;}
   var sw1=ev.target.closest('[data-clr]');
-  if(sw1){var col=sw1.getAttribute('data-clr'),inp=document.getElementById('mn-save-cs');if(inp)inp.value=col;document.querySelectorAll('.mn-csw').forEach(function(x){x.style.outline='none';});sw1.style.outline='3px solid #fff';return;}
+  if(sw1){var col=sw1.getAttribute('data-clr'),inp=document.getElementById('mn2-save-cs');if(inp)inp.value=col;document.querySelectorAll('.mn2-csw').forEach(function(x){x.style.outline='none';});sw1.style.outline='3px solid #fff';return;}
   var sw2=ev.target.closest('[data-clr2]');
-  if(sw2){var col2=sw2.getAttribute('data-clr2'),inp2=document.getElementById('mn-edit-cs');if(inp2)inp2.value=col2;document.querySelectorAll('.mn-csw2').forEach(function(x){x.style.outline='none';});sw2.style.outline='3px solid #fff';return;}
+  if(sw2){var col2=sw2.getAttribute('data-clr2'),inp2=document.getElementById('mn2-edit-cs');if(inp2)inp2.value=col2;document.querySelectorAll('.mn2-csw2').forEach(function(x){x.style.outline='none';});sw2.style.outline='3px solid #fff';return;}
 });
 
 document.addEventListener('click',function(ev){
   var btn=ev.target.closest('[data-mnact]');
   if(btn){var id=btn.getAttribute('data-mnid'),act=btn.getAttribute('data-mnact');if(id&&act){if(act==='zoom')_mnZoomTo(id);else if(act==='toggle')_mnToggleVisible(id);else if(act==='edit')_mnEditObject(id);else if(act==='delete')_mnDeleteObject(id);}return;}
   var sw1=ev.target.closest('[data-clr]');
-  if(sw1){var col=sw1.getAttribute('data-clr'),inp=document.getElementById('mn-save-cs');if(inp)inp.value=col;document.querySelectorAll('.mn-csw').forEach(function(x){x.style.outline='none';});sw1.style.outline='3px solid #fff';return;}
+  if(sw1){var col=sw1.getAttribute('data-clr'),inp=document.getElementById('mn2-save-cs');if(inp)inp.value=col;document.querySelectorAll('.mn2-csw').forEach(function(x){x.style.outline='none';});sw1.style.outline='3px solid #fff';return;}
   var sw2=ev.target.closest('[data-clr2]');
-  if(sw2){var col2=sw2.getAttribute('data-clr2'),inp2=document.getElementById('mn-edit-cs');if(inp2)inp2.value=col2;document.querySelectorAll('.mn-csw2').forEach(function(x){x.style.outline='none';});sw2.style.outline='3px solid #fff';return;}
+  if(sw2){var col2=sw2.getAttribute('data-clr2'),inp2=document.getElementById('mn2-edit-cs');if(inp2)inp2.value=col2;document.querySelectorAll('.mn2-csw2').forEach(function(x){x.style.outline='none';});sw2.style.outline='3px solid #fff';return;}
 });
 
 function _mnEditObject(id){
   var obj=_mnObjects.find(function(o){return o.id===id;}); if(!obj) return;
   var latlng=obj.layer.getBounds?obj.layer.getBounds().getCenter():obj.layer.getLatLng?obj.layer.getLatLng():map.getCenter();
   var areaStr=obj.area>0?'<div style="font-size:11px;color:#aaa;margin-bottom:6px;">'+obj.area.toFixed(2)+' acres</div>':'';
-  var colorSwatches=_MN_COLORS.map(function(c){return '<span onclick="document.getElementById(\'mn-edit-color-sel\').value=\''+c+'\';document.querySelectorAll(\'.mn-csw2\').forEach(function(x){x.style.outline=\'none\'});this.style.outline=\'3px solid #fff\';" class="mn-csw2" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:'+c+';cursor:pointer;margin-right:3px;'+(c===obj.color?'outline:3px solid #fff;':'')+'" title="'+c+'"></span>';}).join('');
+  var colorSwatches=_MN_COLORS.map(function(c){return '<span onclick="document.getElementById(\'mn2-edit-color-sel\').value=\''+c+'\';document.querySelectorAll(\'.mn2-csw2\').forEach(function(x){x.style.outline=\'none\'});this.style.outline=\'3px solid #fff\';" class="mn2-csw2" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:'+c+';cursor:pointer;margin-right:3px;'+(c===obj.color?'outline:3px solid #fff;':'')+'" title="'+c+'"></span>';}).join('');
   window._mnSaveEdit=function(){
-    var t=document.getElementById('mn-edit-title'); var d=document.getElementById('mn-edit-desc'); var c=document.getElementById('mn-edit-color-sel');
-    var vis=document.getElementById('mn-edit-vis');
+    var t=document.getElementById('mn2-edit-title'); var d=document.getElementById('mn2-edit-desc'); var c=document.getElementById('mn2-edit-color-sel');
+    var vis=document.getElementById('mn2-edit-vis');
     obj.title=t?t.value.trim()||obj.title:obj.title;
     obj.desc=d?d.value.trim():obj.desc;
     var newCol=c?c.value:obj.color;
@@ -3603,15 +3603,15 @@ function _mnEditObject(id){
   window._mnDelFromEdit=function(){ _mnDeleteObject(id); map.closePopup(); };
   var html='<div style="min-width:240px;padding:4px;font-family:inherit;"><div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px;"><i class="fas fa-pen"></i> Edit Object</div>'+areaStr
     +'<label style="font-size:11px;color:#aaa;">Title *</label>'
-    +'<input id="mn-edit-title" value="'+obj.title+'" style="width:100%;box-sizing:border-box;padding:5px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:13px;margin-bottom:8px;">'
+    +'<input id="mn2-edit-title" value="'+obj.title+'" style="width:100%;box-sizing:border-box;padding:5px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:13px;margin-bottom:8px;">'
     +'<label style="font-size:11px;color:#aaa;">Description</label>'
-    +'<textarea id="mn-edit-desc" style="width:100%;box-sizing:border-box;padding:4px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:12px;min-height:40px;resize:none;margin-bottom:8px;">'+obj.desc+'</textarea>'
-    +'<div style="margin-bottom:8px;"><div style="font-size:11px;color:#aaa;margin-bottom:4px;">Color</div>'+colorSwatches+'<input type="hidden" id="mn-edit-color-sel" value="'+obj.color+'"></div>'
-    +'<div style="display:flex;align-items:center;margin-bottom:8px;gap:8px;"><label style="font-size:12px;color:#ccc;flex:1;">Visible on map</label><input type="checkbox" id="mn-edit-vis" '+(obj.visible?'checked':'')+' style="width:16px;height:16px;cursor:pointer;"></div>'
+    +'<textarea id="mn2-edit-desc" style="width:100%;box-sizing:border-box;padding:4px 8px;border-radius:4px;border:1px solid #555;background:#1a1a2e;color:#fff;font-size:12px;min-height:40px;resize:none;margin-bottom:8px;">'+obj.desc+'</textarea>'
+    +'<div style="margin-bottom:8px;"><div style="font-size:11px;color:#aaa;margin-bottom:4px;">Color</div>'+colorSwatches+'<input type="hidden" id="mn2-edit-color-sel" value="'+obj.color+'"></div>'
+    +'<div style="display:flex;align-items:center;margin-bottom:8px;gap:8px;"><label style="font-size:12px;color:#ccc;flex:1;">Visible on map</label><input type="checkbox" id="mn2-edit-vis" '+(obj.visible?'checked':'')+' style="width:16px;height:16px;cursor:pointer;"></div>'
     +'<div style="display:flex;gap:6px;"><button onclick="window._mnSaveEdit()" style="flex:1;padding:6px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;"><i class=\'fas fa-check\'></i> Save</button>'
     +'<button onclick="window._mnDelFromEdit()" style="padding:6px 10px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);border-radius:4px;cursor:pointer;font-size:12px;"><i class=\'fas fa-trash\'></i></button>'
     +'</div></div>';
-  L.popup({maxWidth:280,closeButton:true,className:'mn-draw-pop'}).setLatLng(latlng).setContent(html).openOn(map);
+  L.popup({maxWidth:280,closeButton:true,className:'mn2-draw-pop'}).setLatLng(latlng).setContent(html).openOn(map);
 }
 
 function _mnSetVisible(obj, vis){
@@ -4147,7 +4147,7 @@ function toggleRight(){document.getElementById('rpanel').classList.toggle('hide'
 //  ALL 92 INDIANA COUNTIES
 //  lat, lng, zoom, fips, name, elevatemaps_server(if available)
 // PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-// INDIANA_COUNTIES, EM_COUNTIES, WTH_GIS, XSOFT_SLUGS, BEACON_APPS moved to assets/county-metadata.js
+// INDIANA_COUNTIES, EM_COUNTIES, WTH_GIS, XSOFT_SLUGS, BEACON_APPS moved to static/v2/geo-county-meta.js
 
 // Legacy helpers for buildLiveReport
 function buildPRCUrl(k, pin) { return null; }
@@ -4405,7 +4405,7 @@ document.getElementById('county-sel').addEventListener('change', function() {
   const key = this.value;
   if (!key) {
     activeCounty = null;
-    document.body.classList.remove('mn-county-selected');
+    document.body.classList.remove('mn2-county-selected');
     try { localStorage.removeItem('mn_active_county'); localStorage.removeItem('mn_active_county_coords'); } catch(e){}
     const cd = document.getElementById('county-disp');
     if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
@@ -4414,7 +4414,7 @@ document.getElementById('county-sel').addEventListener('change', function() {
   const c = INDIANA_COUNTIES[key];
   if (!c) return;
   activeCounty = c;
-  document.body.classList.add('mn-county-selected');
+  document.body.classList.add('mn2-county-selected');
   if (typeof updateCountyAnalytics === 'function') updateCountyAnalytics(key);
   map.setView([c.lat, c.lng], c.z);
   document.getElementById('county-disp').innerHTML =
@@ -4601,7 +4601,7 @@ window.updateCountyAnalytics = updateCountyAnalytics;
     const csyEl = document.getElementById("country-sel");
     if (ssEl) ssEl.value = "";
     if (csyEl) csyEl.value = "";
-    document.body.classList.remove("mn-county-selected");
+    document.body.classList.remove("mn2-county-selected");
     const cd = document.getElementById("county-disp");
     if (cd) cd.innerHTML = '<i class="fas fa-map" style="margin-right:4px;"></i>— No Location —';
     return;
@@ -4618,7 +4618,7 @@ window.updateCountyAnalytics = updateCountyAnalytics;
     const cn = document.getElementById("prc-county-name");
     if (cn) cn.textContent = activeCounty.name;
     try { localStorage.setItem("mn_active_county_coords", JSON.stringify({lat: activeCounty.lat, lng: activeCounty.lng, z: activeCounty.z})); } catch(e){}
-    document.body.classList.add("mn-county-selected");
+    document.body.classList.add("mn2-county-selected");
     if (typeof updateCountyAnalytics === "function") updateCountyAnalytics(key);
   }
 })();
@@ -5221,66 +5221,66 @@ window.selectParcel = function(p, layer) {
 </script>
 
 <!-- MapNova Auth UI -->
-<div id="mn-auth-overlay" class="mn-auth-overlay" style="display:none;">
-  <div class="mn-auth-card">
-    <div class="mn-auth-logo">MapNova</div>
-    <div class="mn-auth-tagline">Sign in to access your maps</div>
-    <div class="mn-auth-tabs">
-      <div class="mn-auth-tab active" data-tab="signin">Sign In</div>
-      <div class="mn-auth-tab" data-tab="signup">Create Account</div>
+<div id="mn2-auth-overlay" class="mn2-auth-overlay" style="display:none;">
+  <div class="mn2-auth-card">
+    <div class="mn2-auth-logo">MapNova</div>
+    <div class="mn2-auth-tagline">Sign in to access your maps</div>
+    <div class="mn2-auth-tabs">
+      <div class="mn2-auth-tab active" data-tab="signin">Sign In</div>
+      <div class="mn2-auth-tab" data-tab="signup">Create Account</div>
     </div>
-    <div id="mn-auth-form-signin">
-      <div class="mn-auth-field"><label>Email</label><input type="email" id="mn-signin-email" autocomplete="email" /></div>
-      <div class="mn-auth-field"><label>Password</label><input type="password" id="mn-signin-password" autocomplete="current-password" /></div>
-      <button class="mn-auth-btn" id="mn-signin-btn">Sign In</button>
-      <div class="mn-auth-link" id="mn-forgot-link">Forgot password?</div>
+    <div id="mn2-auth-form-signin">
+      <div class="mn2-auth-field"><label>Email</label><input type="email" id="mn2-signin-email" autocomplete="email" /></div>
+      <div class="mn2-auth-field"><label>Password</label><input type="password" id="mn2-signin-password" autocomplete="current-password" /></div>
+      <button class="mn2-auth-btn" id="mn2-signin-btn">Sign In</button>
+      <div class="mn2-auth-link" id="mn2-forgot-link">Forgot password?</div>
     </div>
-    <div id="mn-auth-form-signup" style="display:none;">
-      <div class="mn-auth-field"><label>Display Name</label><input type="text" id="mn-signup-name" autocomplete="name" /></div>
-      <div class="mn-auth-field"><label>Email</label><input type="email" id="mn-signup-email" autocomplete="email" /></div>
-      <div class="mn-auth-field"><label>Password</label><input type="password" id="mn-signup-password" autocomplete="new-password" placeholder="At least 8 characters" /></div>
-      <button class="mn-auth-btn" id="mn-signup-btn">Create Account</button>
+    <div id="mn2-auth-form-signup" style="display:none;">
+      <div class="mn2-auth-field"><label>Display Name</label><input type="text" id="mn2-signup-name" autocomplete="name" /></div>
+      <div class="mn2-auth-field"><label>Email</label><input type="email" id="mn2-signup-email" autocomplete="email" /></div>
+      <div class="mn2-auth-field"><label>Password</label><input type="password" id="mn2-signup-password" autocomplete="new-password" placeholder="At least 8 characters" /></div>
+      <button class="mn2-auth-btn" id="mn2-signup-btn">Create Account</button>
     </div>
-    <div id="mn-auth-msg" class="mn-auth-msg"></div>
-    <div class="mn-auth-footer">By creating an account, you agree to our terms of service.<br>Free tier available now &middot; Subscription plans coming soon.</div>
+    <div id="mn2-auth-msg" class="mn2-auth-msg"></div>
+    <div class="mn2-auth-footer">By creating an account, you agree to our terms of service.<br>Free tier available now &middot; Subscription plans coming soon.</div>
   </div>
 </div>
-<div id="mn-user-badge" style="display:none;"><div id="mn-user-avatar"><span id="mn-user-avatar-text">?</span></div><span id="mn-user-badge-name"></span><span style="font-size:10px;opacity:.6;">&#9662;</span></div>
-<div id="mn-user-menu">
-  <div class="mn-menu-tier" id="mn-menu-tier">Free Plan</div>
-  <div class="mn-menu-item" id="mn-menu-history">View History</div>
-  <div class="mn-menu-item" id="mn-menu-bookmarks">Bookmarks</div>
-  <div class="mn-menu-item" id="mn-menu-projects">Projects</div>
-  <div class="mn-menu-item" id="mn-menu-account">Account</div>
-  <div class="mn-menu-item" id="mn-menu-signout">Sign Out</div>
+<div id="mn2-user-badge" style="display:none;"><div id="mn2-user-avatar"><span id="mn2-user-avatar-text">?</span></div><span id="mn2-user-badge-name"></span><span style="font-size:10px;opacity:.6;">&#9662;</span></div>
+<div id="mn2-user-menu">
+  <div class="mn2-menu-tier" id="mn2-menu-tier">Free Plan</div>
+  <div class="mn2-menu-item" id="mn2-menu-history">View History</div>
+  <div class="mn2-menu-item" id="mn2-menu-bookmarks">Bookmarks</div>
+  <div class="mn2-menu-item" id="mn2-menu-projects">Projects</div>
+  <div class="mn2-menu-item" id="mn2-menu-account">Account</div>
+  <div class="mn2-menu-item" id="mn2-menu-signout">Sign Out</div>
 </div>
 
 
-<div class="mn-account-backdrop" id="mn-account-backdrop">
-  <div class="mn-account-panel" role="dialog" aria-modal="true">
-    <div class="mn-account-header">
+<div class="mn2-account-backdrop" id="mn2-account-backdrop">
+  <div class="mn2-account-panel" role="dialog" aria-modal="true">
+    <div class="mn2-account-header">
       <h2>Account</h2>
-      <button class="mn-account-close" id="mn-account-close" aria-label="Close">&times;</button>
+      <button class="mn2-account-close" id="mn2-account-close" aria-label="Close">&times;</button>
     </div>
-    <div class="mn-account-body" id="mn-account-body">
+    <div class="mn2-account-body" id="mn2-account-body">
       <div style="padding:40px;text-align:center;color:#8b91a5;">Loading&hellip;</div>
     </div>
   </div>
 </div>
-<input type="file" id="mn-acc-file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;" />
-<div class="mn-del-modal" id="mn-del-modal">
-  <div class="mn-del-content">
+<input type="file" id="mn2-acc-file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;" />
+<div class="mn2-del-modal" id="mn2-del-modal">
+  <div class="mn2-del-content">
     <h3>Delete account permanently</h3>
     <p>This will permanently delete your profile, history, bookmarks, and avatar files. This cannot be undone.</p>
     <p>Type <strong>DELETE</strong> to confirm:</p>
-    <input type="text" id="mn-del-input" placeholder="DELETE" autocomplete="off" />
-    <div class="mn-acc-actions">
-      <button class="mn-acc-btn" id="mn-del-cancel">Cancel</button>
-      <button class="mn-acc-btn mn-acc-btn-danger" id="mn-del-confirm" disabled>Delete</button>
+    <input type="text" id="mn2-del-input" placeholder="DELETE" autocomplete="off" />
+    <div class="mn2-acc-actions">
+      <button class="mn2-acc-btn" id="mn2-del-cancel">Cancel</button>
+      <button class="mn2-acc-btn mn2-acc-btn-danger" id="mn2-del-confirm" disabled>Delete</button>
     </div>
   </div>
 </div>
-<div class="mn-acc-toast" id="mn-acc-toast"></div>
+<div class="mn2-acc-toast" id="mn2-acc-toast"></div>
 
 
 <script>
@@ -5293,51 +5293,51 @@ window.selectParcel = function(p, layer) {
   window.MapNovaAuth = { client: sb, user: null, profile: null };
 
   const $ = id => document.getElementById(id);
-  const overlay = $('mn-auth-overlay');
-  const badge = $('mn-user-badge');
-  const menu = $('mn-user-menu');
-  const msg = $('mn-auth-msg');
+  const overlay = $('mn2-auth-overlay');
+  const badge = $('mn2-user-badge');
+  const menu = $('mn2-user-menu');
+  const msg = $('mn2-auth-msg');
 
-  function showMsg(text, type){ msg.textContent = text; msg.className = 'mn-auth-msg ' + (type||'error'); }
-  function clearMsg(){ msg.textContent=''; msg.className='mn-auth-msg'; }
+  function showMsg(text, type){ msg.textContent = text; msg.className = 'mn2-auth-msg ' + (type||'error'); }
+  function clearMsg(){ msg.textContent=''; msg.className='mn2-auth-msg'; }
 
   function showAuth(){ overlay.style.display='flex'; badge.style.display='none'; menu.classList.remove('open'); }
   function hideAuth(){ overlay.style.display='none'; }
   function showBadge(user, profile){
     const name = (profile && profile.display_name) || (user.email||'').split('@')[0];
-    $('mn-user-badge-name').textContent = name;
+    $('mn2-user-badge-name').textContent = name;
     try {
-      const avEl = $('mn-user-avatar');
+      const avEl = $('mn2-user-avatar');
       if (profile && profile.avatar_url) {
         avEl.innerHTML = '<img src="'+profile.avatar_url+'" alt="">';
       } else {
         const initials = name.trim().split(/\s+/).map(p=>p[0]||'').join('').slice(0,2).toUpperCase() || '?';
-        avEl.innerHTML = '<span id="mn-user-avatar-text">'+initials+'</span>';
+        avEl.innerHTML = '<span id="mn2-user-avatar-text">'+initials+'</span>';
       }
     } catch(e) {}
     badge.style.display='flex';
-    $('mn-menu-tier').textContent = ((profile && profile.subscription_tier) || 'free').toUpperCase() + ' PLAN';
+    $('mn2-menu-tier').textContent = ((profile && profile.subscription_tier) || 'free').toUpperCase() + ' PLAN';
   }
 
   // Tab switching
-  document.querySelectorAll('.mn-auth-tab').forEach(t=>{
+  document.querySelectorAll('.mn2-auth-tab').forEach(t=>{
     t.addEventListener('click',()=>{
-      document.querySelectorAll('.mn-auth-tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.mn2-auth-tab').forEach(x=>x.classList.remove('active'));
       t.classList.add('active');
       const tab=t.dataset.tab;
-      $('mn-auth-form-signin').style.display = tab==='signin'?'block':'none';
-      $('mn-auth-form-signup').style.display = tab==='signup'?'block':'none';
+      $('mn2-auth-form-signin').style.display = tab==='signin'?'block':'none';
+      $('mn2-auth-form-signup').style.display = tab==='signup'?'block':'none';
       clearMsg();
     });
   });
 
   // Sign in
-  $('mn-signin-btn').addEventListener('click', async ()=>{
+  $('mn2-signin-btn').addEventListener('click', async ()=>{
     clearMsg();
-    const email = $('mn-signin-email').value.trim();
-    const password = $('mn-signin-password').value;
+    const email = $('mn2-signin-email').value.trim();
+    const password = $('mn2-signin-password').value;
     if(!email||!password){ showMsg('Email and password required'); return; }
-    const btn=$('mn-signin-btn'); btn.disabled=true; btn.textContent='Signing in...';
+    const btn=$('mn2-signin-btn'); btn.disabled=true; btn.textContent='Signing in...';
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
     btn.disabled=false; btn.textContent='Sign In';
     if(error){ showMsg(error.message); return; }
@@ -5346,14 +5346,14 @@ window.selectParcel = function(p, layer) {
   });
 
   // Sign up
-  $('mn-signup-btn').addEventListener('click', async ()=>{
+  $('mn2-signup-btn').addEventListener('click', async ()=>{
     clearMsg();
-    const name = $('mn-signup-name').value.trim();
-    const email = $('mn-signup-email').value.trim();
-    const password = $('mn-signup-password').value;
+    const name = $('mn2-signup-name').value.trim();
+    const email = $('mn2-signup-email').value.trim();
+    const password = $('mn2-signup-password').value;
     if(!email||!password){ showMsg('Email and password required'); return; }
     if(password.length<8){ showMsg('Password must be at least 8 characters'); return; }
-    const btn=$('mn-signup-btn'); btn.disabled=true; btn.textContent='Creating...';
+    const btn=$('mn2-signup-btn'); btn.disabled=true; btn.textContent='Creating...';
     const { data, error } = await sb.auth.signUp({ email, password, options:{ data:{ display_name: name||email.split('@')[0] }, emailRedirectTo: window.location.origin } });
     btn.disabled=false; btn.textContent='Create Account';
     if(error){ showMsg(error.message); return; }
@@ -5366,8 +5366,8 @@ window.selectParcel = function(p, layer) {
   });
 
   // Forgot password
-  $('mn-forgot-link').addEventListener('click', async ()=>{
-    const email = $('mn-signin-email').value.trim();
+  $('mn2-forgot-link').addEventListener('click', async ()=>{
+    const email = $('mn2-signin-email').value.trim();
     if(!email){ showMsg('Enter your email above first'); return; }
     const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
     if(error){ showMsg(error.message); return; }
@@ -5379,14 +5379,14 @@ window.selectParcel = function(p, layer) {
   document.addEventListener('click', e=>{
     if(!badge.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
   });
-  $('mn-menu-signout').addEventListener('click', async ()=>{
+  $('mn2-menu-signout').addEventListener('click', async ()=>{
     await sb.auth.signOut();
     menu.classList.remove('open');
   });
-  $('mn-menu-history').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openHistory(); });
-  $('mn-menu-bookmarks').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openBookmarks(); });
-  $('mn-menu-projects').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openProjects(); });
-  $('mn-menu-account').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openAccount(); });
+  $('mn2-menu-history').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openHistory(); });
+  $('mn2-menu-bookmarks').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openBookmarks(); });
+  $('mn2-menu-projects').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openProjects(); });
+  $('mn2-menu-account').addEventListener('click', ()=>{ menu.classList.remove('open'); MapNovaAuth.openAccount(); });
 
   // Activity logging helpers
   MapNovaAuth.logEvent = async function(eventType, data){
@@ -5411,13 +5411,13 @@ window.selectParcel = function(p, layer) {
   MapNovaAuth.openProjects = function(){ if(window.MNProjects) return MNProjects.open(); else alert("Projects loading..."); };
   MapNovaAuth.openAccount = async function(){
     if (!MapNovaAuth.user) return;
-    document.getElementById("mn-account-backdrop").classList.add("show");
+    document.getElementById("mn2-account-backdrop").classList.add("show");
     await renderMnAccountBody();
   };
   function escHtml(s){ if(s===null||s===undefined)return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\x22/g,"&quot;").replace(/\x27/g,"&#39;"); }
   function fmtDateMn(ts){ if(!ts) return "—"; return new Date(ts).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
   function getMnInitials(p,u){ const n=(p&&(p.display_name||p.full_name))||(u&&u.email)||"?"; const parts=n.trim().split(/\s+/); if(parts.length>=2)return (parts[0][0]+parts[1][0]).toUpperCase(); return n.substring(0,2).toUpperCase(); }
-  function mnAccToast(msg,type){ const el=document.getElementById("mn-acc-toast"); if(!el)return; el.textContent=msg; el.className="mn-acc-toast show "+(type||""); setTimeout(()=>el.classList.remove("show"),3000); }
+  function mnAccToast(msg,type){ const el=document.getElementById("mn2-acc-toast"); if(!el)return; el.textContent=msg; el.className="mn2-acc-toast show "+(type||""); setTimeout(()=>el.classList.remove("show"),3000); }
   async function renderMnAccountBody(){
     const u = MapNovaAuth.user;
     let p = MapNovaAuth.profile || {};
@@ -5435,8 +5435,8 @@ window.selectParcel = function(p, layer) {
           sessionStorage.setItem(cacheKey, newJson);
           MapNovaAuth.profile = fresh.data;
           if (newJson !== oldJson) {
-            const bd = document.getElementById("mn-account-body");
-            const bdrop = document.getElementById("mn-account-backdrop");
+            const bd = document.getElementById("mn2-account-body");
+            const bdrop = document.getElementById("mn2-account-backdrop");
             if (bd && bdrop && bdrop.classList.contains("show")) { renderMnAccountBody(); }
           }
         }
@@ -5446,57 +5446,57 @@ window.selectParcel = function(p, layer) {
     const bc = await __mnAccClient.from("bookmarks").select("*", { count:"exact", head:true }).eq("user_id", u.id);
     const tier = (p.subscription_tier||"free").toLowerCase();
     const avatarHtml = p.avatar_url ? '<img src="'+escHtml(p.avatar_url)+'?t='+Date.now()+'" alt="avatar" />' : escHtml(getMnInitials(p,u));
-    const removeBtn = p.avatar_url ? '<button class="mn-acc-btn mn-acc-btn-ghost" id="mn-acc-remove">Remove</button>' : "";
+    const removeBtn = p.avatar_url ? '<button class="mn2-acc-btn mn2-acc-btn-ghost" id="mn2-acc-remove">Remove</button>' : "";
     let h = "";
-    h += '<div class="mn-acc-section"><div class="mn-acc-avatar-row">';
-    h += '<div class="mn-acc-avatar" id="mn-acc-avatar">'+avatarHtml+'</div>';
-    h += '<div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-upload">Upload picture</button>'+removeBtn+'</div>';
+    h += '<div class="mn2-acc-section"><div class="mn2-acc-avatar-row">';
+    h += '<div class="mn2-acc-avatar" id="mn2-acc-avatar">'+avatarHtml+'</div>';
+    h += '<div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><button class="mn2-acc-btn mn2-acc-btn-primary" id="mn2-acc-upload">Upload picture</button>'+removeBtn+'</div>';
     h += '<div style="font-size:11px;color:#8b91a5;">PNG, JPG, WebP, or GIF · max 5MB</div></div></div></div>';
-    h += '<div class="mn-acc-section"><h3>Profile details</h3>';
-    h += '<div class="mn-acc-row">';
-    h += '<div class="mn-acc-field"><label>Display name</label><input type="text" id="mn-acc-display_name" value="'+escHtml(p.display_name)+'" /></div>';
-    h += '<div class="mn-acc-field"><label>Full name</label><input type="text" id="mn-acc-full_name" value="'+escHtml(p.full_name)+'" /></div>';
+    h += '<div class="mn2-acc-section"><h3>Profile details</h3>';
+    h += '<div class="mn2-acc-row">';
+    h += '<div class="mn2-acc-field"><label>Display name</label><input type="text" id="mn2-acc-display_name" value="'+escHtml(p.display_name)+'" /></div>';
+    h += '<div class="mn2-acc-field"><label>Full name</label><input type="text" id="mn2-acc-full_name" value="'+escHtml(p.full_name)+'" /></div>';
     h += '</div>';
-    h += '<div class="mn-acc-field"><label>Bio</label><textarea id="mn-acc-bio">'+escHtml(p.bio)+'</textarea></div>';
-    h += '<div class="mn-acc-row">';
-    h += '<div class="mn-acc-field"><label>Organization</label><input type="text" id="mn-acc-organization" value="'+escHtml(p.organization)+'" /></div>';
-    h += '<div class="mn-acc-field"><label>Location</label><input type="text" id="mn-acc-location" value="'+escHtml(p.location)+'" /></div>';
+    h += '<div class="mn2-acc-field"><label>Bio</label><textarea id="mn2-acc-bio">'+escHtml(p.bio)+'</textarea></div>';
+    h += '<div class="mn2-acc-row">';
+    h += '<div class="mn2-acc-field"><label>Organization</label><input type="text" id="mn2-acc-organization" value="'+escHtml(p.organization)+'" /></div>';
+    h += '<div class="mn2-acc-field"><label>Location</label><input type="text" id="mn2-acc-location" value="'+escHtml(p.location)+'" /></div>';
     h += '</div>';
-    h += '<div class="mn-acc-row">';
-    h += '<div class="mn-acc-field"><label>Phone</label><input type="tel" id="mn-acc-phone" value="'+escHtml(p.phone)+'" /></div>';
-    h += '<div class="mn-acc-field"><label>Website</label><input type="url" id="mn-acc-website" value="'+escHtml(p.website)+'" placeholder="https://" /></div>';
+    h += '<div class="mn2-acc-row">';
+    h += '<div class="mn2-acc-field"><label>Phone</label><input type="tel" id="mn2-acc-phone" value="'+escHtml(p.phone)+'" /></div>';
+    h += '<div class="mn2-acc-field"><label>Website</label><input type="url" id="mn2-acc-website" value="'+escHtml(p.website)+'" placeholder="https://" /></div>';
     h += '</div>';
-    h += '<div class="mn-acc-actions"><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-save">Save changes</button></div></div>';
-    h += '<div class="mn-acc-section"><h3>Account info</h3><div class="mn-acc-stats">';
-    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Email</div><div class="mn-acc-stat-value">'+escHtml(u.email)+'</div></div>';
-    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Plan</div><div class="mn-acc-stat-value">'+escHtml(tier.toUpperCase())+'</div></div>';
-    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Member since</div><div class="mn-acc-stat-value">'+fmtDateMn(u.created_at)+'</div></div>';
-    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Activity</div><div class="mn-acc-stat-value">'+(hc.count||0)+'</div></div>';
-    h += '<div class="mn-acc-stat"><div class="mn-acc-stat-label">Bookmarks</div><div class="mn-acc-stat-value">'+(bc.count||0)+'</div></div>';
+    h += '<div class="mn2-acc-actions"><button class="mn2-acc-btn mn2-acc-btn-primary" id="mn2-acc-save">Save changes</button></div></div>';
+    h += '<div class="mn2-acc-section"><h3>Account info</h3><div class="mn2-acc-stats">';
+    h += '<div class="mn2-acc-stat"><div class="mn2-acc-stat-label">Email</div><div class="mn2-acc-stat-value">'+escHtml(u.email)+'</div></div>';
+    h += '<div class="mn2-acc-stat"><div class="mn2-acc-stat-label">Plan</div><div class="mn2-acc-stat-value">'+escHtml(tier.toUpperCase())+'</div></div>';
+    h += '<div class="mn2-acc-stat"><div class="mn2-acc-stat-label">Member since</div><div class="mn2-acc-stat-value">'+fmtDateMn(u.created_at)+'</div></div>';
+    h += '<div class="mn2-acc-stat"><div class="mn2-acc-stat-label">Activity</div><div class="mn2-acc-stat-value">'+(hc.count||0)+'</div></div>';
+    h += '<div class="mn2-acc-stat"><div class="mn2-acc-stat-label">Bookmarks</div><div class="mn2-acc-stat-value">'+(bc.count||0)+'</div></div>';
     h += '</div></div>';
-    h += '<div class="mn-acc-section"><h3>Email &amp; password</h3>';
-    h += '<div class="mn-acc-row"><div class="mn-acc-field"><label>Change email</label><input type="email" id="mn-acc-newemail" placeholder="'+escHtml(u.email)+'" /></div></div>';
-    h += '<div class="mn-acc-actions"><button class="mn-acc-btn" id="mn-acc-reset">Send password reset</button><button class="mn-acc-btn mn-acc-btn-primary" id="mn-acc-changeemail">Update email</button></div></div>';
-    h += '<div class="mn-acc-section"><div class="mn-acc-danger"><h3>Danger zone</h3><p style="color:#8b91a5;font-size:13px;margin:0 0 10px;">Permanently delete your account and all associated data.</p>';
-    h += '<button class="mn-acc-btn mn-acc-btn-danger" id="mn-acc-delete">Delete my account</button></div></div>';
-    document.getElementById("mn-account-body").innerHTML = h;
+    h += '<div class="mn2-acc-section"><h3>Email &amp; password</h3>';
+    h += '<div class="mn2-acc-row"><div class="mn2-acc-field"><label>Change email</label><input type="email" id="mn2-acc-newemail" placeholder="'+escHtml(u.email)+'" /></div></div>';
+    h += '<div class="mn2-acc-actions"><button class="mn2-acc-btn" id="mn2-acc-reset">Send password reset</button><button class="mn2-acc-btn mn2-acc-btn-primary" id="mn2-acc-changeemail">Update email</button></div></div>';
+    h += '<div class="mn2-acc-section"><div class="mn2-acc-danger"><h3>Danger zone</h3><p style="color:#8b91a5;font-size:13px;margin:0 0 10px;">Permanently delete your account and all associated data.</p>';
+    h += '<button class="mn2-acc-btn mn2-acc-btn-danger" id="mn2-acc-delete">Delete my account</button></div></div>';
+    document.getElementById("mn2-account-body").innerHTML = h;
     bindMnAccountEvents();
   }
   function bindMnAccountEvents(){
-    document.getElementById("mn-acc-save").onclick = saveMnProfile;
-    document.getElementById("mn-acc-upload").onclick = ()=>document.getElementById("mn-acc-file").click();
-    const rm = document.getElementById("mn-acc-remove");
+    document.getElementById("mn2-acc-save").onclick = saveMnProfile;
+    document.getElementById("mn2-acc-upload").onclick = ()=>document.getElementById("mn2-acc-file").click();
+    const rm = document.getElementById("mn2-acc-remove");
     if (rm) rm.onclick = removeMnAvatar;
-    document.getElementById("mn-acc-reset").onclick = sendMnReset;
-    document.getElementById("mn-acc-changeemail").onclick = changeMnEmail;
-    document.getElementById("mn-acc-delete").onclick = openMnDeleteModal;
+    document.getElementById("mn2-acc-reset").onclick = sendMnReset;
+    document.getElementById("mn2-acc-changeemail").onclick = changeMnEmail;
+    document.getElementById("mn2-acc-delete").onclick = openMnDeleteModal;
   }
   async function saveMnProfile(){
     const u = MapNovaAuth.user;
-    const btn = document.getElementById("mn-acc-save");
+    const btn = document.getElementById("mn2-acc-save");
     btn.disabled = true; btn.textContent = "Saving...";
     const v = id => (document.getElementById(id).value || "").trim() || null;
-    const updates = { id:u.id, email:u.email, display_name:v("mn-acc-display_name"), full_name:v("mn-acc-full_name"), bio:v("mn-acc-bio"), organization:v("mn-acc-organization"), location:v("mn-acc-location"), phone:v("mn-acc-phone"), website:v("mn-acc-website"), updated_at: new Date().toISOString() };
+    const updates = { id:u.id, email:u.email, display_name:v("mn2-acc-display_name"), full_name:v("mn2-acc-full_name"), bio:v("mn2-acc-bio"), organization:v("mn2-acc-organization"), location:v("mn2-acc-location"), phone:v("mn2-acc-phone"), website:v("mn2-acc-website"), updated_at: new Date().toISOString() };
     const r = await __mnAccClient.from("profiles").upsert(updates);
     btn.disabled = false; btn.textContent = "Save changes";
     if (r.error) { mnAccToast("Save failed: "+r.error.message,"error"); return; }
@@ -5504,17 +5504,17 @@ window.selectParcel = function(p, layer) {
     mnAccToast("Profile saved","success");
   }
   document.addEventListener("DOMContentLoaded", function(){
-    const close = document.getElementById("mn-account-close");
-    if (close) close.onclick = ()=> document.getElementById("mn-account-backdrop").classList.remove("show");
-    const bd = document.getElementById("mn-account-backdrop");
+    const close = document.getElementById("mn2-account-close");
+    if (close) close.onclick = ()=> document.getElementById("mn2-account-backdrop").classList.remove("show");
+    const bd = document.getElementById("mn2-account-backdrop");
     if (bd) bd.addEventListener("click", e=>{ if(e.target===bd) bd.classList.remove("show"); });
-    const fi = document.getElementById("mn-acc-file");
+    const fi = document.getElementById("mn2-acc-file");
     if (fi) fi.addEventListener("change", handleMnFile);
-    const dc = document.getElementById("mn-del-cancel");
-    if (dc) dc.onclick = ()=> document.getElementById("mn-del-modal").classList.remove("show");
-    const di = document.getElementById("mn-del-input");
-    if (di) di.addEventListener("input", e=>{ document.getElementById("mn-del-confirm").disabled = e.target.value !== "DELETE"; });
-    const dconf = document.getElementById("mn-del-confirm");
+    const dc = document.getElementById("mn2-del-cancel");
+    if (dc) dc.onclick = ()=> document.getElementById("mn2-del-modal").classList.remove("show");
+    const di = document.getElementById("mn2-del-input");
+    if (di) di.addEventListener("input", e=>{ document.getElementById("mn2-del-confirm").disabled = e.target.value !== "DELETE"; });
+    const dconf = document.getElementById("mn2-del-confirm");
     if (dconf) dconf.onclick = confirmMnDelete;
   });
   async function handleMnFile(e){
@@ -5560,7 +5560,7 @@ window.selectParcel = function(p, layer) {
   }
   async function changeMnEmail(){
     const u = MapNovaAuth.user;
-    const ne = document.getElementById("mn-acc-newemail").value.trim();
+    const ne = document.getElementById("mn2-acc-newemail").value.trim();
     if (!ne) { mnAccToast("Enter a new email","error"); return; }
     if (ne === u.email) { mnAccToast("Already your email","error"); return; }
     const r = await __mnAccClient.auth.updateUser({ email: ne });
@@ -5568,13 +5568,13 @@ window.selectParcel = function(p, layer) {
     mnAccToast("Confirmation sent to "+ne,"success");
   }
   function openMnDeleteModal(){
-    document.getElementById("mn-del-modal").classList.add("show");
-    document.getElementById("mn-del-input").value = "";
-    document.getElementById("mn-del-confirm").disabled = true;
+    document.getElementById("mn2-del-modal").classList.add("show");
+    document.getElementById("mn2-del-input").value = "";
+    document.getElementById("mn2-del-confirm").disabled = true;
   }
   async function confirmMnDelete(){
     const u = MapNovaAuth.user;
-    const btn = document.getElementById("mn-del-confirm");
+    const btn = document.getElementById("mn2-del-confirm");
     btn.disabled = true; btn.textContent = "Deleting...";
     try {
       const list = await __mnAccClient.storage.from("avatars").list(u.id);
@@ -5633,51 +5633,51 @@ window.selectParcel = function(p, layer) {
 
 
 
-<div class="mn-ov-back" id="mn-history-back">
-  <div class="mn-ov-panel" style="max-width:680px;">
-    <div class="mn-ov-head">
+<div class="mn2-ov-back" id="mn2-history-back">
+  <div class="mn2-ov-panel" style="max-width:680px;">
+    <div class="mn2-ov-head">
       <h2>Recent Activity</h2>
-      <button class="mn-ov-close" onclick="MNHistory.close()">&times;</button>
+      <button class="mn2-ov-close" onclick="MNHistory.close()">&times;</button>
     </div>
-    <div class="mn-ov-body" id="mn-history-body"><div class="mn-empty">Loading&</div></div>
+    <div class="mn2-ov-body" id="mn2-history-body"><div class="mn2-empty">Loading&</div></div>
   </div>
 </div>
 
-<div class="mn-ov-back" id="mn-bookmarks-back">
-  <div class="mn-ov-panel" style="max-width:680px;">
-    <div class="mn-ov-head">
+<div class="mn2-ov-back" id="mn2-bookmarks-back">
+  <div class="mn2-ov-panel" style="max-width:680px;">
+    <div class="mn2-ov-head">
       <h2>Bookmarks</h2>
-      <button class="mn-ov-close" onclick="MNBookmarks.close()">&times;</button>
+      <button class="mn2-ov-close" onclick="MNBookmarks.close()">&times;</button>
     </div>
-    <div class="mn-ov-body" id="mn-bookmarks-body"><div class="mn-empty">Loading&</div></div>
+    <div class="mn2-ov-body" id="mn2-bookmarks-body"><div class="mn2-empty">Loading&</div></div>
   </div>
 </div>
 
-<div class="mn-ov-back" id="mn-projects-back">
-  <div class="mn-ov-panel">
-    <div class="mn-ov-head">
-      <h2 id="mn-projects-title">My Projects</h2>
-      <button class="mn-btn mn-btn-primary" id="mn-projects-new-btn" onclick="MNProjects.newProject()"><i class="fas fa-plus"></i> New Project</button>
-      <button class="mn-ov-close" onclick="MNProjects.close()">&times;</button>
+<div class="mn2-ov-back" id="mn2-projects-back">
+  <div class="mn2-ov-panel">
+    <div class="mn2-ov-head">
+      <h2 id="mn2-projects-title">My Projects</h2>
+      <button class="mn2-btn mn2-btn-primary" id="mn2-projects-new-btn" onclick="MNProjects.newProject()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="mn2-ov-close" onclick="MNProjects.close()">&times;</button>
     </div>
-    <div class="mn-ov-body" id="mn-projects-body"><div class="mn-empty">Loading&</div></div>
+    <div class="mn2-ov-body" id="mn2-projects-body"><div class="mn2-empty">Loading&</div></div>
   </div>
 </div>
 
-<div id="mn-active-project">
-  <span><i class="fas fa-folder-open"></i> Active: <span id="mn-active-project-name">—</span></span>
+<div id="mn2-active-project">
+  <span><i class="fas fa-folder-open"></i> Active: <span id="mn2-active-project-name">—</span></span>
   <button onclick="MNProjects.openCurrent()">View</button>
   <button onclick="MNProjects.deactivate()">Close</button>
 </div>
 
-<div class="mn-toast" id="mn-toast"></div>
+<div class="mn2-toast" id="mn2-toast"></div>
 
-<script src="assets/mn-bookmarks.js?v=2"></script>
+<script src="static/v2/usr-favorites.js?v=2"></script>
 <script>
 (function(){
   const M = { open:false, active:new Set() };
-  function open(){ M.open = true; const menu = document.getElementById("mn-natfilter-menu"); const btn = document.getElementById("mn-natfilter-btn"); if(menu && btn){ if(menu.parentElement !== document.body){ document.body.appendChild(menu); menu.style.position = "fixed"; menu.style.zIndex = "10000"; } const r = btn.getBoundingClientRect(); let left = r.left; if(left + 480 > window.innerWidth) left = window.innerWidth - 490; menu.style.top = (r.bottom + 6) + "px"; menu.style.left = Math.max(8, left) + "px"; menu.style.display = "block"; } const inp = document.getElementById("mn-natfilter-search-input"); if(inp){ setTimeout(()=>inp.focus(), 50); } }
-  function close(){ M.open = false; const menu = document.getElementById("mn-natfilter-menu"); if(menu) menu.style.display = "none"; }
+  function open(){ M.open = true; const menu = document.getElementById("mn2-natfilter-menu"); const btn = document.getElementById("mn2-natfilter-btn"); if(menu && btn){ if(menu.parentElement !== document.body){ document.body.appendChild(menu); menu.style.position = "fixed"; menu.style.zIndex = "10000"; } const r = btn.getBoundingClientRect(); let left = r.left; if(left + 480 > window.innerWidth) left = window.innerWidth - 490; menu.style.top = (r.bottom + 6) + "px"; menu.style.left = Math.max(8, left) + "px"; menu.style.display = "block"; } const inp = document.getElementById("mn2-natfilter-search-input"); if(inp){ setTimeout(()=>inp.focus(), 50); } }
+  function close(){ M.open = false; const menu = document.getElementById("mn2-natfilter-menu"); if(menu) menu.style.display = "none"; }
   function toggle(){ if(M.open) close(); else open(); }
   function toggleLayer(key, btn){
     if(typeof window.chipToggle !== "function") return;
@@ -5692,37 +5692,37 @@ window.selectParcel = function(p, layer) {
   }
   function updateCount(){
     const n = M.active.size;
-    const el = document.getElementById("mn-natfilter-active-count");
+    const el = document.getElementById("mn2-natfilter-active-count");
     if(el) el.textContent = n + " active";
-    const btn = document.getElementById("mn-natfilter-btn");
+    const btn = document.getElementById("mn2-natfilter-btn");
     if(btn){ if(n>0){ btn.classList.add("has-active"); } else { btn.classList.remove("has-active"); } }
   }
   function filter(q){
     q = (q||"").toLowerCase().trim();
-    document.querySelectorAll(".mn-natfilter-item").forEach(item => {
+    document.querySelectorAll(".mn2-natfilter-item").forEach(item => {
       const txt = item.textContent.toLowerCase();
       const key = (item.getAttribute("data-key")||"").toLowerCase();
       if(!q || txt.indexOf(q)>=0 || key.indexOf(q)>=0) item.classList.remove("hidden"); else item.classList.add("hidden");
     });
-    document.querySelectorAll(".mn-natfilter-section-title").forEach(t => {
+    document.querySelectorAll(".mn2-natfilter-section-title").forEach(t => {
       const grid = t.nextElementSibling;
       if(!grid) return;
-      const visible = grid.querySelectorAll(".mn-natfilter-item:not(.hidden)").length;
+      const visible = grid.querySelectorAll(".mn2-natfilter-item:not(.hidden)").length;
       t.style.display = visible > 0 ? "" : "none";
       grid.style.display = visible > 0 ? "" : "none";
     });
   }
   function clearAll(){
     Array.from(M.active).forEach(key => {
-      const btn = document.querySelector(".mn-natfilter-item[data-key=\""+key+"\"]");
+      const btn = document.querySelector(".mn2-natfilter-item[data-key=\""+key+"\"]");
       if(btn && btn.classList.contains("active")){ toggleLayer(key, btn); }
     });
-    const inp = document.getElementById("mn-natfilter-search-input");
+    const inp = document.getElementById("mn2-natfilter-search-input");
     if(inp){ inp.value = ""; filter(""); }
   }
   document.addEventListener("click", function(e){
     if(!M.open) return;
-    const wrap = document.getElementById("mn-natfilter-wrap");
+    const wrap = document.getElementById("mn2-natfilter-wrap");
     if(wrap && !wrap.contains(e.target)) close();
   });
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && M.open) close(); });
@@ -6096,33 +6096,33 @@ window.selectParcel = function(p, layer) {
       this.activeTool = tool;
       this.activeBtn = btn || null;
       try { window.activeTool = tool; } catch(e){}
-      var inquireBtn = document.getElementById('mn-inquire-btn');
-      var statusEl = document.getElementById('mn-mode-status');
+      var inquireBtn = document.getElementById('mn2-inquire-btn');
+      var statusEl = document.getElementById('mn2-mode-status');
       var mapEl = document.getElementById('map');
       if(!tool){
-        if(inquireBtn){ inquireBtn.classList.add('mn-active'); inquireBtn.style.background='rgba(6,182,212,0.15)'; inquireBtn.style.borderColor='rgba(6,182,212,0.45)'; inquireBtn.style.color='#67e8f9'; }
+        if(inquireBtn){ inquireBtn.classList.add('mn2-active'); inquireBtn.style.background='rgba(6,182,212,0.15)'; inquireBtn.style.borderColor='rgba(6,182,212,0.45)'; inquireBtn.style.color='#67e8f9'; }
         if(statusEl){ statusEl.textContent='Click parcels to view info'; statusEl.style.color='#8fa3bf'; }
         document.body.style.cursor='';
         if(typeof map !== 'undefined' && map._container){ map._container.style.cursor=''; }
-        if(mapEl) mapEl.classList.remove('mn-tool-active');
+        if(mapEl) mapEl.classList.remove('mn2-tool-active');
       } else {
-        if(inquireBtn){ inquireBtn.classList.remove('mn-active'); inquireBtn.style.background=''; inquireBtn.style.borderColor=''; inquireBtn.style.color=''; }
-        if(btn){ btn.classList.add('mn-active'); btn.style.background='rgba(6,182,212,0.18)'; btn.style.borderColor='rgba(6,182,212,0.5)'; btn.style.color='#67e8f9'; }
+        if(inquireBtn){ inquireBtn.classList.remove('mn2-active'); inquireBtn.style.background=''; inquireBtn.style.borderColor=''; inquireBtn.style.color=''; }
+        if(btn){ btn.classList.add('mn2-active'); btn.style.background='rgba(6,182,212,0.18)'; btn.style.borderColor='rgba(6,182,212,0.5)'; btn.style.color='#67e8f9'; }
         if(statusEl){ statusEl.textContent='Tool active: '+tool+' (double-click to finish, ESC to cancel)'; statusEl.style.color='#67e8f9'; }
         if(typeof map !== 'undefined' && map._container){ map._container.style.cursor=''; }
-        if(mapEl) mapEl.classList.add('mn-tool-active');
+        if(mapEl) mapEl.classList.add('mn2-tool-active');
       }
       this._showOptionsForTool(tool);
     },
     returnToInquire: function(){ this.setMode(null, null); },
     _clearActiveBtn: function(){
-      var btns = document.querySelectorAll('[data-mn-tool]');
-      btns.forEach(function(b){ b.classList.remove('mn-active'); b.style.background=''; b.style.borderColor=''; b.style.color=''; });
+      var btns = document.querySelectorAll('[data-mn2-tool]');
+      btns.forEach(function(b){ b.classList.remove('mn2-active'); b.style.background=''; b.style.borderColor=''; b.style.color=''; });
     },
     _showOptionsForTool: function(tool){
-      var measOpts = document.getElementById('mn-meas-opts');
-      var drawOpts = document.getElementById('mn-draw-opts');
-      var textInput = document.getElementById('mn-draw-textinput-wrap');
+      var measOpts = document.getElementById('mn2-meas-opts');
+      var drawOpts = document.getElementById('mn2-draw-opts');
+      var textInput = document.getElementById('mn2-draw-textinput-wrap');
       if(measOpts) measOpts.style.display = (tool && tool.indexOf('meas-')===0) ? '' : 'none';
       if(drawOpts) drawOpts.style.display = (tool && tool.indexOf('draw-')===0) ? '' : 'none';
       if(textInput) textInput.style.display = (tool === 'draw-text') ? 'flex' : 'none';
@@ -6132,14 +6132,14 @@ window.selectParcel = function(p, layer) {
   // ===== Bootstrap on DOM ready =====
   function MNTBoot(){
     // Inquire button
-    var inq = document.getElementById('mn-inquire-btn');
+    var inq = document.getElementById('mn2-inquire-btn');
     if(inq) inq.addEventListener('click', function(){ MNT.returnToInquire(); });
 
     // Tool button delegation
     document.addEventListener('click', function(ev){
-      var btn = ev.target.closest('[data-mn-tool]');
+      var btn = ev.target.closest('[data-mn2-tool]');
       if(!btn) return;
-      var tool = btn.getAttribute('data-mn-tool');
+      var tool = btn.getAttribute('data-mn2-tool');
       if(MNT.activeTool === tool){ MNT.returnToInquire(); return; }
       MNT.setMode(tool, btn);
       if(typeof MNT['start_'+tool.replace(/-/g,'_')] === 'function') MNT['start_'+tool.replace(/-/g,'_')]();
@@ -6149,7 +6149,7 @@ window.selectParcel = function(p, layer) {
     document.addEventListener('click', function(ev){
       var sw = ev.target.closest('[data-clr]');
       if(!sw) return;
-      var wrap = sw.closest('#mn-draw-swatches');
+      var wrap = sw.closest('#mn2-draw-swatches');
       if(!wrap) return;
       MNT.drawColor = sw.getAttribute('data-clr');
       Array.from(wrap.children).forEach(function(c){ c.style.border='2px solid transparent'; });
@@ -6162,9 +6162,9 @@ window.selectParcel = function(p, layer) {
     });
 
     // Unit dropdowns
-    var du = document.getElementById('mn-dist-unit');
+    var du = document.getElementById('mn2-dist-unit');
     if(du) du.addEventListener('change', function(){ MNT.distUnit = du.value; if(MNT.renderMeasList) MNT.renderMeasList(); });
-    var au = document.getElementById('mn-area-unit');
+    var au = document.getElementById('mn2-area-unit');
     if(au) au.addEventListener('change', function(){ MNT.areaUnit = au.value; if(MNT.renderMeasList) MNT.renderMeasList(); });
 
     // Clear All Drawings
@@ -6182,21 +6182,21 @@ window.selectParcel = function(p, layer) {
 })();
 </script>
 
-<script src="assets/mn-tools-impl.js?v=2" defer></script>
-<script src="assets/mn-multiselect-projects.js?v=3" defer></script>
-<script src="assets/mn-states.js?v=4" defer></script>
-<script src="assets/mn-state-sources.js?v=16" defer></script>
-<script src="assets/mn-state-ui.js?v=4" defer></script>
-  <script src="assets/mn-state-counties.js?v=1" defer></script>
-  <script src="assets/mn-county-parcels.js?v=2" defer></script>
-<script src="assets/mn-bugfixes.js?v=7" defer></script>
-<script src="assets/mn-clickfix.js?v=7" defer></script>
-<script src="assets/mn-tool-cursor.js?v=3" defer></script>
-<script src="assets/mn-project-features.js?v=1" defer></script>
-<script src="assets/mn-tool-actions.js?v=1" defer></script>
-<script src="assets/mn-schneider-fallback.js?v=3" defer></script>
-<script src="assets/mn-zoning-ordinances.js?v=4" defer></script>
-<script src="assets/mn-parcel-cache.js?v=1" defer></script>
+<script src="static/v2/ui-tools-core.js?v=2" defer></script>
+<script src="static/v2/ui-multiselect.js?v=3" defer></script>
+<script src="static/v2/geo-states.js?v=4" defer></script>
+<script src="static/v2/geo-sources.js?v=16" defer></script>
+<script src="static/v2/ui-states.js?v=4" defer></script>
+  <script src="static/v2/geo-counties.js?v=1" defer></script>
+  <script src="static/v2/geo-parcels.js?v=2" defer></script>
+<script src="static/v2/core-patches.js?v=7" defer></script>
+<script src="static/v2/core-clickfix.js?v=7" defer></script>
+<script src="static/v2/ui-tool-cursor.js?v=3" defer></script>
+<script src="static/v2/usr-project-features.js?v=1" defer></script>
+<script src="static/v2/ui-tool-actions.js?v=1" defer></script>
+<script src="static/v2/geo-schneider.js?v=3" defer></script>
+<script src="static/v2/geo-zoning.js?v=4" defer></script>
+<script src="static/v2/cache-parcels.js?v=1" defer></script>
 </body>
 </html>
 

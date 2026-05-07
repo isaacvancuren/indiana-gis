@@ -41,7 +41,7 @@ jobs:
         run: |
           shopt -s nullglob
           fail=0
-          for f in apps/web/assets/*.js; do
+          for f in apps/web/static/v2/*.js; do
             if ! node --check "$f"; then
               echo "::error file=$f::syntax error"
               fail=1

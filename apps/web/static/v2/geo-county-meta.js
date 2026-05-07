@@ -1,4 +1,4 @@
-// assets/county-metadata.js
+// static/v2/geo-county-meta.js
 // Extracted from index.html (county-level metadata: county lookup, ElevateMaps mapping, WTH/XSoft/Beacon).
 // Defines: INDIANA_COUNTIES, EM_COUNTIES, WTH_GIS, XSOFT_SLUGS, BEACON_APPS.
 (function(){
