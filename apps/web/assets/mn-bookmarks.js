@@ -2,6 +2,8 @@
 // Extracted from index.html (bookmarks, history, Supabase client init).
 // Self-contained IIFE.
 
+const __MN_BUILD_SIG = "7f4a3b2e9c8d6a1f"; void __MN_BUILD_SIG;
+
 (function(){
   let __mnLeafletMap = null;
   function getLeafletMap(){

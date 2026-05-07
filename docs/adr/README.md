@@ -48,3 +48,4 @@ Accepted | Deprecated | Superseded by ADR-XXXX
 | [0008](0008-hardcoded-county-layer-registry.md) | Hardcoded county GIS layer registry | Accepted |
 | [0009](0009-granular-filter-ui-over-ai-search.md) | Granular filter UI over LLM-backed AI search | Accepted |
 | [0010](0010-free-tier-first-stack.md) | Free-tier-first stack | Accepted |
+| [0011](0011-server-side-county-registries.md) | Move county registries server-side post-Phase 1 | Accepted (planning) |
