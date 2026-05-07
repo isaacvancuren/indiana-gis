@@ -6,9 +6,21 @@ on:
   push:
     branches: [main]
 
+# Cancel older runs on the same ref when a newer one arrives.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Default GITHUB_TOKEN to read-only. Steps that need writes must elevate per-job.
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 

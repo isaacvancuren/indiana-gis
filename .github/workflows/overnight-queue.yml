@@ -11,10 +11,21 @@ on:
     branches: [main]
     paths: [".github/workflows/overnight-queue.yml"]
 
+# Cancel a re-trigger of the same scheduled / manual run.
+concurrency:
+  group: overnight-queue
+  cancel-in-progress: true
+
+# Default GITHUB_TOKEN to read-only at workflow scope. The dispatch job elevates to issues:write.
+permissions:
+  contents: read
+
 jobs:
   dispatch:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
+      contents: read
       issues: write
     steps:
       - name: Ensure required labels exist

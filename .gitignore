@@ -1,6 +1,50 @@
-.DS_Store
+. DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build & deps
 node_modules/
-*.log
-.env
-.env.local
 dist/
+build/
+*.log
+.turbo/
+.cache/
+
+# Environment / secrets — never commit these
+.env
+.env.*
+!.env.example
+*.local
+
+# Cloudflare wrangler local state (may contain D1 dumps, KV cache, ephemeral tokens)
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Credentials, certs, keys — never commit
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+*.gpg
+*.asc
+
+# OS / misc
+Thumbs.db
+ehthumbs.db
+*.bak
+*.tmp
+.coverage
+coverage/
+.nyc_output/
